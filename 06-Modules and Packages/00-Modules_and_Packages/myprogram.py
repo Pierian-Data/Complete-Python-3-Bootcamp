@@ -1,34 +1,6 @@
-################
-# Example Three:
-################
-# Uncomment this and comment everything else to run!
+from MyMainPackage.some_main_script import report_main
+from MyMainPackage.SubPackage import mysubscript
 
-# import mymodule
-# mymodule.func_in_mymodule()
+report_main()
 
-################
-# Example Two:
-################
-# Uncomment this and comment everything else to run!
-
-# import mymodule as mm
-# mm.func_in_mymodule()
-
-################
-# Example Three:
-################
-# Uncomment this and comment everything else to run!
-
-# from mymodule import func_in_mymodule
-# func_in_mymodule()
-
-################
-# Example Four:
-################
-# Uncomment this and comment everything else to run!
-
-# This is posisble but frowned upon, often causes poorly readable code because
-# you don't know what functions come from mymodule
-
-# from mymodule import *
-# func_in_mymodule()
+mysubscript.sub_report()
