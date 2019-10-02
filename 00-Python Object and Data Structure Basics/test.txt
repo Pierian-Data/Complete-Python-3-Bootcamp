@@ -1,2 +1,6 @@
-First Line
-Second Line
+#numbers
+number = 10
+print(number)
+print(type(number))
+
+
