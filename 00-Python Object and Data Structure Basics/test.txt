@@ -1,14 +1,229 @@
-#numbers
-number = 10
-print(number)
-print(type(number))
+#objects and data structures
+
+#numbers -int(integers) ex: -10, 10 \ float ex: -2.1, 2.3, 4E2
+number1 = 10
+number2 = 3.1
+print(number1)
+print(type(number1))
+print(number2)
+print(type(number2))
+"""
+<output>
+10
+<class 'int'>
+3.1
+<class 'float'>
+"""
+#strings -str- are used to record text information, such as names. sequence of elements.
+print("this is a string")
+print(type("this is a string"))
+"""
+<output>
+this is a string
+<class 'str'>
+"""
+#list - are mutable sequence of elements
+list_one = ["a", 3, "c"]
+print(list_one)
+list_one.append(5)
+print(list_one)
+print(type(list_one))
+"""
+<output>
+['a', 3, 'c']
+['a', 3, 'c', 5]
+<class 'list'>
+"""
+#tuples -tup- similiar to list but immutable
+tuple_1 = (3, "bc")
+print(tuple_1)
+print(type(tuple_1))
+"""
+(3, 'bc')
+<class 'tuple'>
+"""
+#dictionary -dict- consists of a key and then an associated value.
+dict_one = {"t1" : 2, "t2" : 4}
+print(dict_one["t1"])
+print(dict_one["t2"])
+print(type(dict_one))
+"""
+2
+4
+<class 'dict'>
+"""
+
+#numbers 
+# #1
+print(50 / (50 * 2) + 3E2 - 200.25)
+"""
+<output>
+100.25
+"""
+#2
+"""
+44, 29, 34
+"""
+print(4 * (6 + 5))
+print(4 * 6 + 5)
+print(4 + 6 * 5)
+"""
+<output>
+<44>
+<29>
+<34>
+"""
+#3
+print( 3 + 1.5 + 4)
+"""
+<output>
+8.5
+"""
+#4
+#square root
+print(7**0.5)
+#square
+print(9**2)
+"""
+<output>
+2.6457513110645907
+81
+"""
+
+#strings
+#1 - reverse string
+s = "hello"
+print(s[::-1])
+"""
+<output>
+olleh
+"""
+#2 - letter 'o'
+print(s[4])
+print(s[-1])
+"""
+<output>
+o
+o
+"""
+
+#lists
+#1
+#method1
+list_1 = [0, 0, 0]
+print(list_1)
+#method2
+list2 = [0]
+list3 = [0]
+list4 = [0]
+matrix = [list2, list3, list4]
+print(matrix)
+"""
+<output>
+[0, 0, 0]
+[[0], [0], [0]]
+"""
+#2 reasign
+list3 = [1,2,[3,4,"hello"]]
+print(list3)
+list3 = [1,2,[3,4,"goodbye"]]
+print(list3)
+"""
+<output>
+[1, 2, [3, 4, 'hello']]
+[1, 2, [3, 4, 'goodbye']]
+"""
+#3 sort
+list4 = [5,3,4,6,1]
+print(list4)
+list4.sort()
+print(list4)
+"""
+<output>
+[5, 3, 4, 6, 1]
+[1, 3, 4, 5, 6]
+"""
+
+#dictionary
+#1 grab
+dict = {'simple_key':'hello'}
+print(dict["simple_key"])
+"""
+<output>
+hello
+"""
+#2
+dict_one = {'k1':{'k2':'hello'}}
+print(dict_one["k1"]["k2"])
+"""
+<output>
+hello
+"""
+#3
+dict_two = {'k1':[{'nest_key':['this is deep',['hello']]}]}
+print(dict_two["k1"][0]["nest_key"][1])
+"""
+<output>
+['hello']
+"""
+#4
+dict_three = {'k1':[1,2,{'k2':['this is tricky',{'tough':[1,2,['hello']]}]}]}
+print(dict_three["k1"][2]["k2"][1]["tough"][2])
+"""
+<output>
+['hello']
+"""
+#5 sort a dictionary ??? - not possible. dict are like mappings. objects are defined by a key
+
+#6  tupels are like lists but tupels are immutable and represented by (). 'lists []'
+tuple_1 = (1, "s", "hi", 2019)
+print(tuple_1)
+print(type(tuple_1))
+"""
+<output>
+(1, 's', 'hi', 2019)
+<class 'tuple'>
+"""
+
+#sets - only unique elements are shown in a set, does not repeat the same element in output
+list5 = [1,2,2,33,4,4,11,22,3,3,2]
+print(set(list5))
+"""
+<output>
+{1, 2, 33, 4, 3, 11, 22}
+"""
+
+#booleans
+print(2 > 3)
+print(3 <= 2)
+print(3 == 2.0)
+print(3.0 == 3)
+print(4**0.5 != 2)
+"""
+<output>
+False
+False
+False
+True
+False
+"""
+
+# two nested lists
+l_one = [1,2,[3,4]]
+l_two = [1,2,{'k1':4}]
+"""
+<output>
+True
+"""
+
+# True or False?
+l_one[2][0] >= l_two[2]['k1']
+"""
+<output>
+False
+"""
 
 
-#test
-print("hello")
-
-
-#saving olny simple way, commit changes
 
 
 
