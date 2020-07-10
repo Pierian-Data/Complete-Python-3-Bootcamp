@@ -13,6 +13,7 @@ def game_intro():
 
 ###Creating a function to print the Game Board###
 def pick_letter():
+    global player_one
     select_letter = input()
     if select_letter == 'end game':
         print('Okay maybe another time. Have a great day!')
@@ -28,6 +29,7 @@ def pick_letter():
         pick_letter()
     print('Great! Player One chose "{}"'.format(player_one))
     print('Let\'s get Started!')
+    game_rules()
     
 
 ###Creating a function to print the Game Board###
@@ -71,7 +73,7 @@ def game_rules():
 
 ###Determining what happens during X's turn###
 def x_turn():
-
+    print_board()
     x_input = input()
     if x_input == 'end game':
         print('Thanks for playing, goodbye')
@@ -90,7 +92,7 @@ def x_turn():
 
 ###Determining what happens during O's turn###
 def o_turn():
-
+    print_board()
     o_input = input()
     if o_input == 'end game':
         print('Thanks for playing, goodbye')
@@ -105,19 +107,47 @@ def o_turn():
         o_turn()
     else:
         game_board[int(o_input)-1] = 'O'
-        end_of_turn()
+        
 
 ###Adding Rules for the End of Each Turn###
-def end_of_turn():
-    print_board()
-    pass
+def gameplay():
+    global player_one
+    global game_board
+    global turn_number
+    if player_one == 'X':
+        odd_turn = x_turn()
+        even_turn = o_turn()
+    else:
+        odd_turn = o_turn()
+        even_turn = x_turn()
+    
+    while turn_number <= 9:
+        
+        if turn_number % 2 == 1:
+            print('Player 1: It\'s your turn\nPick a space between 1 and 9 that hasn\'t already been taken')
+            odd_turn
+            turn_number += 1
+            
+        else: 
+            turn_number % 2 == 0
+            print('Player 2: It\'s your turn\nPick a space between 1 and 9 that hasn\'t already been taken')
+            even_turn
+            turn_number += 1
+            
 
-def first_turn():
-    game_rules()
-    print('Player1: It\'s your turn\nPick a space between 1 and 9 that hasn\'t already been taken')
-    print_board()
+    if 1==0:
+        print('winner')
+
+    else:
+        print('Ope, the Cat got this game')
+
+    
+    
+    
+
+
     
 
 game_intro()       
 pick_letter()
-first_turn()
+gameplay()
