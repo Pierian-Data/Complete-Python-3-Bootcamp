@@ -1,7 +1,36 @@
 
-###Creating Global List for the Game Board Values###
+###Creating Global Parameter Values###
 game_board = [' ',' ',' ',' ',' ',' ',' ',' ',' ']
+player_one = ''
+turn_number = 1
 
+###Creating a function to print the Game Board###
+def game_intro():
+    '''Creating a funciton to present the intro to the game'''
+    print ('Welcome to Tic-Tac-Toe!')
+    print('At any time input "end game" to shut the game down')
+    print('Player 1: Choose X or O')
+
+###Creating a function to print the Game Board###
+def pick_letter():
+    select_letter = input()
+    if select_letter == 'end game':
+        print('Okay maybe another time. Have a great day!')
+        
+    elif select_letter.upper() == 'X':
+        player_one = 'X'
+            
+    elif select_letter.upper() == 'O':
+        player_one = 'O'
+
+    else:
+        print ('Whoops! Player1: Choose X or O')
+        pick_letter()
+    print('Great! Player One chose "{}"'.format(player_one))
+    print('Let\'s get Started!')
+    
+
+###Creating a function to print the Game Board###
 def print_board():
     
     ### Creating the Game Board Values ###
@@ -36,8 +65,59 @@ def print_board():
     print(pipes + '\t'*2 + pipes)
     print(blank_row)
 
-###Adding User Input to the game###
-game_board[5] = 'x'
-print_board()
+def game_rules():
+    print('On your turn place your letter in a spot by typing the corresponding value in the Position Key')
+    print('First one to get three-in-a-row Wins!')
 
+###Determining what happens during X's turn###
+def x_turn():
 
+    x_input = input()
+    if x_input == 'end game':
+        print('Thanks for playing, goodbye')
+    elif not x_input.isdigit():
+        print('Value is not a number \nPlease input a number between 1 and 9 that isn\'t already taken')
+        x_turn()
+    elif int(x_input) <=0 or int(x_input) > 9:
+        print('Value is out of range \nPlease input a number between 1 and 9 that isn\'t already taken')
+        x_turn()
+    elif game_board[int(x_input)-1] != ' ':
+        print('Too Bad, this spot is already taken. \nPick a number between 1 and 9 that isn\'t already taken')
+        x_turn()
+    else:
+        game_board[int(x_input)-1] = 'X'
+        end_of_turn()
+
+###Determining what happens during O's turn###
+def o_turn():
+
+    o_input = input()
+    if o_input == 'end game':
+        print('Thanks for playing, goodbye')
+    elif not o_input.isdigit():
+        print('Value is not a number \nPlease input a number between 1 and 9 that isn\'t already taken')
+        o_turn()
+    elif int(o_input) <=0 or int(o_input) > 9:
+        print('Value is out of range \nPlease input a number between 1 and 9 that isn\'t already taken')
+        o_turn()
+    elif game_board[int(o_input)-1] != ' ':
+        print('Too Bad, this spot is already taken. \nPick a number between 1 and 9 that isn\'t already taken')
+        o_turn()
+    else:
+        game_board[int(o_input)-1] = 'O'
+        end_of_turn()
+
+###Adding Rules for the End of Each Turn###
+def end_of_turn():
+    print_board()
+    pass
+
+def first_turn():
+    game_rules()
+    print('Player1: It\'s your turn\nPick a space between 1 and 9 that hasn\'t already been taken')
+    print_board()
+    
+
+game_intro()       
+pick_letter()
+first_turn()
