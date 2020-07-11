@@ -2,6 +2,7 @@
 ###Creating Global Parameter Values###
 game_board = [' ',' ',' ',' ',' ',' ',' ',' ',' ']
 player_one = ''
+player_two = ''
 turn_number = 1
 
 ###Creating a function to print the Game Board###
@@ -14,22 +15,22 @@ def game_intro():
 ###Creating a function to print the Game Board###
 def pick_letter():
     global player_one
+    global player_two
     select_letter = input()
     if select_letter == 'end game':
         print('Okay maybe another time. Have a great day!')
         
     elif select_letter.upper() == 'X':
         player_one = 'X'
-            
+        player_two = 'O'    
     elif select_letter.upper() == 'O':
         player_one = 'O'
-
+        player_two = 'X'
     else:
         print ('Whoops! Player1: Choose X or O')
         pick_letter()
     print('Great! Player One chose "{}"'.format(player_one))
     print('Let\'s get Started!')
-    game_rules()
     
 
 ###Creating a function to print the Game Board###
@@ -71,71 +72,80 @@ def game_rules():
     print('On your turn place your letter in a spot by typing the corresponding value in the Position Key')
     print('First one to get three-in-a-row Wins!')
 
-###Determining what happens during X's turn###
-def x_turn():
+###Determining what happens during Player 1's turn###
+def player1_turn():
+    global player_one
+    print('Player 1: It\'s your turn\nPick a space between 1 and 9 that hasn\'t already been taken')
     print_board()
-    x_input = input()
-    if x_input == 'end game':
+    player1_input = input()
+    if player1_input == 'end game':
         print('Thanks for playing, goodbye')
-    elif not x_input.isdigit():
+    elif not player1_input.isdigit():
         print('Value is not a number \nPlease input a number between 1 and 9 that isn\'t already taken')
-        x_turn()
-    elif int(x_input) <=0 or int(x_input) > 9:
+        player1_turn()
+    elif int(player1_input) <=0 or int(player1_input) > 9:
         print('Value is out of range \nPlease input a number between 1 and 9 that isn\'t already taken')
-        x_turn()
-    elif game_board[int(x_input)-1] != ' ':
+        player1_turn()
+    elif game_board[int(player1_input)-1] != ' ':
         print('Too Bad, this spot is already taken. \nPick a number between 1 and 9 that isn\'t already taken')
-        x_turn()
+        player1_turn()
     else:
-        game_board[int(x_input)-1] = 'X'
-        end_of_turn()
-
-###Determining what happens during O's turn###
-def o_turn():
-    print_board()
-    o_input = input()
-    if o_input == 'end game':
-        print('Thanks for playing, goodbye')
-    elif not o_input.isdigit():
-        print('Value is not a number \nPlease input a number between 1 and 9 that isn\'t already taken')
-        o_turn()
-    elif int(o_input) <=0 or int(o_input) > 9:
-        print('Value is out of range \nPlease input a number between 1 and 9 that isn\'t already taken')
-        o_turn()
-    elif game_board[int(o_input)-1] != ' ':
-        print('Too Bad, this spot is already taken. \nPick a number between 1 and 9 that isn\'t already taken')
-        o_turn()
-    else:
-        game_board[int(o_input)-1] = 'O'
+        game_board[int(player1_input)-1] = player_one
         
 
-###Adding Rules for the End of Each Turn###
+###Determining what happens during Player 2's turn###
+def player2_turn():
+    global player_two
+    print('Player 2: It\'s your turn\nPick a space between 1 and 9 that hasn\'t already been taken')
+    print_board()
+    player2_input = input()
+    if player2_input == 'end game':
+        print('Thanks for playing, goodbye')
+    elif not player2_input.isdigit():
+        print('Value is not a number \nPlease input a number between 1 and 9 that isn\'t already taken')
+        player2_turn()
+    elif int(player2_input) <=0 or int(player2_input) > 9:
+        print('Value is out of range \nPlease input a number between 1 and 9 that isn\'t already taken')
+        player2_turn()
+    elif game_board[int(player2_input)-1] != ' ':
+        print('Too Bad, this spot is already taken. \nPick a number between 1 and 9 that isn\'t already taken')
+        player2_turn()
+    else:
+        game_board[int(player2_input)-1] = player_two
+        
+
+###Adding the gameplay function ###
 def gameplay():
+    game_rules()
     global player_one
     global game_board
     global turn_number
-    if player_one == 'X':
-        odd_turn = x_turn()
-        even_turn = o_turn()
-    else:
-        odd_turn = o_turn()
-        even_turn = x_turn()
-    
-    while turn_number <= 9:
-        
-        if turn_number % 2 == 1:
-            print('Player 1: It\'s your turn\nPick a space between 1 and 9 that hasn\'t already been taken')
-            odd_turn
+
+    while True:
+
+        if 1==0:
+            ###Enter Winning Scenario Code Here###
+            pass
+        elif turn_number == 10:
+            player2_turn
+            ##Enter Winning Scenario Code Here###
+            break
+        elif (turn_number % 2) == 1:
+            player1_turn()
             turn_number += 1
             
-        else: 
-            turn_number % 2 == 0
+        elif (turn_number % 2) == 0: 
             print('Player 2: It\'s your turn\nPick a space between 1 and 9 that hasn\'t already been taken')
-            even_turn
+            player2_turn()
             turn_number += 1
-            
+    
+        else:
+            print('error')
+        
+    print_board()
 
     if 1==0:
+        ###Enter Winning Scneario Code Here###
         print('winner')
 
     else:
@@ -143,11 +153,23 @@ def gameplay():
 
     
     
-    
+def play_again():
+    print('Would you like to play again?\nAnswer Yes or No')
+    play_again_input = input()
+    if play_again_input.upper() == 'NO':
+        print('Thanks for playing, goodbye')
+    elif play_again_input.upper() == 'YES':
+        play_the_game()
+    else:
+        print('Sorry I couldn\'t understand that. \nDo you want to play again?\nAnswer Yes or No')
+        play_again() 
 
 
     
+def play_the_game():
+    game_intro()       
+    pick_letter()
+    gameplay()
+    play_again()
 
-game_intro()       
-pick_letter()
-gameplay()
+play_the_game()
