@@ -1,2 +1,1 @@
-First Line
-Second Line
+Hello World

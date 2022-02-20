@@ -1,0 +1,14 @@
+# Initial state: del1
+
+del1 1 del2 0 R
+del2 1 mov1R 0 R
+mov1R 1 mov1R 1 R
+mov1R 0 mov2R 0 R
+mov2R 1 mov2R 1 R
+mov2R 0 mov1L 1 L
+mov1L 1 mov1L 1 L
+mov1L 0 mov2L 0 L
+mov2L 1 mov2L 1 L
+mov2L 0 del1 0 R
+del1 0 end 0 R
+del2 0 end 0 R
