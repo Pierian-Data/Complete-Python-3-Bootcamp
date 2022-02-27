@@ -24,46 +24,43 @@
 def binary_lunar_addition(number_1, number_2):
     result = 0
     # INSERT YOUR CODE HERE
-    list_n1 =list(reversed(list(map(int, str(number_1)))))
-    list_n2 =list(reversed(list(map(int, str(number_2)))))
-    
-    if number_1 >= number_2:
-      for i in range(len(list_n2)):
-        list_n1[i] = max(list_n1[i], list_n2[i])
-      result = int(''.join([str(i) for i in reversed(list_n1)]))
-    else:
-      for i in range(len(list_n1)):
-        list_n2[i] = max(list_n2[i], list_n1[i])
-      result = int(''.join([str(i) for i in reversed(list_n2)]))
+    stack1 = list(map(int, str(number_1)))
+    stack2 = list(map(int, str(number_2)))
+    factor = 0
+
+    while len(stack1) > 0 or len(stack2) > 0:
+        result += 10**factor * max(stack1.pop() if len(stack1) >
+                              0 else 0, stack2.pop() if len(stack2) > 0 else 0)
+        factor += 1
 
     return result
+
 
 def lunar_addition(*numbers):
     result = 0
     # INSERT YOUR CODE HERE
     for n in numbers:
-      result =  binary_lunar_addition(result, n)
-    
+        result = binary_lunar_addition(result, n)
+
     return result
 
 
 def binary_lunar_multiplication(multiplicand, multiplier):
     result = 0
     # INSERT YOUR CODE HERE
-    multiplicandList = list(map(int, str(multiplicand)))
-    multiplierList = list(map(int, str(multiplier)))
-    tentimes =0
+    m1 = list(map(int, str(multiplicand)))
+    m2 = list(map(int, str(multiplier)))
+    factor = 0
 
-    for multiplierDigit in reversed(multiplierList):
-      currentDigitResultList=[]
-      for multiplicandDigit in multiplicandList:
-        currentDigitResultList.append(min(multiplicandDigit,multiplierDigit))
-      currentResult = int(''.join([str(i) for i in currentDigitResultList])) * 10**tentimes
-      tentimes +=1
-      result = binary_lunar_addition(result, currentResult)
-    
+    while m2:
+        partialResult = []
+        m2Digit = m2.pop()
+        for m1Digit in m1:
+            partialResult.append(min(m1Digit, m2Digit))
+
+        currentResult = int(
+            ''.join(list(map(str, partialResult)))) * 10**factor
+        factor += 1
+        result = binary_lunar_addition(result, currentResult)
+
     return result
-
-        
-
-
