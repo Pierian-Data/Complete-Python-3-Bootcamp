@@ -21,11 +21,14 @@
 # namely, positive numbers (possibly equal to 0).
 
 
+
+
 def binary_lunar_addition(number_1, number_2):
     result = 0
     # INSERT YOUR CODE HERE
-    stack1 = list(map(int, str(number_1)))
-    stack2 = list(map(int, str(number_2)))
+    intToDigits = lambda a : list(map(int, str(a)))
+    stack1 = intToDigits(number_1)
+    stack2 = intToDigits(number_2)
     factor = 0
 
     while len(stack1) > 0 or len(stack2) > 0:
@@ -48,8 +51,9 @@ def lunar_addition(*numbers):
 def binary_lunar_multiplication(multiplicand, multiplier):
     result = 0
     # INSERT YOUR CODE HERE
-    m1 = list(map(int, str(multiplicand)))
-    m2 = list(map(int, str(multiplier)))
+    intToDigits = lambda a : list(map(int, str(a)))
+    m1 = intToDigits (multiplicand)
+    m2 = intToDigits (multiplier)
     factor = 0
 
     while m2:
@@ -64,3 +68,4 @@ def binary_lunar_multiplication(multiplicand, multiplier):
         result = binary_lunar_addition(result, currentResult)
 
     return result
+    
