@@ -33,7 +33,7 @@ Sirs_num = 3
 formating_String = str(0)+str(Sirs_num)+'b'
 initialP =[]
 for p in range(2**Sirs_num):
-  temp = [(int(c)) for c in f'{p:{formating_String}}' ]
+  temp = [(int(c)) for c in f'{p:{formating_String}}']
   initialP.append(temp)
 
 print(initialP)
