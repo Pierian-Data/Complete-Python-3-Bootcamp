@@ -56,17 +56,20 @@ def addingToothpick(Matrix, point, direction):
 # addingToothpick (m1,(0,-2), 'HORIZONTAL')
 # printMatrix(m1, (-4,4), (4,-4))
 
-
-Tracking ={(0,2):'HORIZONTAL', (0,-2): 'HORIZONTAL'}
-Tracking2 = {(-2, 2): 'VERTICAL', (2, 2): 'VERTICAL', (-2, -2): 'VERTICAL', (2, -2): 'VERTICAL'}
-Tracking3 = {(-2, 4): 'HORIZONTAL', (2, 4): 'HORIZONTAL', (-2, -4): 'HORIZONTAL', (2, -4): 'HORIZONTAL'}
-Tracking4 = {(-4, 4): 'VERTICAL', (4, 4): 'VERTICAL', (-4, -4): 'VERTICAL', (4, -4): 'VERTICAL'}
-Tracking5 = {(-4, 2): 'HORIZONTAL', (-4, 6): 'HORIZONTAL', (4, 2): 'HORIZONTAL', (4, 6): 'HORIZONTAL', (-4, -6): 'HORIZONTAL', (-4, -2): 'HORIZONTAL', (4, -6): 'HORIZONTAL', (4, -2): 'HORIZONTAL'}
+Tracking ={(0,0):'VERTICAL'}
+# Tracking1 ={(0,2):'HORIZONTAL', (0,-2): 'HORIZONTAL'}
+# Tracking2 = {(-2, 2): 'VERTICAL', (2, 2): 'VERTICAL', (-2, -2): 'VERTICAL', (2, -2): 'VERTICAL'}
+# Tracking3 = {(-2, 4): 'HORIZONTAL', (2, 4): 'HORIZONTAL', (-2, -4): 'HORIZONTAL', (2, -4): 'HORIZONTAL'}
+# Tracking4 = {(-4, 4): 'VERTICAL', (4, 4): 'VERTICAL', (-4, -4): 'VERTICAL', (4, -4): 'VERTICAL'}
+# Tracking5 = {(-4, 2): 'HORIZONTAL', (-4, 6): 'HORIZONTAL', (4, 2): 'HORIZONTAL', (4, 6): 'HORIZONTAL', (-4, -6): 'HORIZONTAL', (-4, -2): 'HORIZONTAL', (4, -6): 'HORIZONTAL', (4, -2): 'HORIZONTAL'}
 
 
 historical_removed={}
 
-def expend():
+def expend(martix):
+
+  addingToothpick(martix,(0,0), 'VERTICAL')
+
   for tip in dict(Tracking):
     x,y = tip
     if Tracking[tip]=='HORIZONTAL':
@@ -110,24 +113,33 @@ def expend():
         if new_tip2 not in historical_removed:
           Tracking[new_tip2] = 'HORIZONTAL'
     
+  for tip in Tracking:
+    addingToothpick(martix,tip, Tracking[tip])
 
-  print(Tracking)
-  #print('removed: '+ str(historical_removed))
-  print()
+  # print(Tracking)
+  # print('removed: '+ str(historical_removed))
+  # print()
 
 
 
-print(Tracking)
-print('removed: '+ str(historical_removed))
+STG = 13
+top_left_corner = (-15,15)
+bottom_right_corner = (15,-15)
+m1 = Matrix(top_left_corner, bottom_right_corner)
+#printMatrix(m1, top_left_corner, bottom_right_corner)
+
 print()
+while STG > 0:
+  expend(m1)
+  STG-=1
 
-expend()
-expend()
-expend()
-expend()
-expend()
-expend()
-expend()
+printMatrix(m1, top_left_corner, bottom_right_corner)
+
+# print(Tracking)
+# print('removed: '+ str(historical_removed))
+# print()
+
+
 
 
 
