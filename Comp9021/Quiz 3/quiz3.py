@@ -1,168 +1,131 @@
-from typing import Dict
-
-from matplotlib.pyplot import hist
-
-
-def Matrix (top_left_corner, bottom_right_corner):
-  x_l,y_t = top_left_corner
-  x_r,y_b = bottom_right_corner
-  Matrix_coordinate = {}
- 
-  for y in range(y_t,y_b-1,-1):
-     for x in range(x_l,x_r+1,1):
-       Matrix_coordinate[(x,y)] = '⬜'
-  return Matrix_coordinate
- 
-def printMatrix(Matrix,top_left_corner, bottom_right_corner):
-  x_l,y_t = top_left_corner
-  x_r,y_b = bottom_right_corner
-  width = x_r - x_l + 1
-  str=''
-  count = width
-  for key in Matrix:
-    if count>0:
-      str+=Matrix[key]
-      count-=1
-    elif count ==0:
-      print(str)
-      count=width-1
-      str=Matrix[key]
-  #print last line
-  print(str)
-      
-    
-
-  
-
-def addingToothpick(Matrix, point, direction):
-  x,y = point
-  if direction=='VERTICAL':
-    for h in range(y-2, y+3, 1):
-      Matrix[(x,h)] = '⬛'
-  if direction=='HORIZONTAL':
-    for w in range(x-2, x+3, 1):
-      Matrix[(w,y)] = '⬛'
+direction_vertical = 'VERTICAL'
+direction_horizontal = 'HORIZONTAL'
+paintBlack = '\N{black large square}'
+paintWhite = '\N{white large square}'
+toothpickHalfLen =2
+centerPosition = (0, 0)
+freeTips_tracker = {centerPosition: direction_vertical}
+historical_removed_Tips_tracker = dict()
 
 
-# m1 = Matrix((-4,4), (4,-4))
-# printMatrix(m1, (-4,4), (4,-4))
-
-# print('------------')
-# addingToothpick (m1,(0,0), 'VERTICAL')
-# printMatrix(m1, (-4,4), (4,-4))
-
-# print('------------')
-# addingToothpick (m1,(0,2), 'HORIZONTAL')
-# addingToothpick (m1,(0,-2), 'HORIZONTAL')
-# printMatrix(m1, (-4,4), (4,-4))
-
-Tracking ={(0,0):'VERTICAL'}
-# Tracking1 ={(0,2):'HORIZONTAL', (0,-2): 'HORIZONTAL'}
-# Tracking2 = {(-2, 2): 'VERTICAL', (2, 2): 'VERTICAL', (-2, -2): 'VERTICAL', (2, -2): 'VERTICAL'}
-# Tracking3 = {(-2, 4): 'HORIZONTAL', (2, 4): 'HORIZONTAL', (-2, -4): 'HORIZONTAL', (2, -4): 'HORIZONTAL'}
-# Tracking4 = {(-4, 4): 'VERTICAL', (4, 4): 'VERTICAL', (-4, -4): 'VERTICAL', (4, -4): 'VERTICAL'}
-# Tracking5 = {(-4, 2): 'HORIZONTAL', (-4, 6): 'HORIZONTAL', (4, 2): 'HORIZONTAL', (4, 6): 'HORIZONTAL', (-4, -6): 'HORIZONTAL', (-4, -2): 'HORIZONTAL', (4, -6): 'HORIZONTAL', (4, -2): 'HORIZONTAL'}
+def tooth_picks(stage, top_left_corner, bottom_right_corner):
+    board = initializeBoard(top_left_corner, bottom_right_corner)
+    addToothspicksToBoard(stage, board)
+    printBoard(board, top_left_corner, bottom_right_corner)
 
 
-historical_removed={}
+def initializeBoard(top_left_corner, bottom_right_corner):
+    initialBoard = generateBoard(top_left_corner, bottom_right_corner)
+    addingToothpick(initialBoard, centerPosition, direction_vertical)
+    return initialBoard
 
-def expend(martix):
 
-  addingToothpick(martix,(0,0), 'VERTICAL')
+def addToothspicksToBoard(stage, m1):
+    while stage:
+        progressStage(m1)
+        stage -= 1
 
-  for tip in dict(Tracking):
-    x,y = tip
-    if Tracking[tip]=='HORIZONTAL':
-      historical_removed[tip]=Tracking[tip]
-      Tracking.pop(tip)
-      
-      new_tip1= (x-2,y)
-      new_tip2= (x+2,y)
-      if new_tip1 in Tracking:
-        historical_removed[new_tip1]=Tracking[new_tip1]
-        Tracking.pop(new_tip1)
 
-      else:
-        if new_tip1 not in historical_removed:
-          Tracking[new_tip1] = 'VERTICAL'
-      
-      if new_tip2 in Tracking:
-        historical_removed[new_tip2]=Tracking[new_tip2]
-        Tracking.pop(new_tip2)
-      else:
-        if new_tip2 not in historical_removed:
-          Tracking[new_tip2] = 'VERTICAL'
-      
+def generateBoard(top_left_corner, bottom_right_corner):
+    x_l, y_t = top_left_corner
+    x_r, y_b = bottom_right_corner
+    board_coordinates = dict()
+
+    for y in range(y_t, y_b-1, -1):
+        for x in range(x_l, x_r+1, 1):
+            board_coordinates[(x, y)] = paintWhite
+    return board_coordinates
+
+
+def printBoard(board, top_left_corner, bottom_right_corner):
+    if board:
+        x_l, y_t = top_left_corner
+        x_r, y_b = bottom_right_corner
+        lenOfLine = x_r - x_l + 1
+        lineContent = str()
+        count = lenOfLine
+        lineContent = constructLine(board, lenOfLine, lineContent, count)
+        print(lineContent)
+
+def constructLine(board, lenOfLine, lineContent, count):
+    for coordinate in board:
+        if count:
+            lineContent += board[coordinate]
+            count -= 1
+        elif count == 0:
+            print(lineContent)
+            count = lenOfLine-1
+            lineContent = board[coordinate]
+    return lineContent
+
+
+def addingToothpick(board, coordinate, direction):
+    x, y = coordinate
+
+    if toothspickFits(board, direction, x, y):
+        if toothpickShouldPaintVertically(direction):
+            paintToothspickVertically(board, x, y)
+        else:
+            paintToothspickHorizontally(board, x, y)
+
+def toothpickShouldPaintVertically(direction):
+    return direction == direction_vertical
+
+
+def paintToothspickHorizontally(board, x, y):
+    for w in range(x-toothpickHalfLen, x+toothpickHalfLen+1, 1):
+        board[(w, y)] = paintBlack
+
+
+def paintToothspickVertically(board, x, y):
+    for h in range(y-toothpickHalfLen, y+toothpickHalfLen+1, 1):
+        board[(x, h)] = paintBlack
+
+
+def toothspickFits(Matrix, direction, x, y):
+    toothPickFitsTheboard = True
+    if direction == direction_vertical:
+        for h in range(y-toothpickHalfLen, y+toothpickHalfLen+1, 1):
+            if (x, h) not in Matrix:
+                toothPickFitsTheboard = False
     else:
-      historical_removed[tip]=Tracking[tip]
-      Tracking.pop(tip)
-      new_tip1= (x,y-2)
-      new_tip2= (x,y+2)
-
-      if new_tip1 in Tracking:
-        historical_removed[new_tip1]=Tracking[new_tip1]
-        Tracking.pop(new_tip1)
-      else:
-        if new_tip1 not in historical_removed:
-          Tracking[new_tip1] = 'HORIZONTAL'
-      
-      if new_tip2 in Tracking:
-        historical_removed[new_tip2]=Tracking[new_tip2]
-        Tracking.pop(new_tip2)
-      else:
-        if new_tip2 not in historical_removed:
-          Tracking[new_tip2] = 'HORIZONTAL'
-    
-  for tip in Tracking:
-    addingToothpick(martix,tip, Tracking[tip])
-
-  # print(Tracking)
-  # print('removed: '+ str(historical_removed))
-  # print()
+        for w in range(x-toothpickHalfLen, x+toothpickHalfLen+1, 1):
+            if (w, y) not in Matrix:
+                toothPickFitsTheboard = False
+    return toothPickFitsTheboard
 
 
+def progressStage(board):
 
-STG = 13
-top_left_corner = (-15,15)
-bottom_right_corner = (15,-15)
-m1 = Matrix(top_left_corner, bottom_right_corner)
-#printMatrix(m1, top_left_corner, bottom_right_corner)
+    for tip in dict(freeTips_tracker):
+        x, y = tip
 
-print()
-while STG > 0:
-  expend(m1)
-  STG-=1
+        if freeTipFacingUpOrDown(tip):
+            removeFromFreeTips_tracker(tip)
+            processCandiate((x-toothpickHalfLen, y),direction_vertical)
+            processCandiate((x+toothpickHalfLen, y),direction_vertical)
 
-printMatrix(m1, top_left_corner, bottom_right_corner)
+        else:
+            removeFromFreeTips_tracker(tip)
+            processCandiate((x, y-toothpickHalfLen),direction_horizontal)
+            processCandiate((x, y+toothpickHalfLen),direction_horizontal)
 
-# print(Tracking)
-# print('removed: '+ str(historical_removed))
-# print()
+    addToothspicksForFreeTips(board)
+
+def freeTipFacingUpOrDown(tip):
+    return freeTips_tracker[tip] == direction_horizontal
+
+def processCandiate(FreeTip_candiate_1,direction):
+    if FreeTip_candiate_1 in freeTips_tracker:
+        removeFromFreeTips_tracker(FreeTip_candiate_1)
+    elif FreeTip_candiate_1 not in historical_removed_Tips_tracker:
+        freeTips_tracker[FreeTip_candiate_1] = direction
+
+def removeFromFreeTips_tracker(tip):
+    historical_removed_Tips_tracker[tip] = freeTips_tracker[tip]
+    freeTips_tracker.pop(tip)
 
 
-
-
-
-# t1 = (-4,5)
-# t2 = (4, -5)
-
-# m1 = Matrix(t1,t2);
-
-# # round0
-# addingToothpick(m1, (0,0),'VERTICAL')
-# printMatrix(m1, t1,t2)
-# print()
-
-# # round1
-# addingToothpick(m1, (0,2),'HORIZONTAL')
-# addingToothpick(m1, (0,-2),'HORIZONTAL')
-# printMatrix(m1, t1,t2)
-# print()
-
-# # round2
-# addingToothpick(m1, (-2,2),'VERTICAL')
-# addingToothpick(m1, (2,2),'VERTICAL')
-# addingToothpick(m1, (-2,-2),'VERTICAL')
-# addingToothpick(m1, (2,-2),'VERTICAL')
-# printMatrix(m1, t1,t2)
-
+def addToothspicksForFreeTips(board):
+    for tip in freeTips_tracker:
+        addingToothpick(board, tip, freeTips_tracker[tip])
