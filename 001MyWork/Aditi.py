@@ -6,7 +6,6 @@ print('-----------------------------------------------------------------------')
 #input=[1,2,3,4,5]
 #output=[5,4,3,2,1]
 
-
 input1 = [1, 2, 3, 4, 5]
 output1 = []
 print("Array in reverse order: ")
@@ -41,8 +40,8 @@ print('-----------------------------------------------------------------------')
 #region 3. Split the array in half and add the first part to the end
 
 #3. Split the array in half and add the first part to the end
-# input3[] = {12, 10, 5, 6, 52, 36}
-#output3={6,52,36,12,10,5}
+# input3 = [12, 10, 5, 6, 52, 36]
+#output3 =[6,52,36,12,10,5]
 
 
 def split_list(a_list):
@@ -112,6 +111,7 @@ def count(str1, str2):
     set_string1 = set(str1)
     set_string2 = set(str2)
     matched_characters = set_string1 & set_string2
+
     print("No. of matching characters are : " + str(len(matched_characters)))
 
 
@@ -276,7 +276,8 @@ print('-----------------------------------------------------------------------')
 #region 15
 
 #
-
+test="ankush rathi asd"
+print(" ".join(reversed(test.split(" "))))
 
 #endregion
 
