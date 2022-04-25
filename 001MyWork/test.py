@@ -1,20 +1,44 @@
-# Python3 code to demonstrate
-# to find first position of character
-# in a given string
+n = 4
+for i in range(0, n):
+    print(i)
 
-# Initializing string
-ini_string1 = 'xyze'
 
-# Character to find
-c = "b"
-# printing initial string and character
-print ("initial_strings : ", ini_string1,
-			"\ncharacter_to_find : ", c)
 
-# Using index Method
-try:
-	res = ini_string1.index(c)
-	print ("Character {} in string {} is present at {}".format(
-								c, ini_string1, str(res + 1)))
-except ValueError as e:
-	print ("No such character available in string {}".format(ini_string1))
+
+
+
+print("List Iteration")
+l = ["ankush", "aditi", 1]
+for i in l:
+    print(i)
+
+
+
+
+
+
+print("\nDictionary Iteration")  
+d = dict()
+d['xyz'] = 123
+d['abc'] = 345
+for i in d :
+    print("%s  %d" %(i, d[i]))
+
+
+
+
+
+
+print("\nSet Iteration")
+set1 = {1,2,3,4,5,6}
+for i in set1:
+    print(i)
+
+list = ["ankush", "aditi", "rathi"]
+for index in range(len(list)):
+    print(list[index])
+
+for i in range(1, 5):
+    for j in range(i):
+         print(i, end=' ')
+    print()
