@@ -1,6 +1,4 @@
 # Complete-Python-3-Bootcamp
-
--hey there All the best.
 -Hemanth says this course is amazing!!
 
 Course Files for Complete Python 3 Bootcamp Course on Udemy
