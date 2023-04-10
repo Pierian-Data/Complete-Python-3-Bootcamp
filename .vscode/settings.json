@@ -1,0 +1,6 @@
+{
+    "jupyter.jupyterServerType": "local",
+    "githubPullRequests.ignoredPullRequestBranches": [
+        "master"
+    ]
+}
