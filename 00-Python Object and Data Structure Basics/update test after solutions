@@ -118,19 +118,26 @@ list3 = [0]
 list4 = [0]
 matrix = [list2, list3, list4]
 print(matrix)
+#method2 - solution #simple and easier for this case
+print([0]*3)
 """
 <output>
 [0, 0, 0]
 [[0], [0], [0]]
+[0, 0, 0]
 """
 #2 reasign
 list3 = [1,2,[3,4,"hello"]]
 print(list3)
 list3 = [1,2,[3,4,"goodbye"]]
 print(list3)
+#2 reasign - indice way
+list3[2][2] = "goodbye"
+print(list3)
 """
 <output>
 [1, 2, [3, 4, 'hello']]
+[1, 2, [3, 4, 'goodbye']]
 [1, 2, [3, 4, 'goodbye']]
 """
 #3 sort
@@ -174,6 +181,7 @@ print(dict_three["k1"][2]["k2"][1]["tough"][2])
 ['hello']
 """
 #5 sort a dictionary ??? - not possible. dict are like mappings. objects are defined by a key
+#dict are not sequences
 
 #6  tupels are like lists but tupels are immutable and represented by (). 'lists []'
 tuple_1 = (1, "s", "hi", 2019)
@@ -211,20 +219,10 @@ False
 # two nested lists
 l_one = [1,2,[3,4]]
 l_two = [1,2,{'k1':4}]
-"""
-<output>
-True
-"""
-
 # True or False?
 l_one[2][0] >= l_two[2]['k1']
 """
 <output>
 False
 """
-
-
-
-
-
 
