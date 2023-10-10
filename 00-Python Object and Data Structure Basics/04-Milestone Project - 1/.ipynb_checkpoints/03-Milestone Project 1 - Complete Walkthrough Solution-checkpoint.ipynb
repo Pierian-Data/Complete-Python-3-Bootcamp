@@ -1,0 +1,496 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "___\n",
+    "\n",
+    "<a href='https://www.udemy.com/user/joseportilla/'><img src='../Pierian_Data_Logo.png'/></a>\n",
+    "___\n",
+    "<center><em>Content Copyright by Pierian Data</em></center>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Milestone Project 1: Full Walk-through Code Solution\n",
+    "\n",
+    "Below is the filled in code that goes along with the complete walk-through video. Check out the corresponding lecture videos for more information on this code!"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Step 1: Write a function that can print out a board. Set up your board as a list, where each index 1-9 corresponds with a number on a number pad, so you get a 3 by 3 board representation.**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "from IPython.display import clear_output\n",
+    "\n",
+    "def display_board(board):\n",
+    "    clear_output()  # Remember, this only works in jupyter!\n",
+    "    \n",
+    "    print('   |   |')\n",
+    "    print(' ' + board[7] + ' | ' + board[8] + ' | ' + board[9])\n",
+    "    print('   |   |')\n",
+    "    print('-----------')\n",
+    "    print('   |   |')\n",
+    "    print(' ' + board[4] + ' | ' + board[5] + ' | ' + board[6])\n",
+    "    print('   |   |')\n",
+    "    print('-----------')\n",
+    "    print('   |   |')\n",
+    "    print(' ' + board[1] + ' | ' + board[2] + ' | ' + board[3])\n",
+    "    print('   |   |')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**TEST Step 1:** run your function on a test version of the board list, and make adjustments as necessary"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "   |   |\n",
+      " X | O | X\n",
+      "   |   |\n",
+      "-----------\n",
+      "   |   |\n",
+      " O | X | O\n",
+      "   |   |\n",
+      "-----------\n",
+      "   |   |\n",
+      " X | O | X\n",
+      "   |   |\n"
+     ]
+    }
+   ],
+   "source": [
+    "test_board = ['#','X','O','X','O','X','O','X','O','X']\n",
+    "display_board(test_board)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Step 2: Write a function that can take in a player input and assign their marker as 'X' or 'O'. Think about using *while* loops to continually ask until you get a correct answer.**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def player_input():\n",
+    "    marker = ''\n",
+    "    \n",
+    "    while not (marker == 'X' or marker == 'O'):\n",
+    "        marker = input('Player 1: Do you want to be X or O? ').upper()\n",
+    "\n",
+    "    if marker == 'X':\n",
+    "        return ('X', 'O')\n",
+    "    else:\n",
+    "        return ('O', 'X')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**TEST Step 2:** run the function to make sure it returns the desired output"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Player 1: Do you want to be X or O? X\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "('X', 'O')"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "player_input()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Step 3: Write a function that takes in the board list object, a marker ('X' or 'O'), and a desired position (number 1-9) and assigns it to the board.**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def place_marker(board, marker, position):\n",
+    "    board[position] = marker"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**TEST Step 3:** run the place marker function using test parameters and display the modified board"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "   |   |\n",
+      " X | $ | X\n",
+      "   |   |\n",
+      "-----------\n",
+      "   |   |\n",
+      " O | X | O\n",
+      "   |   |\n",
+      "-----------\n",
+      "   |   |\n",
+      " X | O | X\n",
+      "   |   |\n"
+     ]
+    }
+   ],
+   "source": [
+    "place_marker(test_board,'$',8)\n",
+    "display_board(test_board)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Step 4: Write a function that takes in a board and checks to see if someone has won. **"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def win_check(board,mark):\n",
+    "    \n",
+    "    return ((board[7] == mark and board[8] == mark and board[9] == mark) or # across the top\n",
+    "    (board[4] == mark and board[5] == mark and board[6] == mark) or # across the middle\n",
+    "    (board[1] == mark and board[2] == mark and board[3] == mark) or # across the bottom\n",
+    "    (board[7] == mark and board[4] == mark and board[1] == mark) or # down the middle\n",
+    "    (board[8] == mark and board[5] == mark and board[2] == mark) or # down the middle\n",
+    "    (board[9] == mark and board[6] == mark and board[3] == mark) or # down the right side\n",
+    "    (board[7] == mark and board[5] == mark and board[3] == mark) or # diagonal\n",
+    "    (board[9] == mark and board[5] == mark and board[1] == mark)) # diagonal"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**TEST Step 4:** run the win_check function against our test_board - it should return True"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "True"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "win_check(test_board,'X')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Step 5: Write a function that uses the random module to randomly decide which player goes first. You may want to lookup random.randint() Return a string of which player went first.**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "import random\n",
+    "\n",
+    "def choose_first():\n",
+    "    if random.randint(0, 1) == 0:\n",
+    "        return 'Player 2'\n",
+    "    else:\n",
+    "        return 'Player 1'"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Step 6: Write a function that returns a boolean indicating whether a space on the board is freely available.**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def space_check(board, position):\n",
+    "    \n",
+    "    return board[position] == ' '"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Step 7: Write a function that checks if the board is full and returns a boolean value. True if full, False otherwise.**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def full_board_check(board):\n",
+    "    for i in range(1,10):\n",
+    "        if space_check(board, i):\n",
+    "            return False\n",
+    "    return True"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Step 8: Write a function that asks for a player's next position (as a number 1-9) and then uses the function from step 6 to check if its a free position. If it is, then return the position for later use. **"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def player_choice(board):\n",
+    "    position = 0\n",
+    "    \n",
+    "    while position not in [1,2,3,4,5,6,7,8,9] or not space_check(board, position):\n",
+    "        position = int(input('Choose your next position: (1-9) '))\n",
+    "        \n",
+    "    return position"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Step 9: Write a function that asks the player if they want to play again and returns a boolean True if they do want to play again.**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def replay():\n",
+    "    \n",
+    "    return input('Do you want to play again? Enter Yes or No: ').lower().startswith('y')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "collapsed": true
+   },
+   "source": [
+    "**Step 10: Here comes the hard part! Use while loops and the functions you've made to run the game!**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "   |   |\n",
+      "   | O | O\n",
+      "   |   |\n",
+      "-----------\n",
+      "   |   |\n",
+      "   |   |  \n",
+      "   |   |\n",
+      "-----------\n",
+      "   |   |\n",
+      " X | X | X\n",
+      "   |   |\n",
+      "Congratulations! You have won the game!\n",
+      "Do you want to play again? Enter Yes or No: No\n"
+     ]
+    }
+   ],
+   "source": [
+    "print('Welcome to Tic Tac Toe!')\n",
+    "\n",
+    "while True:\n",
+    "    # Reset the board\n",
+    "    theBoard = [' '] * 10\n",
+    "    player1_marker, player2_marker = player_input()\n",
+    "    turn = choose_first()\n",
+    "    print(turn + ' will go first.')\n",
+    "    \n",
+    "    play_game = input('Are you ready to play? Enter Yes or No.')\n",
+    "    \n",
+    "    if play_game.lower()[0] == 'y':\n",
+    "        game_on = True\n",
+    "    else:\n",
+    "        game_on = False\n",
+    "\n",
+    "    while game_on:\n",
+    "        if turn == 'Player 1':\n",
+    "            # Player1's turn.\n",
+    "            \n",
+    "            display_board(theBoard)\n",
+    "            position = player_choice(theBoard)\n",
+    "            place_marker(theBoard, player1_marker, position)\n",
+    "\n",
+    "            if win_check(theBoard, player1_marker):\n",
+    "                display_board(theBoard)\n",
+    "                print('Congratulations! You have won the game!')\n",
+    "                game_on = False\n",
+    "            else:\n",
+    "                if full_board_check(theBoard):\n",
+    "                    display_board(theBoard)\n",
+    "                    print('The game is a draw!')\n",
+    "                    break\n",
+    "                else:\n",
+    "                    turn = 'Player 2'\n",
+    "\n",
+    "        else:\n",
+    "            # Player2's turn.\n",
+    "            \n",
+    "            display_board(theBoard)\n",
+    "            position = player_choice(theBoard)\n",
+    "            place_marker(theBoard, player2_marker, position)\n",
+    "\n",
+    "            if win_check(theBoard, player2_marker):\n",
+    "                display_board(theBoard)\n",
+    "                print('Player 2 has won!')\n",
+    "                game_on = False\n",
+    "            else:\n",
+    "                if full_board_check(theBoard):\n",
+    "                    display_board(theBoard)\n",
+    "                    print('The game is a draw!')\n",
+    "                    break\n",
+    "                else:\n",
+    "                    turn = 'Player 1'\n",
+    "\n",
+    "    if not replay():\n",
+    "        break"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "collapsed": true
+   },
+   "source": [
+    "## Good Job!"
+   ]
+  }
+ ],
+ "metadata": {
+  "anaconda-cloud": {},
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 1
+}
