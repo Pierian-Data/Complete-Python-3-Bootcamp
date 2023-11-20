@@ -1,0 +1,35 @@
+import yfinance as yf
+import pandas as pd
+
+def get_dividends(ticker_symbol):
+    try:
+        stock = yf.Ticker(ticker_symbol)
+        dividends = stock.dividends
+        return dividends
+    except Exception as e:
+        print(f"Error fetching dividends for {ticker_symbol}: {e}")
+        return None
+
+def main():
+    # Get a list of ticker symbols from the user
+    symbols = input("Enter ticker symbols (comma-separated): ").split(',')
+
+    # Create a Pandas DataFrame to store the dividend data
+    dividend_data = pd.DataFrame()
+
+    # Fetch dividends for each ticker symbol
+    for symbol in symbols:
+        symbol = symbol.strip().upper()  # Ensure symbols are in uppercase
+        dividends = get_dividends(symbol)
+
+        if dividends is not None:
+            dividend_data[symbol] = dividends
+
+    # Save the dividend data to an Excel file
+    excel_file = 'dividend_data.xlsx'
+    dividend_data.to_excel(excel_file, index_label='Date')
+
+    print(f"Dividend data saved to {excel_file}")
+
+if __name__ == "__main__":
+    main()
