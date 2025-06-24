@@ -7,7 +7,7 @@ Numbers
 **Find PI to the Nth Digit** - Enter a number and have the program generate PI up to that many decimal places. Keep a limit to how far the program will go. [[geekpradd (Python)]](https://github.com/geekpradd/PythonPi/blob/master/PythonPi.py)
 [[MrBlaise (Python)]](https://github.com/MrBlaise/learnpython/blob/master/Numbers/pi.py) [[whoshuu (Python)]](https://github.com/whoshuu/Projects/blob/master/Numbers/pi.py) 
 
-**Find e to the Nth Digit** - Just like the previous problem, but with e instead of PI. Enter a number and have the program generate e up to that many decimal places. Keep a limit to how far the program will go. [[aseeon (Python)]](https://gist.github.com/aseeon/3f06d95f995fde7adfc2) [[mandeepbhutani (Python)]](https://github.com/mandeepbhutani/Sample-Projects/blob/master/FindE.py) 
+**Find e to the Nth Digit** - Just like the previous problem, but with e instead of PI. Enter a number and have the program generate e up to that many decimal places. Keep a limit to how far the program will go. [[aseeon (Python)]](https://gist.github.com/aseeon/3f06d95f995fde7adfc2) 
 [[rlingineni (Python)]](https://github.com/rlingineni/PythonPractice/blob/master/eCalc/eCalculate.py)
 
 
@@ -18,11 +18,11 @@ Numbers
 [[geekpradd (Python)]](https://github.com/geekpradd/Prime-Factorise/blob/master/primefactorize.py)
 [[MrBlaise (Python)]](https://github.com/MrBlaise/learnpython/blob/master/Numbers/prime.py) [[whoshuu (Python)]](https://github.com/whoshuu/Projects/blob/master/Numbers/prime.py) 
 
-**Next Prime Number** - Have the program find prime numbers until the user chooses to stop asking for the next one. [[MrBlaise (Python)]](https://github.com/MrBlaise/learnpython/blob/master/Numbers/next_prime.py) [[Silverneo (Python)]](https://github.com/Silverneo/pylearn/blob/master/prime.py) [[desertwebdesigns (Python)]](https://bitbucket.org/desertwebdesigns/learn_python/src/master/Numbers/next_prime.py) 
+**Next Prime Number** - Have the program find prime numbers until the user chooses to stop asking for the next one. [[MrBlaise (Python)]](https://github.com/MrBlaise/learnpython/blob/master/Numbers/next_prime.py) [[Silverneo (Python)]](https://github.com/Silverneo/pylearn/blob/master/prime.py)
 
-**Find Cost of Tile to Cover W x H Floor** - Calculate the total cost of tile it would take to cover a floor plan of width and height, using a cost entered by the user. [[Drhealsgood (Python)]](https://github.com/Drhealsgood/miniprojects/blob/master/number_projects/other/misc.py)  [[desertwebdesigns (Python)]](https://bitbucket.org/desertwebdesigns/learn_python/src/master/Numbers/tile.py)
+**Find Cost of Tile to Cover W x H Floor** - Calculate the total cost of tile it would take to cover a floor plan of width and height, using a cost entered by the user. [[Drhealsgood (Python)]](https://github.com/Drhealsgood/miniprojects/blob/master/number_projects/other/misc.py)
 
-**Mortgage Calculator** - Calculate the monthly payments of a fixed term mortgage over given Nth terms at a given interest rate. Also figure out how long it will take the user to pay back the loan. For added complexity, add an option for users to select the compounding interval (Monthly, Weekly, Daily, Continually).  [[desertwebdesigns]](Python)]](https://bitbucket.org/desertwebdesigns/learn_python/src/master/Numbers/mortgage.py) 
+**Mortgage Calculator** - Calculate the monthly payments of a fixed term mortgage over given Nth terms at a given interest rate. Also figure out how long it will take the user to pay back the loan. For added complexity, add an option for users to select the compounding interval (Monthly, Weekly, Daily, Continually).  [[austinmcconnell]](Python)]](https://github.com/austinmcconnell/mortgage) 
 
 **Change Return Program** - The user enters a cost and then the amount of money given. The program will figure out the change and the number of quarters, dimes, nickels, pennies needed for the change. [[Drhealsgood (Python)]](https://github.com/Drhealsgood/miniprojects/blob/master/number_projects/money_changing/money_changing.py) 
 
@@ -37,12 +37,12 @@ Numbers
 
 **Distance Between Two Cities** - Calculates the distance between two cities and allows the user to specify a unit of distance. This program may require finding coordinates for the cities like latitude and longitude.  [[dabillox (Python)]](https://github.com/dabillox/pyprojects/blob/master/citydistance.py) 
 
-**Credit Card Validator** - Takes in a credit card number from a common credit card vendor (Visa, MasterCard, American Express, Discover) and validates it to make sure that it is a valid number (look into how credit cards use a checksum). [[desertwebdesigns (Python)]](https://bitbucket.org/desertwebdesigns/learn_python/src/master/Numbers/credit_card.py) [[dotslash (Python)]](https://github.com/dotslash/Projects/blob/master/solutions/credit_card_validator.py) [[Barvin (Python)]](https://github.com/Barvin/CodeWars-ByArvin/blob/master/TheLuhnAlgorithm.py) 
+**Credit Card Validator** - Takes in a credit card number from a common credit card vendor (Visa, MasterCard, American Express, Discover) and validates it to make sure that it is a valid number (look into how credit cards use a checksum). [[Barvin (Python)]](https://github.com/Barvin/CodeWars-ByArvin/blob/master/TheLuhnAlgorithm.py) 
 
-**Tax Calculator** - Asks the user to enter a cost and either a country or state tax. It then returns the tax plus the total cost with tax. [[desertwebdesigns (Python)]](https://bitbucket.org/desertwebdesigns/learn_python/src/master/Numbers/tax.py)
+**Tax Calculator** - Asks the user to enter a cost and either a country or state tax. It then returns the tax plus the total cost with tax.
  [[neivin (Python)]](https://github.com/neivin/projects/blob/master/numbers/tax_calculator.py)[[Vdrey (Python)]](https://github.com/vdrey/Project-Programs/blob/master/Python/Tax%20Calculator.py) 
 
-**Factorial Finder** - The factorial of a positive integer *n* is defined as the product of the sequence , n-1, n-2, ...1 and the factorial of 0 is defined as being 1. Solve this using both loops and recursion.  [[rramchand (python)]](https://github.com/rramchand/Projects-Solutions/blob/master/factorial.py)  [[turlapatykaushik(Python)]](https://github.com/turlapatykaushik/Programs-and-codes/blob/master/problems/factorial.py) [[kvsingh (Python)]](https://github.com/kvsingh/python-practice/blob/master/factorial.py)
+**Factorial Finder** - The factorial of a positive integer *n* is defined as the product of the sequence , n-1, n-2, ...1 and the factorial of 0 is defined as being 1. Solve this using both loops and recursion.  [[turlapatykaushik(Python)]](https://github.com/turlapatykaushik/Programs-and-codes/blob/master/problems/factorial.py) [[kvsingh (Python)]](https://github.com/kvsingh/python-practice/blob/master/factorial.py)
 
 **Complex Number Algebra** - Show addition, multiplication, negation, and inversion of complex numbers in separate functions. (Subtraction and division operations can be made with pairs of these operations.) Print the results for each operation tested. [[ppype (python)]](https://github.com/ppype/Complex-Number-Algebra/blob/master/programs/main.py) 
 
@@ -50,15 +50,14 @@ Numbers
 
 **Number Names** - Show how to spell out a number in English. You can use a preexisting implementation or roll your own, but you should support inputs up to at least one million (or the maximum value of your language's default bounded integer type, if that's less). *Optional: Support for inputs other than positive integers (like zero, negative integers, and floating-point numbers).*  [[scottdchris (Python)]](https://github.com/scottdchris/NumToWords) 
 
-**Coin Flip Simulation** - Write some code that simulates flipping a single coin however many times the user decides. The code should record the outcomes and count the number of tails and heads. [[scottdchris (Python)]](https://github.com/scottdchris/CoinFlip)  [[dsub15 (Python)]](https://github.com/dsub15/Projects/blob/master/Coin_flip.py)[[mandeepbhutani (Python)]](https://github.com/mandeepbhutani/Sample-Projects/blob/master/CoinFlip.py) 
-
+**Coin Flip Simulation** - Write some code that simulates flipping a single coin however many times the user decides. The code should record the outcomes and count the number of tails and heads. [[scottdchris (Python)]](https://github.com/scottdchris/CoinFlip)  [[dsub15 (Python)]](https://github.com/dsub15/Projects/blob/master/Coin_flip.py)
 
 **Fast Exponentiation** - Ask the user to enter 2 integers a and b and output a^b (i.e. pow(a,b)) in O(lg n) time complexity. [[korabum (Python)]](https://github.com/korabum/Projects/blob/master/Numbers/power.py)
 
 Classic Algorithms
 -----------------
 
-**Collatz Conjecture** - Start with a number *n > 1*. Find the number of steps it takes to reach one using the following process: If *n* is even, divide it by 2. If *n* is odd, multiply it by 3 and add 1. [[EpicDavi (Python)]](https://github.com/EpicDavi/RandomProjects/blob/master/Language%20Challenge%20Stuff/CollatzRecursive.py)[[rramchand (Java)]](https://github.com/rramchand/Projects-Solutions/blob/master/Collatz.java) [[petehuang (Ruby)]](https://github.com/petehuang/Projects/blob/master/Classic%20Algorithms/collatz.rb) [[quitrk (JavaScript)]](https://github.com/quitrk/LearningJS/blob/master/Classic%20Algorithms/00.%20Collatz%20Conjecture.js) [[taycaldwell (Java)]](https://github.com/taycaldwell/Projects/blob/master/Classic%20Algorithms/collatz.java) [[anggiaj (Go)]](https://github.com/anggiaj/Projects/blob/master/Classic%20Algorithms/collatz.go) [[edeng (Java)]](https://github.com/edeng/Problems/blob/master/Collatz.java)[[luisccastillo (C#)]](https://github.com/luisccastillo/Projects/blob/master/Classic%20Algorithms/collatz_cojecture.cs) [[vdrey (Python)]](https://github.com/vdrey/Project-Programs/blob/master/Python/Collatz.py) [[francis36012 (Python)]](https://github.com/francis36012/karan-projects/blob/master/src/classic_algorithms/collatz.py) [[kingballer29 (C++)]](https://github.com/kingballer29/Programming/blob/master/collatzConjecture.cpp)[[manateemilitia (Java)]](https://github.com/manateemilitia/CollatzJava/blob/master/CollatzJava/src/collatzjava/CollatzJava.java) [[viktorahlstrom (Python)]](https://github.com/viktorahlstrom/pythonscripts/blob/master/collatz_conjecture.py)
+**Collatz Conjecture** - Start with a number *n > 1*. Find the number of steps it takes to reach one using the following process: If *n* is even, divide it by 2. If *n* is odd, multiply it by 3 and add 1. [[EpicDavi (Python)]](https://github.com/EpicDavi/RandomProjects/blob/master/Language%20Challenge%20Stuff/CollatzRecursive.py) [[francis36012 (Python)]](https://github.com/francis36012/karan-projects/blob/master/src/classic_algorithms/collatz.py)  [[viktorahlstrom (Python)]](https://github.com/viktorahlstrom/pythonscripts/blob/master/collatz_conjecture.py)
 
 **Sorting** - Implement two types of sorting algorithms: Merge sort and bubble sort [[petehuang (Ruby)]](https://github.com/petehuang/Projects/blob/master/Classic%20Algorithms/sorting.rb) [[sananth12 (C)]](https://github.com/sananth12/Projects/blob/master/Classic%20Algorithms/Sorting.c) [[liuyang1 (Python)]](https://github.com/liuyang1/Projects/blob/master/Classic%20Algorithms/mergesort.py) [[ScottKolo (Go)]](https://github.com/ScottKolo/GoProjects/blob/master/Classic%20Algorithms/sorting.go)
 [[checkcheckzz (C++)]](https://github.com/checkcheckzz/coding-problem/blob/master/problem/Sorting.cpp) [[yasaswyk (C++)]](https://github.com/yasaswyk/Projects-Solutions/blob/mysolutions/Sorting/sort.cc) [[turlapatykaushik (C)]](https://github.com/turlapatykaushik/DataStructures-and-Algorithms-Implementation/tree/master/sorting)[[smac89 (haskell)]](https://gist.github.com/smac89/656240fea116f8230351) [[sijunhe (java)]](https://github.com/sijunhe/Project-Programs/blob/master/java/sort.java)
@@ -91,7 +90,7 @@ Text
 ---------
 
 **Fizz Buzz** - Write a program that prints the numbers from 1 to 100. But for multiples of three print “Fizz” instead of the number and for the multiples of five print “Buzz”. For numbers which are multiples of both three and five print “FizzBuzz”.
- [[sethlugibihl (Python)]](https://github.com/sethlugibihl/Python-Solutions/blob/master/FizzBuzz.py)[[korabum (Python)]](https://github.com/korabum/Projects/blob/master/Text/fizzbuzz.py)
+[[korabum (Python)]](https://github.com/korabum/Projects/blob/master/Text/fizzbuzz.py)
 
 **Reverse a String** - Enter a string and the program will reverse it and print it out. [[Drhealsgood (Python)]](https://github.com/Drhealsgood/miniprojects/blob/master/text_projects/string_editing.py) [[JLukeC (Python)]](https://github.com/jLukeC/mega-project-list/blob/master/python/reverse_string.py) 
 
@@ -107,36 +106,31 @@ Text
 
 **RSS Feed Creator** - Given a link to RSS/Atom Feed, get all posts and display them. [[sriniavireddy (python)]](https://github.com/sriniavireddy/scripts-and-solutions/tree/master/Text/RSSfeedparser)
 
-**Post it Notes Program** - A program where you can add text reminders and post them. *Optional: You can have the program also add popup reminders.* [[rahulxxarora(python)]](https://github.com/rahulxxarora/Reminder)
-
-**Quote Tracker (market symbols etc)** - A program which can go out and check the current value of stocks for a list of symbols entered by the user. The user can set how often the stocks are checked. For CLI, show whether the stock has moved up or down. *Optional: If GUI, the program can show green up and red down arrows to show which direction the stock value has moved.* [[masegaloeh (Python)]](https://github.com/masegaloeh/freetime-projects/blob/master/text/quote_tracker.py) [[dotslash (Python)]](https://github.com/dotslash/Projects/blob/master/solutions/quotes.py)
+**Quote Tracker (market symbols etc)** - A program which can go out and check the current value of stocks for a list of symbols entered by the user. The user can set how often the stocks are checked. For CLI, show whether the stock has moved up or down. *Optional: If GUI, the program can show green up and red down arrows to show which direction the stock value has moved.* [[masegaloeh (Python)]](https://github.com/masegaloeh/freetime-projects/blob/master/text/quote_tracker.py)
 
 **Guestbook / Journal** - A simple application that allows people to add comments or write journal entries. It can allow comments or not and timestamps for all entries. Could also be made into a shout box. *Optional: Deploy it on Google App Engine or Heroku or any other PaaS (if possible, of course).*
 
 **Fortune Teller (Horoscope)** - A program that checks your horoscope on various astrology sites and puts them together for you each day. [[cahitonur (Python)]](https://github.com/cahitonur/mini-project/blob/master/horoscope/horoscope.py) [[tapasweni-pathak (Python)]](https://github.com/tapasweni-pathak/Scripts/blob/master/Your-Horoscope.py) 
 
-**Vigenere / Vernam / Ceasar Ciphers** - Functions for encrypting and decrypting data messages. Then send them to a friend. [[Rnhmjoj (Python)]](https://github.com/Rnhmjoj/Crypto) 
 
 **Random Gift Suggestions** - Enter various gifts for certain people when you think of them. When its time to give them a gift (xmas, birthday, anniversary) it will randomly pick one. *Optional: Suggest places you can get it (link to Amazon page?).*
 
 **Markdown to HTML Converter** - Converts Markdown formatted text into HTML files. Implement basic tags like `p`, `strong`, `em` etc. *Optional: Implement all tags from [Markdown Syntax Docs](http://daringfireball.net/projects/markdown/syntax).* [[Drhealsgood (Python)]](https://github.com/Drhealsgood/miniprojects/blob/master/text_projects/auto_markup/markup.py)
 
-**Regex Query Tool** - A tool that allows the user to enter a text string and then in a separate control enter a regex pattern. It will run the regular expression against the source text and return any matches or flag errors in the regular expression. [[Rnhmjoj (Python)]](https://gist.github.com/Rnhmjoj/6140266)[[dotslash (Python [cl])]](https://github.com/dotslash/Projects/blob/master/solutions/regex.py)
 
 Networking
 ---------
 
-**FTP Program** - A file transfer program which can transfer files back and forth from a remote web sever. [[rnikhil275(Python)]](https://github.com/rnikhil275/scripts/blob/master/ftp.py)
 
 **Bandwidth Monitor** - A small utility program that tracks how much data you have uploaded and downloaded from the net during the course of your current online session. See if you can find out what periods of the day you use more and less and generate a report or graph that shows it. 
 
-**Port Scanner** - Enter an IP address and a port range where the program will then attempt to find open ports on the given computer by connecting to each of them. On any successful connections mark the port as open.[[enessenel (Python)]](https://github.com/enessenel/Small-Projects/blob/master/PortScanner.py) [[mayankj08 (Python)]](https://github.com/mayankj08/Python-Programs/blob/master/open_ports.py) [[Rnhmjoj (Python)]](https://gist.github.com/Rnhmjoj/8409734)
+**Port Scanner** - Enter an IP address and a port range where the program will then attempt to find open ports on the given computer by connecting to each of them. On any successful connections mark the port as open.[[enessenel (Python)]](https://github.com/enessenel/Small-Projects/blob/master/PortScanner.py)
 
 **Mail Checker (POP3 / IMAP)** - The user enters various account information include web server and IP, protocol type (POP3 or IMAP) and the application will check for email at a given interval. 
 
-**Country from IP Lookup** - Enter an IP address and find the country that IP is registered in. *Optional: Find the Ip automatically.* [[Hash-Collision (Python)]](https://github.com/Hash-Collision/Projects/blob/master/Networking/country_from_ip.py) [[tapasweni-pathak (Python)]](https://github.com/tapasweni-pathak/Scripts/blob/master/Locate-Me.py) [[dotslash (Python)]](https://github.com/dotslash/Projects/blob/master/solutions/ip_lookup.py)  [[viktorahlstrom (Python)]](https://github.com/viktorahlstrom/pythonscripts/blob/master/iplocator.py)
+**Country from IP Lookup** - Enter an IP address and find the country that IP is registered in. *Optional: Find the Ip automatically.*  [[tapasweni-pathak (Python)]](https://github.com/tapasweni-pathak/Scripts/blob/master/Locate-Me.py) [[viktorahlstrom (Python)]](https://github.com/viktorahlstrom/pythonscripts/blob/master/iplocator.py)
 
-**Whois Search Tool** - Enter an IP or host address and have it look it up through whois and return the results to you. [[rramchand (Python)]](https://github.com/rramchand/Projects-Solutions/blob/master/whois.py) [[tapasweni-pathak (Python)]](https://github.com/tapasweni-pathak/Scripts/blob/master/WhoIs%3F.py)
+**Whois Search Tool** - Enter an IP or host address and have it look it up through whois and return the results to you. [[tapasweni-pathak (Python)]](https://github.com/tapasweni-pathak/Scripts/blob/master/WhoIs%3F.py)
 
 **Site Checker with Time Scheduling** - An application that attempts to connect to a website or server every so many minutes or a given time and check if it is up. If it is down, it will notify you by email or by posting a notice on screen. [[cahitonur (Python)]](https://github.com/cahitonur/mini-project/blob/master/site_monitor/monitor.py)
 
@@ -150,7 +144,6 @@ Classes
 **Bank Account Manager** - Create a class called Account which will be an abstract class for three other classes called CheckingAccount, SavingsAccount and BusinessAccount. Manage credits and debits from these accounts through an ATM style program. [[Daytron (Python)]](https://github.com/Daytron/Projects/blob/master/Classes/bank_account_manager.py) 
 
 **Patient / Doctor Scheduler** - Create a patient class and a doctor class. Have a doctor that can handle multiple patients and setup a scheduling program where a doctor can only handle 16 patients during an 8 hr work day.
-[[rnikhil275]](https://github.com/rnikhil275/scripts/blob/master/schedule.py)
 
 **Recipe Creator and Manager** - Create a recipe class with ingredients and a put them in a recipe manager program that organizes them into categories like deserts, main courses or by ingredients like chicken, beef, soups, pies etc.
 
@@ -176,13 +169,13 @@ Threading
 Web
 ---------
 
-**Page Scraper** - Create an application which connects to a site and pulls out all links, or images, and saves them to a list. *Optional: Organize the indexed content and don’t allow duplicates. Have it put the results into an easily searchable index file.* [[mouradmourafiq (python)]](https://github.com/mouradmourafiq/pages-jaunes-maroc)[[chillaranand (python)]](https://github.com/ChillarAnand/site_crawler) [[tapasweni-pathak (python)]](https://github.com/tapasweni-pathak/STW-Collection) [[brahalla (python)]](https://github.com/brahalla/Scripts/blob/master/web/scrape_links.py)
+**Page Scraper** - Create an application which connects to a site and pulls out all links, or images, and saves them to a list. *Optional: Organize the indexed content and don’t allow duplicates. Have it put the results into an easily searchable index file.* [[mouradmourafiq (python)]](https://github.com/mouradmourafiq/pages-jaunes-maroc)[[chillaranand (python)]](https://github.com/ChillarAnand/site_crawler) [[tapasweni-pathak (python)]](https://github.com/tapasweni-pathak/STW-Collection)
 
 **Web Browser with Tabs** - Create a small web browser that allows you to navigate the web and contains tabs which can be used to navigate to multiple web pages at once. For simplicity don’t worry about executing Javascript or other client side code.
 
 **Online White Board** - Create an application which allows you to draw pictures, write notes and use various colors to flesh out ideas for projects. *Optional: Add feature to invite friends to collaborate on a white board online.*
 
-**Get Atomic Time from Internet Clock** - This program will get the true atomic time from an atomic time clock on the Internet. Use any one of the atomic clocks returned by a simple Google search. [[rnikhil275 (Python)]](https://github.com/rnikhil275/scripts/blob/master/time.py)
+**Get Atomic Time from Internet Clock** - This program will get the true atomic time from an atomic time clock on the Internet. Use any one of the atomic clocks returned by a simple Google search.
 
 **Fetch Current Weather** - Get the current weather for a given zip/postal code. *Optional: Try locating the user automatically.*
 [[chillaranand (python)]](https://github.com/ChillarAnand/Weather-on-Terminal) [[tapasweni-pathak (python)]](https://github.com/tapasweni-pathak/Scripts/blob/master/Weather.py) [[viktorahlstrom (Python)]](https://github.com/viktorahlstrom/pyweather)
