@@ -1,0 +1,78 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import random
+
+a=[]
+for i in range(0, 2):
+     b=[]
+     for i in range(0, 100):
+              
+              b.append(str(random.randrange(100)))
+     a.append(b)
+print(a)
+dt= pd.DataFrame(a, columns=['x','y'])
+dt.head()
+x= dt["x"].values
+y=dt['y'].values
+print(x)
+p=len(x)
+plt.plot(x,y,"o")
+x_mean=np.mean(x)
+y_mean=np.mean(y)
+q=0
+r=0
+for i in range(p):
+    
+    q=q+(x[i]-x_mean)*(y[i]-y_mean)
+    r=r+(x[i]-x_mean)**2
+b0=q/r
+b1=y_mean-(b0*x_mean)    
+y_pred=b1+b0*x
+plt.plot(x,y_pred)
+plt.plot(x,y,"o")
+print(y_pred)
+#finding the rss 
+residual=(y-y_pred)
+u=(residual*residual).sum()
+print(u)
+a=(y-y_pred)**2
+num=a.sum()
+print(num)
+b=(y-y_mean)**2
+
+den=b.sum()
+print("the r_squared value of the  line is ",1-(num/den))
+#finding the mean absolute error
+def dse(y,y_pred,p):
+    r=(y-y_pred)
+    r=r.sum()
+    print(r)
+    print("the mae is",r/len(y))
+dse(y,y_pred,p)
+#finding mean absolute error percentage
+def dse(y,y_pred,p):
+    r=(y-y_pred)/y
+    r=r.sum()
+    print(r)
+    print("the mae is",r/len(y))
+dse(y,y_pred,p)
+#using sk learn 
+x = dt.iloc[:,:1].values
+y = dt.iloc[:,-1:].values
+print(x,y)
+from sklearn.model_selection import train_test_split
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=.25)
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression
+reg = LinearRegression()
+
+reg.fit(x_train,y_train)
+print(r.coef_)
+print(r.intercept_)
+y_pred=r.predict(x_test)
+plt.scatter(x_test,y_test,c="b")
+plt.plot(x_test,y_pred)
+    
+    
+                 
