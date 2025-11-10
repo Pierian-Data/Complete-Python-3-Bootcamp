@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FX Volatility P&L Analytics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #f6f7fb;
+      color: #1f2933;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+    h1, h2, h3 {
+      font-weight: 700;
+      color: #0b1f33;
+    }
+    section {
+      margin-bottom: 2rem;
+      background: #ffffff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    input[type="file"], select, input[type="number"], input[type="text"], textarea {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      background-color: #f8fafc;
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+    .status {
+      font-size: 0.9rem;
+      color: #475569;
+      margin-top: -0.5rem;
+      margin-bottom: 1rem;
+    }
+    button {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 12px 20px rgba(37, 99, 235, 0.25);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    button:disabled {
+      background: #cbd5e1;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 26px rgba(37, 99, 235, 0.35);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+      font-size: 0.92rem;
+    }
+    th, td {
+      padding: 0.75rem 0.6rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    th {
+      background-color: #f1f5f9;
+      font-weight: 700;
+    }
+    .heatmap-table td[data-pnl] {
+      cursor: pointer;
+      border-radius: 8px;
+      transition: transform 0.1s ease;
+    }
+    .heatmap-table td[data-pnl]:hover {
+      transform: translateY(-2px);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .flex-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .tag {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      background: #e2e8f0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-right: 0.5rem;
+    }
+    .ranking {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .ranking ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+    .ranking li {
+      padding: 0.5rem 0;
+      border-bottom: 1px dashed #cbd5e1;
+      font-size: 0.92rem;
+    }
+    .ranking span.value {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      max-width: 760px;
+      width: 95vw;
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #475569;
+    }
+    .config-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+    .config-inline label {
+      margin-bottom: 0;
+    }
+    .note {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-top: -0.5rem;
+    }
+    @media (max-width: 700px) {
+      section {
+        padding: 1.1rem;
+      }
+      table {
+        font-size: 0.85rem;
+      }
+      th, td {
+        padding: 0.55rem 0.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <section>
+    <h1>FX Volatility P&L Analytics</h1>
+    <p>This single-page tool simulates the P&L of buying FX options (always long) and delta-hedging them at configurable frequencies, using zero rates and a normalised 100 million notional convention. Upload Bloomberg-style spot time series (10–30 minute sampling) and implied volatility surfaces (strike/tenor) to analyse which structures deliver positive economic P&L.</p>
+    <p class="note">Input expectations, the worked P&L example, and notional logic are documented in <code>README.md</code> beside this file.</p>
+  </section>
+
+  <section>
+    <h2>1. Upload Data</h2>
+    <div id="library-status" class="status note">Loading Excel parser…</div>
+    <div class="row">
+      <div>
+        <label for="spot-file">Spot time series (Excel)</label>
+        <input type="file" id="spot-file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+        <div id="spot-status" class="status">Awaiting upload. Columns: <strong>timestamp</strong>, <strong>PAIR1</strong>, …</div>
+      </div>
+      <div>
+        <label for="vol-file">Implied vols & strikes (Excel)</label>
+        <input type="file" id="vol-file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+        <div id="vol-status" class="status">Awaiting upload. Columns: <strong>pair</strong>, <strong>tenor_hours</strong> (or tenor_days), <strong>option_type</strong>, <strong>strike_label</strong> (e.g. ATM, 25D Call; leave blank to auto-label), <strong>implied_vol</strong>, optional <strong>strike</strong>/<strong>delta_target</strong>.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Configure Simulation</h2>
+    <div class="row">
+      <div>
+        <label for="pair-select">Currency pairs</label>
+        <select id="pair-select" multiple size="6"></select>
+        <div class="note">Pairs populated after loading both files. Hold Ctrl/Cmd to select several. Leave empty for all.</div>
+      </div>
+      <div>
+        <label for="strike-select">Strike buckets</label>
+        <select id="strike-select" multiple size="6"></select>
+        <div class="note">e.g. ATM, 25D Call, 10D Put. Leave empty to include every strike label.</div>
+      </div>
+      <div>
+        <label for="hedge-frequency">Hedge every (minutes)</label>
+        <select id="hedge-frequency">
+          <option value="10">10 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="60">60 minutes</option>
+        </select>
+      </div>
+    </div>
+
+    <h3>Variance Decay</h3>
+    <div class="config-inline">
+      <label><input type="radio" name="variance-mode" value="standard" checked> Standard √t decay</label>
+      <label><input type="radio" name="variance-mode" value="flat"> Flat (no decay)</label>
+      <label><input type="radio" name="variance-mode" value="event"> Event-weighted window</label>
+    </div>
+    <div id="event-config" class="row hidden" style="margin-top: 1rem;">
+      <div>
+        <label for="event-start">Event window start (hours from t₀)</label>
+        <input type="number" id="event-start" min="0" step="0.25" placeholder="e.g. 10">
+      </div>
+      <div>
+        <label for="event-end">Event window end (hours from t₀)</label>
+        <input type="number" id="event-end" min="0" step="0.25" placeholder="e.g. 12">
+      </div>
+      <div>
+        <label for="event-share">Variance share in window (0-1)</label>
+        <input type="number" id="event-share" min="0" max="1" step="0.05" placeholder="0.70">
+        <div class="note">Remaining variance is distributed proportionally before/after the event.</div>
+      </div>
+    </div>
+    <button id="run-btn" disabled>Run P&L Simulation</button>
+  </section>
+
+  <section id="results" class="hidden">
+    <div class="flex-between">
+      <h2>3. P&L Dashboard</h2>
+      <button id="export-btn">Download Excel Report</button>
+    </div>
+    <div id="summary"></div>
+    <div class="ranking" id="ranking"></div>
+    <div id="vol-comparison"></div>
+  </section>
+</main>
+
+<div id="modal" class="hidden"></div>
+
+<script>
+(function() {
+  const SHEETJS_SOURCES = [
+    './xlsx.full.min.js',
+    'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+    'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js'
+  ];
+  let sheetJsIndex = 0;
+  let initialised = false;
+
+  function describeSource(src) {
+    if (!src) return '';
+    if (/^https?:/i.test(src)) {
+      try {
+        return new URL(src).host;
+      } catch (_) {
+        return src;
+      }
+    }
+    return src;
+  }
+
+  function disableInterface(libraryStatus, spotStatus, volStatus, runBtn, exportBtn, message) {
+    const guidance = `${message} If you are offline, download SheetJS \"xlsx.full.min.js\" and place it next to this file, then reload.`;
+    if (libraryStatus) libraryStatus.textContent = guidance;
+    if (spotStatus) spotStatus.textContent = `Error: ${guidance}`;
+    if (volStatus) volStatus.textContent = `Error: ${guidance}`;
+    if (runBtn) runBtn.disabled = true;
+    if (exportBtn) exportBtn.disabled = true;
+  }
+
+  function bootstrapApp() {
+    const libraryStatus = document.getElementById('library-status');
+    const spotStatus = document.getElementById('spot-status');
+    const volStatus = document.getElementById('vol-status');
+    const runBtn = document.getElementById('run-btn');
+    const exportBtn = document.getElementById('export-btn');
+
+    if (typeof XLSX === 'undefined') {
+      if (sheetJsIndex >= SHEETJS_SOURCES.length) {
+        disableInterface(libraryStatus, spotStatus, volStatus, runBtn, exportBtn, 'Unable to load Excel parser (SheetJS).');
+        return;
+      }
+      const src = SHEETJS_SOURCES[sheetJsIndex++];
+      if (libraryStatus) libraryStatus.textContent = `Loading Excel parser… (${describeSource(src)})`;
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      script.onload = () => {
+        if (typeof XLSX === 'undefined') {
+          script.remove();
+          bootstrapApp();
+          return;
+        }
+        bootstrapApp();
+      };
+      script.onerror = () => {
+        script.remove();
+        bootstrapApp();
+      };
+      document.head.appendChild(script);
+      return;
+    }
+
+    if (initialised) return;
+    initialised = true;
+    if (libraryStatus) libraryStatus.textContent = 'Excel parser ready.';
+    if (runBtn) runBtn.disabled = true;
+    if (exportBtn) exportBtn.disabled = true;
+
+    const spotInput = document.getElementById('spot-file');
+    const volInput = document.getElementById('vol-file');
+    const resultsSection = document.getElementById('results');
+    const summaryDiv = document.getElementById('summary');
+    const rankingDiv = document.getElementById('ranking');
+    const volDiv = document.getElementById('vol-comparison');
+    const pairSelect = document.getElementById('pair-select');
+    const strikeSelect = document.getElementById('strike-select');
+    const hedgeFrequency = document.getElementById('hedge-frequency');
+    const eventConfig = document.getElementById('event-config');
+    const varianceRadios = Array.from(document.querySelectorAll('input[name="variance-mode"]'));
+
+    let spotData = null;
+    let volData = null;
+    let resultMap = {};
+    let latestResults = [];
+
+    function erf(x) {
+      const sign = x >= 0 ? 1 : -1;
+      const absX = Math.abs(x);
+      const a1 = 0.254829592;
+      const a2 = -0.284496736;
+      const a3 = 1.421413741;
+      const a4 = -1.453152027;
+      const a5 = 1.061405429;
+      const p = 0.3275911;
+      const t = 1 / (1 + p * absX);
+      const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX);
+      return sign * y;
+    }
+
+    const normCdf = (x) => 0.5 * (1 + erf(x / Math.SQRT2));
+
+    function bsPrice(S, K, sigma, tau, type) {
+      if (tau <= 0 || sigma === 0) {
+        const intrinsic = type === 'call' ? Math.max(S - K, 0) : Math.max(K - S, 0);
+        return intrinsic;
+      }
+      const sqrtTau = Math.sqrt(tau);
+      const d1 = (Math.log(S / K) + 0.5 * sigma * sigma * tau) / (sigma * sqrtTau);
+      const d2 = d1 - sigma * sqrtTau;
+      if (type === 'call') {
+        return S * normCdf(d1) - K * normCdf(d2);
+      }
+      return K * normCdf(-d2) - S * normCdf(-d1);
+    }
+
+    function bsDelta(S, K, sigma, tau, type) {
+      if (tau <= 0 || sigma === 0) {
+        if (type === 'call') {
+          if (S > K) return 1;
+          if (S < K) return 0;
+          return 0.5;
+        }
+        if (S < K) return -1;
+        if (S > K) return 0;
+        return -0.5;
+      }
+      const d1 = (Math.log(S / K) + 0.5 * sigma * sigma * tau) / (sigma * Math.sqrt(tau));
+      return type === 'call' ? normCdf(d1) : normCdf(d1) - 1;
+    }
+
+    function parseExcelDate(value) {
+      if (value === undefined || value === null || value === '') return null;
+      if (value instanceof Date) return value;
+      if (typeof value === 'number') {
+        const parsed = XLSX.SSF.parse_date_code(value);
+        if (!parsed) return null;
+        return new Date(Date.UTC(parsed.y, parsed.m - 1, parsed.d, parsed.H, parsed.M, parsed.S));
+      }
+      const date = new Date(value);
+      return isNaN(date.getTime()) ? null : date;
+    }
+
+    function parseSpotWorkbook(workbook) {
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, {header: 1, raw: true});
+      if (!rows.length) return {};
+      const headers = rows[0].map(h => (h || '').toString().trim());
+      const timestampIndex = headers.findIndex(h => h.toLowerCase() === 'timestamp');
+      if (timestampIndex === -1) throw new Error('Spot file must contain a "timestamp" column.');
+      const pairColumns = headers
+        .map((name, idx) => ({ name: (name || '').toString().trim(), idx }))
+        .filter(col => col.idx !== timestampIndex && col.name);
+      const data = {};
+      pairColumns.forEach(col => {
+        data[col.name.toUpperCase()] = [];
+      });
+
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.length === 0) continue;
+        const timestamp = parseExcelDate(row[timestampIndex]);
+        if (!timestamp) continue;
+        pairColumns.forEach(col => {
+          const value = parseFloat(row[col.idx]);
+          if (!isFinite(value)) return;
+          const key = col.name.toUpperCase();
+          data[key].push({ time: timestamp, price: value });
+        });
+      }
+
+      Object.keys(data).forEach(pair => {
+        data[pair].sort((a, b) => a.time - b.time);
+      });
+      return data;
+    }
+
+    function parseVolWorkbook(workbook) {
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, {defval: null});
+      return rows.map(row => {
+        const pair = (row.pair || row.Pair || row.PAIR || '').toString().toUpperCase().replace(/[^A-Z]/g, '');
+        const optionTypeRaw = (row.option_type || row.OptionType || row.type || '').toString().toLowerCase();
+        const optionType = optionTypeRaw.includes('put') ? 'put' : 'call';
+        const tenorHours = (() => {
+          const h = parseFloat(row.tenor_hours ?? row.tenorHours ?? row.TenorHours);
+          if (isFinite(h) && h > 0) return h;
+          const days = parseFloat(row.tenor_days ?? row.tenorDays ?? row.TenorDays);
+          if (isFinite(days) && days > 0) return days * 24;
+          return null;
+        })();
+        const impliedRaw = parseFloat(row.implied_vol ?? row.ImpliedVol ?? row.vol ?? row.Vol);
+        const impliedVol = isFinite(impliedRaw) ? (impliedRaw > 3 ? impliedRaw / 100 : impliedRaw) : null;
+        const strikeValue = parseFloat(row.strike ?? row.Strike ?? row.K ?? row.k);
+        const strike = isFinite(strikeValue) ? strikeValue : null;
+        const deltaTargetRaw = row.delta_target ?? row.DeltaTarget ?? row.delta ?? row.Delta;
+        let deltaTarget = null;
+        if (deltaTargetRaw !== null && deltaTargetRaw !== undefined && deltaTargetRaw !== '') {
+          if (typeof deltaTargetRaw === 'string') {
+            const cleaned = deltaTargetRaw.trim().toUpperCase();
+            const sign = cleaned.endsWith('P') ? -1 : 1;
+            const numeric = parseFloat(cleaned.replace(/[^0-9.\-]/g, ''));
+            if (isFinite(numeric)) deltaTarget = sign * numeric;
+          } else {
+            const numeric = parseFloat(deltaTargetRaw);
+            if (isFinite(numeric)) deltaTarget = numeric;
+          }
+        }
+        if (deltaTarget !== null && Math.abs(deltaTarget) > 1) {
+          deltaTarget = deltaTarget / 100;
+        }
+        const providedLabel = row.strike_label ?? row.StrikeLabel ?? row.bucket ?? row.label ?? row.Label;
+        let strikeLabel = '';
+        if (providedLabel !== undefined && providedLabel !== null) {
+          strikeLabel = providedLabel.toString().trim();
+        }
+        if (!strikeLabel) {
+          if (deltaTarget !== null) {
+            const suffix = optionType === 'call' ? 'C' : 'P';
+            const absDelta = Math.abs(deltaTarget);
+            if (Math.abs(absDelta - 0.5) < 0.02) {
+              strikeLabel = 'ATM';
+            } else {
+              const deltaPct = absDelta * 100;
+              const precision = deltaPct % 1 === 0 ? 0 : (deltaPct < 10 ? 2 : 1);
+              strikeLabel = `${deltaPct.toFixed(precision)}Δ${suffix}`;
+            }
+          } else if (strike !== null) {
+            strikeLabel = `K=${strike}`;
+          } else {
+            strikeLabel = optionType.toUpperCase();
+          }
+        }
+        const comment = row.comment ?? row.Comment ?? '';
+        return {
+          pair,
+          optionType,
+          strikeLabel,
+          tenorHours,
+          impliedVol,
+          strike,
+          deltaTarget: isFinite(deltaTarget) ? deltaTarget : null,
+          comment
+        };
+      }).filter(r => r.pair && r.tenorHours && r.impliedVol);
+    }
+
+    function determineNotional(pair) {
+      const clean = pair.replace(/[^A-Z]/g, '').toUpperCase();
+      if (clean.length < 6) return { notional: 100_000_000, currency: 'unitless' };
+      const base = clean.slice(0, 3);
+      const quote = clean.slice(3, 6);
+      if (quote === 'USD') {
+        return { notional: 100_000_000, currency: 'USD' };
+      }
+      return { notional: 100_000_000, currency: quote };
+    }
+
+    function strikeFromDelta(S0, sigma, tau, deltaTarget, optionType) {
+      if (!isFinite(deltaTarget) || !isFinite(sigma) || tau <= 0) return S0;
+      let low = 0.1 * S0;
+      let high = 3 * S0;
+      for (let i = 0; i < 80; i++) {
+        const mid = (low + high) / 2;
+        const d = bsDelta(S0, mid, sigma, tau, optionType);
+        if (d < deltaTarget) {
+          high = mid;
+        } else {
+          low = mid;
+        }
+      }
+      return (low + high) / 2;
+    }
+
+    function effectiveSigma(baseSigma, remainingTau, totalTau, elapsedHours, totalHours, config) {
+      if (remainingTau <= 0) return 0;
+      if (config.mode === 'flat') return baseSigma;
+      if (config.mode === 'standard') {
+        if (totalTau <= 0) return baseSigma;
+        return baseSigma * Math.sqrt(Math.max(remainingTau, 0) / totalTau);
+      }
+      const totalVariance = baseSigma * baseSigma * totalTau;
+      const start = Math.max(0, config.eventStart || 0);
+      const end = Math.max(start, config.eventEnd || start);
+      const share = Math.min(Math.max(config.eventShare ?? 0.7, 0), 1);
+      const total = totalHours;
+      const preDuration = Math.max(Math.min(start, total), 0);
+      const eventDuration = Math.max(Math.min(end, total) - preDuration, 0);
+      const postDuration = Math.max(total - preDuration - eventDuration, 0);
+      const remainderShare = 1 - share;
+      const preVariance = preDuration > 0 ? remainderShare * (preDuration / (preDuration + postDuration || 1)) : 0;
+      const postVariance = remainderShare - preVariance;
+      const eventVariance = share;
+
+      const rate = duration => duration <= 0 ? 0 : 1 / duration;
+      const consumedHours = Math.min(Math.max(elapsedHours, 0), total);
+
+      let consumedShare = 0;
+      if (preDuration > 0) {
+        const consumedPre = Math.min(consumedHours, preDuration);
+        consumedShare += preVariance * (consumedPre * rate(preDuration));
+      }
+      if (eventDuration > 0 && consumedHours > preDuration) {
+        const consumedEvent = Math.min(consumedHours - preDuration, eventDuration);
+        consumedShare += eventVariance * (consumedEvent * rate(eventDuration));
+      }
+      if (postDuration > 0 && consumedHours > preDuration + eventDuration) {
+        const consumedPost = Math.min(consumedHours - preDuration - eventDuration, postDuration);
+        consumedShare += postVariance * (consumedPost * rate(postDuration));
+      }
+
+      const remainingShare = Math.max(0, 1 - consumedShare);
+      const remainingVariance = totalVariance * remainingShare;
+      return Math.sqrt(remainingVariance / remainingTau);
+    }
+
+    function interpolateSpotSeries(series, schedule) {
+      const result = [];
+      let lastKnownIndex = 0;
+      for (const time of schedule) {
+        while (lastKnownIndex < series.length - 1 && series[lastKnownIndex + 1].time <= time) {
+          lastKnownIndex++;
+        }
+        const current = series[lastKnownIndex];
+        const next = series[lastKnownIndex + 1];
+        if (!current) {
+          result.push(null);
+        } else if (!next || next.time <= current.time) {
+          result.push({ time, price: current.price });
+        } else {
+          const fraction = (time - current.time) / (next.time - current.time);
+          const price = current.price + fraction * (next.price - current.price);
+          result.push({ time, price });
+        }
+      }
+      return result;
+    }
+
+    function buildSchedule(startTime, endTime, hedgeMinutes) {
+      const schedule = [];
+      for (let t = startTime; t <= endTime; t += hedgeMinutes * 60 * 1000) {
+        schedule.push(t);
+      }
+      if (schedule[schedule.length - 1] !== endTime) {
+        schedule.push(endTime);
+      }
+      return schedule;
+    }
+
+    function linearInterpolate(x0, y0, x1, y1, x) {
+      if (x1 === x0) return y0;
+      return y0 + (y1 - y0) * ((x - x0) / (x1 - x0));
+    }
+
+    function annualisedRealisedVol(spots) {
+      if (spots.length < 2) return 0;
+      let sumSquared = 0;
+      for (let i = 1; i < spots.length; i++) {
+        const prev = spots[i - 1];
+        const curr = spots[i];
+        const ret = Math.log(curr.price / prev.price);
+        sumSquared += ret * ret;
+      }
+      const totalHours = (spots[spots.length - 1].time - spots[0].time) / (1000 * 60 * 60);
+      if (totalHours <= 0) return 0;
+      const variance = sumSquared / (spots.length - 1);
+      return Math.sqrt(variance * (365 * 24 / totalHours));
+    }
+
+    function simulateOption(option, series, settings) {
+      if (!series || series.length < 2) throw new Error('Insufficient spot history');
+      const hedgeMinutes = settings.hedgeMinutes;
+      const tenorHours = option.tenorHours;
+      const startTime = series[0].time.getTime();
+      const endTime = startTime + tenorHours * 60 * 60 * 1000;
+      const lastTime = series[series.length - 1].time.getTime();
+      if (lastTime < endTime) throw new Error('Spot series ends before option expiry.');
+      const schedule = buildSchedule(startTime, endTime, hedgeMinutes);
+      const interpolated = interpolateSpotSeries(series, schedule);
+      const S0 = interpolated[0].price;
+      const { notional, currency } = determineNotional(option.pair);
+      const tauTotal = tenorHours / (24 * 365);
+      const strike = option.strike ?? strikeFromDelta(S0, option.impliedVol, tauTotal, option.deltaTarget ?? (option.optionType === 'call' ? 0.5 : -0.5), option.optionType);
+      const premiumPerUnit = bsPrice(S0, strike, option.impliedVol, tauTotal, option.optionType);
+      const premiumCash = premiumPerUnit * notional;
+      let cumulativeHedge = 0;
+      let hedgeUnits = 0;
+      const pnlPath = [];
+      const hedgeRecords = [];
+      let previousDelta = 0;
+      let realisedSpots = [];
+      for (let i = 0; i < interpolated.length; i++) {
+        const point = interpolated[i];
+        if (!point) throw new Error('Missing interpolated spot.');
+        const time = point.time;
+        const spot = point.price;
+        const elapsedHours = (time - startTime) / (1000 * 60 * 60);
+        const remainingHours = Math.max(0, tenorHours - elapsedHours);
+        const tauRemaining = remainingHours / (24 * 365);
+        const sigma = effectiveSigma(option.impliedVol, tauRemaining, tauTotal, elapsedHours, tenorHours, settings.variance);
+        const optionValue = bsPrice(spot, strike, sigma, tauRemaining, option.optionType);
+        const delta = bsDelta(spot, strike, sigma, tauRemaining, option.optionType);
+        if (i === 0) {
+          hedgeUnits = delta * notional;
+          previousDelta = delta;
+          realisedSpots.push({ time, price: spot });
+          pnlPath.push({ time, hedge: 0, optionMtm: optionValue * notional, total: -premiumCash + optionValue * notional });
+          hedgeRecords.push({
+            time,
+            spot,
+            deltaPrev: delta,
+            hedgeUnitsBase: hedgeUnits,
+            spotChange: 0,
+            stepHedgePnl: 0,
+            cumulativeHedge: 0,
+            optionMtm: optionValue * notional,
+            totalPnl: -premiumCash + optionValue * notional
+          });
+          continue;
+        }
+        const prevSpot = interpolated[i - 1].price;
+        const spotChange = spot - prevSpot;
+        const stepPnl = -hedgeUnits * spotChange;
+        cumulativeHedge += stepPnl;
+        realisedSpots.push({ time, price: spot });
+        hedgeUnits = delta * notional;
+        previousDelta = delta;
+        const totalPnl = -premiumCash + cumulativeHedge + optionValue * notional;
+        pnlPath.push({ time, hedge: cumulativeHedge, optionMtm: optionValue * notional, total: totalPnl });
+        hedgeRecords.push({
+          time,
+          spot,
+          deltaPrev: delta,
+          hedgeUnitsBase: hedgeUnits,
+          spotChange,
+          stepHedgePnl: stepPnl,
+          cumulativeHedge,
+          optionMtm: optionValue * notional,
+          totalPnl
+        });
+      }
+      const finalSpot = interpolated[interpolated.length - 1].price;
+      const intrinsic = option.optionType === 'call' ? Math.max(finalSpot - strike, 0) : Math.max(strike - finalSpot, 0);
+      const intrinsicCash = intrinsic * notional;
+      const totalPnl = -premiumCash + cumulativeHedge + intrinsicCash;
+      const realisedVol = annualisedRealisedVol(realisedSpots);
+      return {
+        pair: option.pair,
+        strikeLabel: option.strikeLabel,
+        tenorHours,
+        optionType: option.optionType,
+        premiumCash,
+        hedgePnl: cumulativeHedge,
+        intrinsicCash,
+        totalPnl,
+        impliedVol: option.impliedVol,
+        realisedVol,
+        currency,
+        pnlPath,
+        hedgeRecords
+      };
+    }
+
+    function formatNumber(value) {
+      return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+
+    function formatPercent(value) {
+      return (value * 100).toFixed(2) + '%';
+    }
+
+    function formatPnl(value) {
+      return value >= 0 ? `<span style="color:#16a34a;">${formatNumber(value)}</span>` : `<span style="color:#dc2626;">${formatNumber(value)}</span>`;
+    }
+
+    function renderPnlCell(res) {
+      const colour = res.totalPnl >= 0 ? 'rgba(34,197,94,0.15)' : 'rgba(248,113,113,0.18)';
+      return `<td data-result-id="${res.pair}_${res.strikeLabel}_${res.tenorHours}_${res.optionType}" data-pnl style="background:${colour};">${formatNumber(res.totalPnl)}</td>`;
+    }
+
+    function buildHeatmap(results) {
+      const grouped = {};
+      results.forEach(res => {
+        if (!grouped[res.pair]) grouped[res.pair] = {};
+        if (!grouped[res.pair][res.strikeLabel]) grouped[res.pair][res.strikeLabel] = [];
+        grouped[res.pair][res.strikeLabel].push(res);
+      });
+      const pairs = Object.keys(grouped).sort();
+      const strikeLabels = Array.from(new Set(results.map(r => r.strikeLabel))).sort();
+      const header = `<tr><th>Pair</th>${strikeLabels.map(label => `<th>${label}</th>`).join('')}</tr>`;
+      const rows = pairs.map(pair => {
+        const cells = strikeLabels.map(label => {
+          const item = grouped[pair][label]?.[0];
+          return item ? renderPnlCell(item) : '<td>—</td>';
+        }).join('');
+        return `<tr><th>${pair}</th>${cells}</tr>`;
+      }).join('');
+      return `<h3>P&L Heatmap</h3><table class="heatmap-table">${header}${rows}</table>`;
+    }
+
+    function renderRanking(results) {
+      if (!results.length) return '';
+      const sorted = [...results].sort((a, b) => b.totalPnl - a.totalPnl);
+      const best = sorted.slice(0, 5);
+      const worst = sorted.slice(-5).reverse();
+      const formatEntry = (res) => `<li><span class="value">${formatNumber(res.totalPnl)}</span> · ${res.pair} ${res.strikeLabel} ${res.tenorHours}h ${res.optionType.toUpperCase()}</li>`;
+      return `
+        <h3>P&L Rankings</h3>
+        <div class="ranking">
+          <div>
+            <h4>Top trades</h4>
+            <ul>${best.map(formatEntry).join('')}</ul>
+          </div>
+          <div>
+            <h4>Bottom trades</h4>
+            <ul>${worst.map(formatEntry).join('')}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderVolComparison(results) {
+      if (!results.length) return '';
+      const rows = results.map(res => {
+        const diff = res.realisedVol - res.impliedVol;
+        const flag = diff > 0 && res.totalPnl < 0 ? '<span class="pill" style="background:#fee2e2;color:#b91c1c;">High σ but negative P&L</span>' :
+                      (diff < 0 && res.totalPnl > 0 ? '<span class="pill" style="background:#dcfce7;color:#15803d;">Low σ but profitable</span>' : '');
+        return `<tr>
+        <td>${res.pair}</td>
+        <td>${res.strikeLabel}</td>
+        <td>${res.tenorHours}</td>
+        <td>${res.optionType.toUpperCase()}</td>
+        <td>${(res.impliedVol * 100).toFixed(2)}%</td>
+        <td>${(res.realisedVol * 100).toFixed(2)}%</td>
+        <td>${(diff * 100).toFixed(2)}%</td>
+        <td>${flag}</td>
+      </tr>`;
+      }).join('');
+      return `
+      <h3>Realised vs Implied Volatility</h3>
+      <table>
+        <tr><th>Pair</th><th>Strike</th><th>Tenor (h)</th><th>Type</th><th>Implied σ</th><th>Realised σ</th><th>Realised - Implied</th><th>Insight</th></tr>
+        ${rows}
+      </table>
+    `;
+    }
+
+    function attachCellEvents(container, resultMap) {
+      container.querySelectorAll('td[data-result-id]').forEach(cell => {
+        cell.addEventListener('click', () => {
+          const id = cell.getAttribute('data-result-id');
+          const result = resultMap[id];
+          if (result) openModal(result);
+        });
+      });
+    }
+
+    function openModal(result) {
+      const modal = document.getElementById('modal');
+      modal.classList.remove('hidden');
+      modal.innerHTML = `
+      <div class="modal-backdrop">
+        <div class="modal">
+          <div class="modal-header">
+            <div>
+              <h3>${result.pair} · ${result.strikeLabel} · ${result.tenorHours}h ${result.optionType.toUpperCase()}</h3>
+              <p class="note">Notional: 100m ${result.currency}. Premium ${formatNumber(result.premiumCash)}, hedge P&L ${formatNumber(result.hedgePnl)}, intrinsic ${formatNumber(result.intrinsicCash)}, total ${formatNumber(result.totalPnl)}.</p>
+            </div>
+            <button class="close-btn" aria-label="Close">×</button>
+          </div>
+          <canvas id="pnl-chart" height="280"></canvas>
+        </div>
+      </div>
+    `;
+      modal.querySelector('.close-btn').addEventListener('click', closeModal);
+      const backdrop = modal.querySelector('.modal-backdrop');
+      backdrop.addEventListener('click', (evt) => {
+        if (evt.target === backdrop) closeModal();
+      });
+      renderChart(result);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('modal');
+      modal.classList.add('hidden');
+      modal.innerHTML = '';
+    }
+
+    function renderChart(result) {
+      const ctx = document.getElementById('pnl-chart');
+      const labels = result.pnlPath.map(p => new Date(p.time).toLocaleString());
+      const premiumLine = result.pnlPath.map(p => -result.premiumCash);
+      const hedgeLine = result.pnlPath.map(p => p.hedge);
+      const mtmLine = result.pnlPath.map(p => p.optionMtm);
+      const totalLine = result.pnlPath.map(p => p.total);
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Premium (constant)', data: premiumLine, borderColor: '#0ea5e9', borderDash: [6, 6], tension: 0.2 },
+            { label: 'Cumulative hedge P&L', data: hedgeLine, borderColor: '#f97316', tension: 0.3 },
+            { label: 'Option MTM / Intrinsic', data: mtmLine, borderColor: '#22c55e', tension: 0.3 },
+            { label: 'Total P&L', data: totalLine, borderColor: '#1d4ed8', tension: 0.3, borderWidth: 2 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              ticks: {
+                callback: value => formatNumber(value)
+              }
+            }
+          },
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
+
+    function exportToExcel(results) {
+      if (!results.length) return;
+      const wb = XLSX.utils.book_new();
+      const summaryData = [
+        ['Pair', 'Strike', 'Tenor (h)', 'Type', 'Premium', 'Hedge P&L', 'Intrinsic', 'Total P&L', 'Implied σ', 'Realised σ', 'Realised - Implied']
+      ];
+      results.forEach(res => {
+        summaryData.push([
+          res.pair,
+          res.strikeLabel,
+          res.tenorHours,
+          res.optionType.toUpperCase(),
+          res.premiumCash,
+          res.hedgePnl,
+          res.intrinsicCash,
+          res.totalPnl,
+          res.impliedVol,
+          res.realisedVol,
+          res.realisedVol - res.impliedVol
+        ]);
+      });
+      const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+      XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
+
+      const detailData = [['Pair', 'Strike', 'Tenor (h)', 'Type', 'Timestamp', 'Spot', 'Delta (prev)', 'Hedge Units (base)', 'Spot Δ', 'Step Hedge P&L', 'Cumulative Hedge', 'Option MTM', 'Total P&L']];
+      results.forEach(res => {
+        res.hedgeRecords.forEach(rec => {
+          detailData.push([
+            res.pair,
+            res.strikeLabel,
+            res.tenorHours,
+            res.optionType.toUpperCase(),
+            new Date(rec.time).toISOString(),
+            rec.spot,
+            rec.deltaPrev,
+            rec.hedgeUnitsBase,
+            rec.spotChange,
+            rec.stepHedgePnl,
+            rec.cumulativeHedge,
+            rec.optionMtm,
+            rec.totalPnl
+          ]);
+        });
+      });
+      const detailSheet = XLSX.utils.aoa_to_sheet(detailData);
+      XLSX.utils.book_append_sheet(wb, detailSheet, 'HedgePaths');
+
+      XLSX.writeFile(wb, 'fx_vol_pnl_report.xlsx');
+    }
+
+    function updateRunAvailability() {
+      runBtn.disabled = !(spotData && volData);
+    }
+
+    spotInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        spotStatus.textContent = 'Parsing spot data…';
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data, {type: 'array'});
+        spotData = parseSpotWorkbook(workbook);
+        const pairs = Object.keys(spotData);
+        spotStatus.textContent = `Loaded ${pairs.length} pairs (${pairs.slice(0, 6).join(', ')}${pairs.length > 6 ? ', …' : ''}).`;
+        refreshSelectors();
+      } catch (err) {
+        console.error(err);
+        spotStatus.textContent = `Error: ${err.message}`;
+        spotData = null;
+      }
+      updateRunAvailability();
+    });
+
+    volInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        volStatus.textContent = 'Parsing vol surface…';
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data, {type: 'array'});
+        volData = parseVolWorkbook(workbook);
+        volStatus.textContent = `Loaded ${volData.length} option records.`;
+        refreshSelectors();
+      } catch (err) {
+        console.error(err);
+        volStatus.textContent = `Error: ${err.message}`;
+        volData = null;
+      }
+      updateRunAvailability();
+    });
+
+    varianceRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.value === 'event' && radio.checked) {
+          eventConfig.classList.remove('hidden');
+        } else if (radio.checked) {
+          eventConfig.classList.add('hidden');
+        }
+      });
+    });
+
+    function refreshSelectors() {
+      if (!(spotData && volData)) return;
+      const spotPairs = new Set(Object.keys(spotData));
+      const volPairs = new Set(volData.map(v => v.pair));
+      const pairs = [...spotPairs].filter(pair => volPairs.has(pair));
+      pairSelect.innerHTML = pairs.map(p => `<option value="${p}">${p}</option>`).join('');
+      const strikeLabels = Array.from(new Set(volData.map(v => v.strikeLabel))).sort();
+      strikeSelect.innerHTML = strikeLabels.map(label => `<option value="${label}">${label}</option>`).join('');
+    }
+
+    runBtn.addEventListener('click', () => {
+      if (!(spotData && volData)) return;
+      const selectedPairs = Array.from(pairSelect.selectedOptions).map(opt => opt.value);
+      const selectedStrikes = Array.from(strikeSelect.selectedOptions).map(opt => opt.value);
+      const hedgeMinutes = parseInt(hedgeFrequency.value, 10);
+      const varianceMode = document.querySelector('input[name="variance-mode"]:checked').value;
+      const varianceConfig = {
+        mode: varianceMode,
+        eventStart: parseFloat(document.getElementById('event-start').value),
+        eventEnd: parseFloat(document.getElementById('event-end').value),
+        eventShare: parseFloat(document.getElementById('event-share').value)
+      };
+      const filtered = volData.filter(record => {
+        if (selectedPairs.length && !selectedPairs.includes(record.pair)) return false;
+        if (selectedStrikes.length && !selectedStrikes.includes(record.strikeLabel)) return false;
+        return true;
+      });
+      if (!filtered.length) {
+        summaryDiv.innerHTML = '<p>No options match the filters.</p>';
+        resultsSection.classList.remove('hidden');
+        return;
+      }
+
+      const results = [];
+      const errors = [];
+      filtered.forEach(option => {
+        try {
+          const res = simulateOption(option, spotData[option.pair], {
+            hedgeMinutes,
+            variance: varianceConfig
+          });
+          results.push(res);
+        } catch (err) {
+          errors.push(`${option.pair} ${option.strikeLabel} ${option.tenorHours}h: ${err.message}`);
+        }
+      });
+
+      if (!results.length) {
+        summaryDiv.innerHTML = `<p>No simulations completed.</p><pre>${errors.join('\n')}</pre>`;
+        resultsSection.classList.remove('hidden');
+        return;
+      }
+
+      latestResults = results;
+      const map = {};
+      results.forEach(res => {
+        const key = `${res.pair}_${res.strikeLabel}_${res.tenorHours}_${res.optionType}`;
+        map[key] = res;
+      });
+      resultMap = map;
+
+      summaryDiv.innerHTML = buildHeatmap(results);
+      rankingDiv.innerHTML = renderRanking(results);
+      volDiv.innerHTML = renderVolComparison(results);
+      resultsSection.classList.remove('hidden');
+      attachCellEvents(summaryDiv, resultMap);
+
+      if (errors.length) {
+        volDiv.insertAdjacentHTML('beforeend', `<p class="note">Warnings: ${errors.join(' | ')}</p>`);
+      }
+    });
+
+    exportBtn.addEventListener('click', () => {
+      if (!latestResults.length) return;
+      exportToExcel(latestResults);
+    });
+
+    updateRunAvailability();
+  }
+
+  bootstrapApp();
+})();
+
+</script>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #f6f7fb;
+      color: #1f2933;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+    h1, h2, h3 {
+      font-weight: 700;
+      color: #0b1f33;
+    }
+    section {
+      margin-bottom: 2rem;
+      background: #ffffff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    input[type="file"], select, input[type="number"], input[type="text"], textarea {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      background-color: #f8fafc;
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+    .status {
+      font-size: 0.9rem;
+      color: #475569;
+      margin-top: -0.5rem;
+      margin-bottom: 1rem;
+    }
+    button {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 12px 20px rgba(37, 99, 235, 0.25);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    button:disabled {
+      background: #cbd5e1;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 26px rgba(37, 99, 235, 0.35);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+      font-size: 0.92rem;
+    }
+    th, td {
+      padding: 0.75rem 0.6rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    th {
+      background-color: #f1f5f9;
+      font-weight: 700;
+    }
+    .heatmap-table td[data-pnl] {
+      cursor: pointer;
+      border-radius: 8px;
+      transition: transform 0.1s ease;
+    }
+    .heatmap-table td[data-pnl]:hover {
+      transform: translateY(-2px);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .flex-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .tag {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      background: #e2e8f0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-right: 0.5rem;
+    }
+    .ranking {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .ranking ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+    .ranking li {
+      padding: 0.5rem 0;
+      border-bottom: 1px dashed #cbd5e1;
+      font-size: 0.92rem;
+    }
+    .ranking span.value {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      max-width: 760px;
+      width: 95vw;
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #475569;
+    }
+    .config-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+    .config-inline label {
+      margin-bottom: 0;
+    }
+    .note {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-top: -0.5rem;
+    }
+    @media (max-width: 700px) {
+      section {
+        padding: 1.1rem;
+      }
+      table {
+        font-size: 0.85rem;
+      }
+      th, td {
+        padding: 0.55rem 0.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <section>
+    <h1>FX Volatility P&L Analytics</h1>
+    <p>This single-page tool simulates the P&L of buying FX options (always long) and delta-hedging them at configurable frequencies, using zero rates and a normalised 100 million notional convention. Upload Bloomberg-style spot time series (10–30 minute sampling) and implied volatility surfaces (strike/tenor) to analyse which structures deliver positive economic P&L.</p>
+    <p class="note">Input expectations, the worked P&L example, and notional logic are documented in <code>README.md</code> beside this file.</p>
+  </section>
+
+  <section>
+    <h2>1. Upload Data</h2>
+    <div id="library-status" class="status note">Loading Excel parser…</div>
+    <div class="row">
+      <div>
+        <label for="spot-file">Spot time series (Excel)</label>
+        <input type="file" id="spot-file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+        <div id="spot-status" class="status">Awaiting upload. Columns: <strong>timestamp</strong>, <strong>PAIR1</strong>, …</div>
+      </div>
+      <div>
+        <label for="vol-file">Implied vols & strikes (Excel)</label>
+        <input type="file" id="vol-file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+        <div id="vol-status" class="status">Awaiting upload. Columns: <strong>pair</strong>, <strong>tenor_hours</strong> (or tenor_days), <strong>option_type</strong>, <strong>strike_label</strong> (e.g. ATM, 25D Call; leave blank to auto-label), <strong>implied_vol</strong>, optional <strong>strike</strong>/<strong>delta_target</strong>.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Configure Simulation</h2>
+    <div class="row">
+      <div>
+        <label for="pair-select">Currency pairs</label>
+        <select id="pair-select" multiple size="6"></select>
+        <div class="note">Pairs populated after loading both files. Hold Ctrl/Cmd to select several. Leave empty for all.</div>
+      </div>
+      <div>
+        <label for="strike-select">Strike buckets</label>
+        <select id="strike-select" multiple size="6"></select>
+        <div class="note">e.g. ATM, 25D Call, 10D Put. Leave empty to include every strike label.</div>
+      </div>
+      <div>
+        <label for="hedge-frequency">Hedge every (minutes)</label>
+        <select id="hedge-frequency">
+          <option value="10">10 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="60">60 minutes</option>
+        </select>
+      </div>
+    </div>
+
+    <h3>Variance Decay</h3>
+    <div class="config-inline">
+      <label><input type="radio" name="variance-mode" value="standard" checked> Standard √t decay</label>
+      <label><input type="radio" name="variance-mode" value="flat"> Flat (no decay)</label>
+      <label><input type="radio" name="variance-mode" value="event"> Event-weighted window</label>
+    </div>
+    <div id="event-config" class="row hidden" style="margin-top: 1rem;">
+      <div>
+        <label for="event-start">Event window start (hours from t₀)</label>
+        <input type="number" id="event-start" min="0" step="0.25" placeholder="e.g. 10">
+      </div>
+      <div>
+        <label for="event-end">Event window end (hours from t₀)</label>
+        <input type="number" id="event-end" min="0" step="0.25" placeholder="e.g. 12">
+      </div>
+      <div>
+        <label for="event-share">Variance share in window (0-1)</label>
+        <input type="number" id="event-share" min="0" max="1" step="0.05" placeholder="0.70">
+        <div class="note">Remaining variance is distributed proportionally before/after the event.</div>
+      </div>
+    </div>
+    <button id="run-btn" disabled>Run P&L Simulation</button>
+  </section>
+
+  <section id="results" class="hidden">
+    <div class="flex-between">
+      <h2>3. P&L Dashboard</h2>
+      <button id="export-btn">Download Excel Report</button>
+    </div>
+    <div id="summary"></div>
+    <div class="ranking" id="ranking"></div>
+    <div id="vol-comparison"></div>
+  </section>
+</main>
+
+<div id="modal" class="hidden"></div>
+
+<script>
+(function() {
+  function erf(x) {
+    const sign = x >= 0 ? 1 : -1;
+    const absX = Math.abs(x);
+    const a1 = 0.254829592;
+    const a2 = -0.284496736;
+    const a3 = 1.421413741;
+    const a4 = -1.453152027;
+    const a5 = 1.061405429;
+    const p = 0.3275911;
+    const t = 1 / (1 + p * absX);
+    const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX);
+    return sign * y;
+  }
+
+  const normCdf = (x) => 0.5 * (1 + erf(x / Math.SQRT2));
+
+  function bsPrice(S, K, sigma, tau, type) {
+    if (tau <= 0 || sigma === 0) {
+      const intrinsic = type === 'call' ? Math.max(S - K, 0) : Math.max(K - S, 0);
+      return intrinsic;
+    }
+    const sqrtTau = Math.sqrt(tau);
+    const d1 = (Math.log(S / K) + 0.5 * sigma * sigma * tau) / (sigma * sqrtTau);
+    const d2 = d1 - sigma * sqrtTau;
+    if (type === 'call') {
+      return S * normCdf(d1) - K * normCdf(d2);
+    }
+    return K * normCdf(-d2) - S * normCdf(-d1);
+  }
+
+  function bsDelta(S, K, sigma, tau, type) {
+    if (tau <= 0 || sigma === 0) {
+      if (type === 'call') {
+        if (S > K) return 1;
+        if (S < K) return 0;
+        return 0.5;
+      }
+      if (S < K) return -1;
+      if (S > K) return 0;
+      return -0.5;
+    }
+    const d1 = (Math.log(S / K) + 0.5 * sigma * sigma * tau) / (sigma * Math.sqrt(tau));
+    return type === 'call' ? normCdf(d1) : normCdf(d1) - 1;
+  }
+
+  function parseExcelDate(value) {
+    if (value === undefined || value === null || value === '') return null;
+    if (value instanceof Date) return value;
+    if (typeof value === 'number') {
+      const parsed = XLSX.SSF.parse_date_code(value);
+      if (!parsed) return null;
+      return new Date(Date.UTC(parsed.y, parsed.m - 1, parsed.d, parsed.H, parsed.M, parsed.S));
+    }
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? null : date;
+  }
+
+  function parseSpotWorkbook(workbook) {
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, {header: 1, raw: true});
+    if (!rows.length) return {};
+    const headers = rows[0].map(h => (h || '').toString().trim());
+    const timestampIndex = headers.findIndex(h => h.toLowerCase() === 'timestamp');
+    if (timestampIndex === -1) throw new Error('Spot file must contain a "timestamp" column.');
+    const pairColumns = headers
+      .map((name, idx) => ({ name: (name || '').toString().trim(), idx }))
+      .filter(col => col.idx !== timestampIndex && col.name);
+    const data = {};
+    pairColumns.forEach(col => {
+      data[col.name.toUpperCase()] = [];
+    });
+
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      if (!row || row.length === 0) continue;
+      const timestamp = parseExcelDate(row[timestampIndex]);
+      if (!timestamp) continue;
+      pairColumns.forEach(col => {
+        const value = parseFloat(row[col.idx]);
+        if (!isFinite(value)) return;
+        const key = col.name.toUpperCase();
+        data[key].push({ time: timestamp, price: value });
+      });
+    }
+
+    Object.keys(data).forEach(pair => {
+      data[pair].sort((a, b) => a.time - b.time);
+    });
+    return data;
+  }
+
+  function parseVolWorkbook(workbook) {
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, {defval: null});
+    return rows.map(row => {
+      const pair = (row.pair || row.Pair || row.PAIR || '').toString().toUpperCase().replace(/[^A-Z]/g, '');
+      const optionTypeRaw = (row.option_type || row.OptionType || row.type || '').toString().toLowerCase();
+      const optionType = optionTypeRaw.includes('put') ? 'put' : 'call';
+      const strikeLabel = (row.strike_label || row.StrikeLabel || row.bucket || optionType.toUpperCase()).toString();
+      const tenorHours = (() => {
+        const h = parseFloat(row.tenor_hours ?? row.tenorHours ?? row.TenorHours);
+        if (isFinite(h) && h > 0) return h;
+        const days = parseFloat(row.tenor_days ?? row.tenorDays ?? row.TenorDays);
+        if (isFinite(days) && days > 0) return days * 24;
+        return null;
+      })();
+      const impliedRaw = parseFloat(row.implied_vol ?? row.ImpliedVol ?? row.vol ?? row.Vol);
+      const impliedVol = isFinite(impliedRaw) ? (impliedRaw > 3 ? impliedRaw / 100 : impliedRaw) : null;
+      const strike = parseFloat(row.strike ?? row.Strike ?? row.K ?? row.k);
+      const deltaTargetRaw = row.delta_target ?? row.DeltaTarget ?? row.delta ?? row.Delta;
+      let deltaTarget = null;
+      if (deltaTargetRaw !== null && deltaTargetRaw !== undefined && deltaTargetRaw !== '') {
+        if (typeof deltaTargetRaw === 'string') {
+          const cleaned = deltaTargetRaw.trim().toUpperCase();
+          const sign = cleaned.endsWith('P') ? -1 : 1;
+          const numeric = parseFloat(cleaned.replace(/[^0-9.\-]/g, ''));
+          if (isFinite(numeric)) deltaTarget = sign * numeric;
+        } else {
+          const numeric = parseFloat(deltaTargetRaw);
+          if (isFinite(numeric)) deltaTarget = numeric;
+        }
+      }
+      if (deltaTarget !== null && Math.abs(deltaTarget) > 1) {
+        deltaTarget = deltaTarget / 100;
+      }
+      const comment = row.comment ?? row.Comment ?? '';
+      return {
+        pair,
+        optionType,
+        strikeLabel,
+        tenorHours,
+        impliedVol,
+        strike: isFinite(strike) ? strike : null,
+        deltaTarget: isFinite(deltaTarget) ? deltaTarget : null,
+        comment
+      };
+    }).filter(r => r.pair && r.tenorHours && r.impliedVol);
+  }
+
+  function determineNotional(pair) {
+    const clean = pair.replace(/[^A-Z]/g, '').toUpperCase();
+    if (clean.length < 6) return { notional: 100_000_000, currency: 'unitless' };
+    const base = clean.slice(0, 3);
+    const quote = clean.slice(3, 6);
+    if (quote === 'USD') {
+      return { notional: 100_000_000, currency: 'USD' };
+    }
+    return { notional: 100_000_000, currency: quote };
+  }
+
+  function strikeFromDelta(S0, sigma, tau, deltaTarget, optionType) {
+    if (!isFinite(deltaTarget) || !isFinite(sigma) || tau <= 0) return S0;
+    let low = 0.1 * S0;
+    let high = 3 * S0;
+    for (let i = 0; i < 80; i++) {
+      const mid = (low + high) / 2;
+      const d = bsDelta(S0, mid, sigma, tau, optionType);
+      if (d < deltaTarget) {
+        high = mid;
+      } else {
+        low = mid;
+      }
+    }
+    return (low + high) / 2;
+  }
+
+  function effectiveSigma(baseSigma, remainingTau, totalTau, elapsedHours, totalHours, config) {
+    if (remainingTau <= 0) return 0;
+    if (config.mode === 'flat') return baseSigma;
+    if (config.mode === 'standard') {
+      if (totalTau <= 0) return baseSigma;
+      return baseSigma * Math.sqrt(Math.max(remainingTau, 0) / totalTau);
+    }
+    // Event-weighted variance
+    const totalVariance = baseSigma * baseSigma * totalTau;
+    const start = Math.max(0, config.eventStart || 0);
+    const end = Math.max(start, config.eventEnd || start);
+    const share = Math.min(Math.max(config.eventShare ?? 0.7, 0), 1);
+    const total = totalHours;
+    const preDuration = Math.max(Math.min(start, total), 0);
+    const eventDuration = Math.max(Math.min(end, total) - preDuration, 0);
+    const postDuration = Math.max(total - preDuration - eventDuration, 0);
+    const remainderShare = 1 - share;
+    const preVariance = preDuration > 0 ? remainderShare * (preDuration / (preDuration + postDuration || 1)) : 0;
+    const postVariance = remainderShare - preVariance;
+    const eventVariance = share;
+
+    const rate = duration => duration <= 0 ? 0 : 1 / duration;
+    const consumedHours = Math.min(Math.max(elapsedHours, 0), total);
+
+    let consumedShare = 0;
+    if (preDuration > 0) {
+      const consumedPre = Math.min(consumedHours, preDuration);
+      consumedShare += preVariance * (consumedPre * rate(preDuration));
+    }
+    if (eventDuration > 0 && consumedHours > preDuration) {
+      const consumedEvent = Math.min(consumedHours - preDuration, eventDuration);
+      consumedShare += eventVariance * (consumedEvent * rate(eventDuration));
+    }
+    if (postDuration > 0 && consumedHours > preDuration + eventDuration) {
+      const consumedPost = Math.min(consumedHours - preDuration - eventDuration, postDuration);
+      consumedShare += postVariance * (consumedPost * rate(postDuration));
+    }
+
+    const remainingShare = Math.max(0, 1 - consumedShare);
+    const remainingVariance = totalVariance * remainingShare;
+    return Math.sqrt(remainingVariance / remainingTau);
+  }
+
+  function interpolateSpotSeries(series, schedule) {
+    const result = [];
+    let lastKnownIndex = 0;
+    for (const time of schedule) {
+      while (lastKnownIndex + 1 < series.length && series[lastKnownIndex + 1].time <= time) {
+        lastKnownIndex++;
+      }
+      const entry = series[lastKnownIndex];
+      if (!entry) break;
+      result.push({ time, price: entry.price });
+    }
+    return result;
+  }
+
+  function buildSchedule(startTime, endTime, minutes) {
+    const times = [];
+    let current = new Date(startTime.getTime());
+    while (current <= endTime) {
+      times.push(new Date(current.getTime()));
+      current = new Date(current.getTime() + minutes * 60 * 1000);
+    }
+    if (times[times.length - 1].getTime() !== endTime.getTime()) {
+      times.push(new Date(endTime.getTime()));
+    }
+    return times;
+  }
+
+  function annualisedRealisedVol(prices, times) {
+    if (prices.length < 2 || times.length !== prices.length) return 0;
+    let sumSquares = 0;
+    let totalHours = 0;
+    for (let i = 1; i < prices.length; i++) {
+      const dtHours = (times[i] - times[i - 1]) / (1000 * 60 * 60);
+      if (dtHours <= 0) continue;
+      const r = Math.log(prices[i] / prices[i - 1]);
+      sumSquares += r * r;
+      totalHours += dtHours;
+    }
+    if (totalHours <= 0) return 0;
+    const annualFactor = (365 * 24) / totalHours;
+    return Math.sqrt(sumSquares * annualFactor);
+  }
+
+  function simulateOption(option, spotSeries, config) {
+    if (!spotSeries || spotSeries.length < 2) {
+      throw new Error(`Insufficient spot data for ${option.pair}`);
+    }
+    const { notional, currency } = determineNotional(option.pair);
+    const startTime = spotSeries[0].time;
+    const tenorMs = option.tenorHours * 60 * 60 * 1000;
+    const expiryTime = new Date(startTime.getTime() + tenorMs);
+    const schedule = buildSchedule(startTime, expiryTime, config.hedgeMinutes);
+    if (schedule.length < 2) throw new Error(`Unable to build hedge schedule for ${option.pair} ${option.strikeLabel}`);
+    const aligned = interpolateSpotSeries(spotSeries, schedule);
+    if (aligned.length < schedule.length) {
+      throw new Error(`Spot series for ${option.pair} ends before expiry for tenor ${option.tenorHours}h.`);
+    }
+    const prices = aligned.map(p => p.price);
+    const times = aligned.map(p => p.time);
+    const totalTau = option.tenorHours / (24 * 365);
+    const baseSigma = option.impliedVol;
+    const S0 = prices[0];
+    const strike = option.strike && isFinite(option.strike)
+      ? option.strike
+      : strikeFromDelta(S0, baseSigma, totalTau, option.deltaTarget, option.optionType);
+
+    const premiumUnit = bsPrice(S0, strike, baseSigma, totalTau, option.optionType);
+    const premiumCash = premiumUnit * notional;
+    let hedgePnl = 0;
+    const records = [];
+    const pnlPath = [];
+
+    const sigma0 = effectiveSigma(baseSigma, totalTau, totalTau, 0, option.tenorHours, config.variance);
+    let deltaPrev = bsDelta(S0, strike, sigma0, totalTau, option.optionType);
+    let previousSpot = S0;
+    pnlPath.push({
+      time: times[0],
+      hedge: 0,
+      optionMtm: premiumUnit * notional,
+      total: -premiumCash + premiumUnit * notional,
+      premium: premiumCash
+    });
+
+    for (let i = 1; i < prices.length; i++) {
+      const spot = prices[i];
+      const spotPrev = previousSpot;
+      const spotChange = spot - spotPrev;
+      const hedgeUnitsBase = deltaPrev * notional / spotPrev;
+      const stepHedgePnl = -hedgeUnitsBase * spotChange;
+      hedgePnl += stepHedgePnl;
+      const elapsedHours = (times[i] - times[0]) / (1000 * 60 * 60);
+      const remainingTau = Math.max((expiryTime - times[i]) / (1000 * 60 * 60 * 24 * 365), 0);
+      const sigmaEff = effectiveSigma(baseSigma, remainingTau, totalTau, elapsedHours, option.tenorHours, config.variance);
+      const optionValueUnit = bsPrice(spot, strike, sigmaEff, remainingTau, option.optionType);
+      const mtm = optionValueUnit * notional;
+      const totalPnl = -premiumCash + hedgePnl + mtm;
+      const deltaNew = bsDelta(spot, strike, sigmaEff, remainingTau, option.optionType);
+      const deltaChange = deltaNew - deltaPrev;
+      records.push({
+        time: times[i],
+        spot,
+        deltaPrev,
+        hedgeUnitsBase,
+        spotChange,
+        stepHedgePnl,
+        cumulativeHedge: hedgePnl,
+        optionMtm: mtm,
+        totalPnl,
+        deltaChange
+      });
+      pnlPath.push({
+        time: times[i],
+        hedge: hedgePnl,
+        optionMtm: mtm,
+        total: totalPnl,
+        premium: premiumCash
+      });
+      deltaPrev = deltaNew;
+      previousSpot = spot;
+    }
+
+    const finalSpot = prices[prices.length - 1];
+    const intrinsicUnit = bsPrice(finalSpot, strike, 0, 0, option.optionType);
+    const intrinsicCash = intrinsicUnit * notional;
+    const totalPnl = -premiumCash + hedgePnl + intrinsicCash;
+    const realisedVol = annualisedRealisedVol(prices, times);
+
+    return {
+      pair: option.pair,
+      strikeLabel: option.strikeLabel,
+      optionType: option.optionType,
+      tenorHours: option.tenorHours,
+      impliedVol: baseSigma,
+      realisedVol,
+      premiumCash,
+      intrinsicCash,
+      hedgePnl,
+      totalPnl,
+      pnlPerNotional: totalPnl / notional,
+      currency,
+      notional,
+      strike,
+      sigma0,
+      pnlPath,
+      hedgeRecords: records
+    };
+  }
+
+  function buildHeatmap(results) {
+    if (!results.length) return '<p>No results to display.</p>';
+    const rows = {};
+    const columns = new Set();
+    results.forEach(res => {
+      const rowKey = res.pair;
+      const colKey = `${res.strikeLabel} (${res.tenorHours}h ${res.optionType.toUpperCase()})`;
+      columns.add(colKey);
+      if (!rows[rowKey]) rows[rowKey] = {};
+      rows[rowKey][colKey] = res;
+    });
+    const orderedCols = Array.from(columns);
+    orderedCols.sort();
+    const orderedRows = Object.keys(rows).sort();
+    const header = ['<tr><th>Pair</th>', ...orderedCols.map(col => `<th>${col}</th>`), '</tr>'].join('');
+    const body = orderedRows.map(pair => {
+      const cells = orderedCols.map(col => {
+        const item = rows[pair][col];
+        if (!item) return '<td>–</td>';
+        const colour = heatmapColour(item.pnlPerNotional);
+        const formatted = formatNumber(item.totalPnl);
+        return `<td data-pnl data-result-id="${item.pair}_${item.strikeLabel}_${item.tenorHours}_${item.optionType}" style="background:${colour};">${formatted}</td>`;
+      }).join('');
+      return `<tr><td><strong>${pair}</strong></td>${cells}</tr>`;
+    }).join('');
+    return `<table class="heatmap-table">${header}${body}</table>`;
+  }
+
+  function heatmapColour(value) {
+    if (!isFinite(value)) return 'transparent';
+    const clipped = Math.max(Math.min(value, 0.05), -0.05);
+    if (clipped >= 0) {
+      const intensity = Math.floor((clipped / 0.05) * 120);
+      return `rgba(34, 197, 94, ${0.15 + intensity / 255})`;
+    }
+    const intensity = Math.floor((Math.abs(clipped) / 0.05) * 120);
+    return `rgba(239, 68, 68, ${0.15 + intensity / 255})`;
+  }
+
+  function formatNumber(value) {
+    return new Intl.NumberFormat('en-US', {maximumFractionDigits: 0}).format(value);
+  }
+
+  function renderRanking(results) {
+    const sorted = [...results].sort((a, b) => b.totalPnl - a.totalPnl);
+    const best = sorted.slice(0, 5);
+    const worst = sorted.slice(-5).reverse();
+    const formatEntry = res => `<li><span class="value">${formatNumber(res.totalPnl)}</span> (${res.pair} · ${res.strikeLabel} · ${res.tenorHours}h ${res.optionType.toUpperCase()})</li>`;
+    return `
+      <div>
+        <h3>Top 5 Trades</h3>
+        <ul>${best.map(formatEntry).join('')}</ul>
+      </div>
+      <div>
+        <h3>Bottom 5 Trades</h3>
+        <ul>${worst.map(formatEntry).join('')}</ul>
+      </div>
+    `;
+  }
+
+  function renderVolComparison(results) {
+    if (!results.length) return '';
+    const rows = results.map(res => {
+      const diff = res.realisedVol - res.impliedVol;
+      const flag = diff > 0 && res.totalPnl < 0 ? '<span class="pill" style="background:#fee2e2;color:#b91c1c;">High σ but negative P&L</span>' :
+                    (diff < 0 && res.totalPnl > 0 ? '<span class="pill" style="background:#dcfce7;color:#15803d;">Low σ but profitable</span>' : '');
+      return `<tr>
+        <td>${res.pair}</td>
+        <td>${res.strikeLabel}</td>
+        <td>${res.tenorHours}</td>
+        <td>${res.optionType.toUpperCase()}</td>
+        <td>${(res.impliedVol * 100).toFixed(2)}%</td>
+        <td>${(res.realisedVol * 100).toFixed(2)}%</td>
+        <td>${(diff * 100).toFixed(2)}%</td>
+        <td>${flag}</td>
+      </tr>`;
+    }).join('');
+    return `
+      <h3>Realised vs Implied Volatility</h3>
+      <table>
+        <tr><th>Pair</th><th>Strike</th><th>Tenor (h)</th><th>Type</th><th>Implied σ</th><th>Realised σ</th><th>Realised - Implied</th><th>Insight</th></tr>
+        ${rows}
+      </table>
+    `;
+  }
+
+  function attachCellEvents(container, resultMap) {
+    container.querySelectorAll('td[data-result-id]').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const id = cell.getAttribute('data-result-id');
+        const result = resultMap[id];
+        if (result) openModal(result);
+      });
+    });
+  }
+
+  function openModal(result) {
+    const modal = document.getElementById('modal');
+    modal.classList.remove('hidden');
+    modal.innerHTML = `
+      <div class="modal-backdrop">
+        <div class="modal">
+          <div class="modal-header">
+            <div>
+              <h3>${result.pair} · ${result.strikeLabel} · ${result.tenorHours}h ${result.optionType.toUpperCase()}</h3>
+              <p class="note">Notional: 100m ${result.currency}. Premium ${formatNumber(result.premiumCash)}, hedge P&L ${formatNumber(result.hedgePnl)}, intrinsic ${formatNumber(result.intrinsicCash)}, total ${formatNumber(result.totalPnl)}.</p>
+            </div>
+            <button class="close-btn" aria-label="Close">×</button>
+          </div>
+          <canvas id="pnl-chart" height="280"></canvas>
+        </div>
+      </div>
+    `;
+    modal.querySelector('.close-btn').addEventListener('click', closeModal);
+    const backdrop = modal.querySelector('.modal-backdrop');
+    backdrop.addEventListener('click', (evt) => {
+      if (evt.target === backdrop) closeModal();
+    });
+    renderChart(result);
+  }
+
+  function closeModal() {
+    const modal = document.getElementById('modal');
+    modal.classList.add('hidden');
+    modal.innerHTML = '';
+  }
+
+  function renderChart(result) {
+    const ctx = document.getElementById('pnl-chart');
+    const labels = result.pnlPath.map(p => new Date(p.time).toLocaleString());
+    const premiumLine = result.pnlPath.map(p => -result.premiumCash);
+    const hedgeLine = result.pnlPath.map(p => p.hedge);
+    const mtmLine = result.pnlPath.map(p => p.optionMtm);
+    const totalLine = result.pnlPath.map(p => p.total);
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Premium (constant)', data: premiumLine, borderColor: '#0ea5e9', borderDash: [6, 6], tension: 0.2 },
+          { label: 'Cumulative hedge P&L', data: hedgeLine, borderColor: '#f97316', tension: 0.3 },
+          { label: 'Option MTM / Intrinsic', data: mtmLine, borderColor: '#22c55e', tension: 0.3 },
+          { label: 'Total P&L', data: totalLine, borderColor: '#1d4ed8', tension: 0.3, borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            ticks: {
+              callback: value => formatNumber(value)
+            }
+          }
+        },
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+  }
+
+  function exportToExcel(results) {
+    if (!results.length) return;
+    const wb = XLSX.utils.book_new();
+    const summaryData = [
+      ['Pair', 'Strike', 'Tenor (h)', 'Type', 'Premium', 'Hedge P&L', 'Intrinsic', 'Total P&L', 'Implied σ', 'Realised σ', 'Realised - Implied']
+    ];
+    results.forEach(res => {
+      summaryData.push([
+        res.pair,
+        res.strikeLabel,
+        res.tenorHours,
+        res.optionType.toUpperCase(),
+        res.premiumCash,
+        res.hedgePnl,
+        res.intrinsicCash,
+        res.totalPnl,
+        res.impliedVol,
+        res.realisedVol,
+        res.realisedVol - res.impliedVol
+      ]);
+    });
+    const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
+
+    const detailData = [['Pair', 'Strike', 'Tenor (h)', 'Type', 'Timestamp', 'Spot', 'Delta (prev)', 'Hedge Units (base)', 'Spot Δ', 'Step Hedge P&L', 'Cumulative Hedge', 'Option MTM', 'Total P&L']];
+    results.forEach(res => {
+      res.hedgeRecords.forEach(rec => {
+        detailData.push([
+          res.pair,
+          res.strikeLabel,
+          res.tenorHours,
+          res.optionType.toUpperCase(),
+          new Date(rec.time).toISOString(),
+          rec.spot,
+          rec.deltaPrev,
+          rec.hedgeUnitsBase,
+          rec.spotChange,
+          rec.stepHedgePnl,
+          rec.cumulativeHedge,
+          rec.optionMtm,
+          rec.totalPnl
+        ]);
+      });
+    });
+    const detailSheet = XLSX.utils.aoa_to_sheet(detailData);
+    XLSX.utils.book_append_sheet(wb, detailSheet, 'HedgePaths');
+
+    XLSX.writeFile(wb, 'fx_vol_pnl_report.xlsx');
+  }
+
+  const spotInput = document.getElementById('spot-file');
+  const volInput = document.getElementById('vol-file');
+  const spotStatus = document.getElementById('spot-status');
+  const volStatus = document.getElementById('vol-status');
+  const runBtn = document.getElementById('run-btn');
+  const resultsSection = document.getElementById('results');
+  const summaryDiv = document.getElementById('summary');
+  const rankingDiv = document.getElementById('ranking');
+  const volDiv = document.getElementById('vol-comparison');
+  const exportBtn = document.getElementById('export-btn');
+  const pairSelect = document.getElementById('pair-select');
+  const strikeSelect = document.getElementById('strike-select');
+  const hedgeFrequency = document.getElementById('hedge-frequency');
+  const eventConfig = document.getElementById('event-config');
+  let spotData = null;
+  let volData = null;
+  let resultMap = {};
+  let latestResults = [];
+
+  function updateRunAvailability() {
+    runBtn.disabled = !(spotData && volData);
+  }
+
+  spotInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      spotStatus.textContent = 'Parsing spot data…';
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, {type: 'array'});
+      spotData = parseSpotWorkbook(workbook);
+      const pairs = Object.keys(spotData);
+      spotStatus.textContent = `Loaded ${pairs.length} pairs (${pairs.slice(0, 6).join(', ')}${pairs.length > 6 ? ', …' : ''}).`;
+      refreshSelectors();
+    } catch (err) {
+      console.error(err);
+      spotStatus.textContent = `Error: ${err.message}`;
+      spotData = null;
+    }
+    updateRunAvailability();
+  });
+
+  volInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      volStatus.textContent = 'Parsing vol surface…';
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, {type: 'array'});
+      volData = parseVolWorkbook(workbook);
+      volStatus.textContent = `Loaded ${volData.length} option records.`;
+      refreshSelectors();
+    } catch (err) {
+      console.error(err);
+      volStatus.textContent = `Error: ${err.message}`;
+      volData = null;
+    }
+    updateRunAvailability();
+  });
+
+  document.querySelectorAll('input[name="variance-mode"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (radio.value === 'event' && radio.checked) {
+        eventConfig.classList.remove('hidden');
+      } else if (radio.checked) {
+        eventConfig.classList.add('hidden');
+      }
+    });
+  });
+
+  function refreshSelectors() {
+    if (!(spotData && volData)) return;
+    const spotPairs = new Set(Object.keys(spotData));
+    const volPairs = new Set(volData.map(v => v.pair));
+    const pairs = [...spotPairs].filter(pair => volPairs.has(pair));
+    pairSelect.innerHTML = pairs.map(p => `<option value="${p}">${p}</option>`).join('');
+    const strikeLabels = Array.from(new Set(volData.map(v => v.strikeLabel))).sort();
+    strikeSelect.innerHTML = strikeLabels.map(label => `<option value="${label}">${label}</option>`).join('');
+  }
+
+  runBtn.addEventListener('click', () => {
+    if (!(spotData && volData)) return;
+    const selectedPairs = Array.from(pairSelect.selectedOptions).map(opt => opt.value);
+    const selectedStrikes = Array.from(strikeSelect.selectedOptions).map(opt => opt.value);
+    const hedgeMinutes = parseInt(hedgeFrequency.value, 10);
+    const varianceMode = document.querySelector('input[name="variance-mode"]:checked').value;
+    const varianceConfig = {
+      mode: varianceMode,
+      eventStart: parseFloat(document.getElementById('event-start').value),
+      eventEnd: parseFloat(document.getElementById('event-end').value),
+      eventShare: parseFloat(document.getElementById('event-share').value)
+    };
+    const filtered = volData.filter(record => {
+      if (selectedPairs.length && !selectedPairs.includes(record.pair)) return false;
+      if (selectedStrikes.length && !selectedStrikes.includes(record.strikeLabel)) return false;
+      return true;
+    });
+    if (!filtered.length) {
+      summaryDiv.innerHTML = '<p>No options match the filters.</p>';
+      resultsSection.classList.remove('hidden');
+      return;
+    }
+
+    const results = [];
+    const errors = [];
+    filtered.forEach(option => {
+      try {
+        const res = simulateOption(option, spotData[option.pair], {
+          hedgeMinutes,
+          variance: varianceConfig
+        });
+        results.push(res);
+      } catch (err) {
+        errors.push(`${option.pair} ${option.strikeLabel} ${option.tenorHours}h: ${err.message}`);
+      }
+    });
+
+    if (!results.length) {
+      summaryDiv.innerHTML = `<p>No simulations completed.</p><pre>${errors.join('\n')}</pre>`;
+      resultsSection.classList.remove('hidden');
+      return;
+    }
+
+    latestResults = results;
+    const map = {};
+    results.forEach(res => {
+      const key = `${res.pair}_${res.strikeLabel}_${res.tenorHours}_${res.optionType}`;
+      map[key] = res;
+    });
+    resultMap = map;
+
+    summaryDiv.innerHTML = buildHeatmap(results);
+    rankingDiv.innerHTML = renderRanking(results);
+    volDiv.innerHTML = renderVolComparison(results);
+    resultsSection.classList.remove('hidden');
+    attachCellEvents(summaryDiv, resultMap);
+
+    if (errors.length) {
+      volDiv.insertAdjacentHTML('beforeend', `<p class="note">Warnings: ${errors.join(' | ')}</p>`);
+    }
+  });
+
+  exportBtn.addEventListener('click', () => {
+    if (!latestResults.length) return;
+    exportToExcel(latestResults);
+  });
+})();
+</script>
+</body>
+</html>

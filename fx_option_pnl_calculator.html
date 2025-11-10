@@ -1,0 +1,3715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FX Option P&L Calculator</title>
+    <!-- SheetJS library for Excel parsing -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <!-- Using custom Canvas-based charts (no external dependencies) -->
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           PROFESSIONAL TRADING TOOL UI - COMPREHENSIVE DESIGN SYSTEM
+           ═══════════════════════════════════════════════════════════════ */
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #1f2937;
+            background: #f9fafb;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* App Header */
+        .app-header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .header-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+        }
+
+        .title-icon {
+            font-size: 28px;
+        }
+
+        .app-subtitle {
+            display: block;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 400;
+            margin-top: 4px;
+        }
+
+        .header-info {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            gap: 4px;
+            background: white;
+        }
+
+        .tab-button {
+            padding: 14px 28px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 15px;
+            font-weight: 500;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .tab-button:hover {
+            color: #1f2937;
+            background: #f9fafb;
+        }
+
+        .tab-button.active {
+            color: #1e40af;
+            border-bottom-color: #1e40af;
+            font-weight: 600;
+            background: transparent;
+        }
+
+        .tab-content {
+            display: none;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+            transition: box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        /* Section Headers */
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 24px 0 16px 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+
+        /* Input Grids */
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group-full {
+            grid-column: 1 / -1;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .label-hint {
+            font-size: 12px;
+            color: #9ca3af;
+            font-weight: 400;
+            margin-left: 8px;
+        }
+
+        /* Input Fields */
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #1e40af;
+            box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
+        }
+
+        select {
+            background: white;
+            cursor: pointer;
+        }
+
+        textarea {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Buttons */
+        button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #1e40af;
+            color: white;
+            margin-top: 0;
+            margin-right: 8px;
+        }
+
+        button:hover {
+            background: #1e3a8a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button.secondary {
+            background: #f3f4f6;
+            color: #1f2937;
+            border: 1px solid #d1d5db;
+        }
+
+        button.secondary:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        button.btn-large {
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        button.btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        thead {
+            background: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            color: #1f2937;
+        }
+
+        tbody tr {
+            transition: background-color 0.15s;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        tr:nth-child(even) {
+            background-color: transparent;
+        }
+
+        /* Table numbers */
+        .data-table-numbers,
+        td[style*="text-align: right"],
+        td:nth-child(n+2) {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Strike tables */
+        .strike-summary-container {
+            overflow-x: auto;
+            max-width: 100%;
+            margin: 20px 0;
+        }
+
+        .strike-summary {
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 13px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .strike-summary th {
+            background: #1e40af;
+            color: white;
+            font-weight: 600;
+            padding: 12px 16px;
+        }
+
+        .strike-summary td {
+            padding: 10px 14px;
+        }
+
+        .strike-summary .row-label {
+            background-color: #f9fafb;
+            font-weight: 600;
+            text-align: left;
+            padding-left: 16px;
+            color: #374151;
+        }
+
+        .strike-header {
+            cursor: pointer !important;
+            transition: all 0.2s;
+        }
+
+        .strike-header:hover {
+            background-color: #1e3a8a !important;
+            transform: scale(1.01);
+        }
+
+        .strike-cell {
+            cursor: pointer !important;
+            transition: all 0.2s;
+        }
+
+        .strike-cell:hover {
+            background-color: #f3f4f6 !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .row-label {
+            cursor: default !important;
+        }
+
+        .strike-table-wrapper {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        /* Summary Stats */
+        .summary-stats {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #f9fafb;
+            border-left: 4px solid #1e40af;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .summary-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .summary-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            color: #1f2937;
+        }
+
+        .summary-value.positive,
+        .pnl-positive {
+            color: #10b981;
+        }
+
+        .summary-value.negative,
+        .pnl-negative {
+            color: #ef4444;
+        }
+
+        .pnl-positive,
+        .pnl-negative {
+            font-weight: 600;
+        }
+
+        /* Alert Boxes */
+        .info-box,
+        .verification,
+        .warning,
+        .error {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            color: #1e40af;
+        }
+
+        .verification {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .error {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Progress Bars */
+        .progress-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1e40af, #3b82f6);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .progress-percent {
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.2s;
+            overflow: auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            margin: 3% auto;
+            padding: 0;
+            width: 95%;
+            max-width: 1400px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s;
+            overflow: hidden;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 24px 32px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+
+        .close {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .close:hover {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .modal-body {
+            padding: 24px 32px;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 500px;
+            margin-bottom: 20px;
+        }
+
+        .chart-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            padding: 16px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            border-left: 4px solid #1e40af;
+        }
+
+        .chart-stats p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        /* Batch Analysis Specific */
+        .upload-section {
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 48px 24px;
+            background: #f9fafb;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #1e40af;
+            background: #f3f4f6;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .upload-area h3 {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .upload-area p {
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 16px;
+        }
+
+        .file-details {
+            margin-top: 8px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .pair-counter {
+            float: right;
+            background: #1e40af;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pair-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .pair-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .pair-checkbox:hover {
+            background: #f9fafb;
+            border-color: #1e40af;
+        }
+
+        .pair-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .pair-checkbox label {
+            cursor: pointer;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Custom Strikes */
+        .custom-strike-row {
+            display: grid;
+            grid-template-columns: 120px 140px 100px 80px;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 12px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .custom-strike-row input,
+        .custom-strike-row select {
+            padding: 8px 10px;
+            font-size: 14px;
+        }
+
+        .custom-strike-row button {
+            padding: 8px 12px;
+            font-size: 13px;
+            margin: 0;
+            width: 80px;
+        }
+
+        .custom-strike-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .custom-strike-type {
+            visibility: visible;
+        }
+
+        .custom-strike-type.hidden {
+            visibility: hidden;
+        }
+
+        /* Expandable Pairs */
+        .expandable-pair {
+            margin: 15px 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .pair-header {
+            padding: 16px;
+            background-color: #f9fafb;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .pair-header:hover {
+            background-color: #f3f4f6;
+        }
+
+        .pair-details {
+            padding: 20px;
+            display: none;
+            background-color: white;
+        }
+
+        .pair-details.expanded {
+            display: block;
+        }
+
+        .currency-group-section {
+            margin: 30px 0;
+            padding: 24px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .ranking-table {
+            margin: 20px 0;
+        }
+
+        /* Loading States */
+        .skeleton {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top-color: #1e40af;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .input-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .summary-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modal-content {
+                width: 98%;
+                margin: 2% auto;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header-container {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+                padding: 16px;
+            }
+
+            .tab-navigation {
+                flex-direction: column;
+                gap: 0;
+                padding: 0 16px;
+            }
+
+            .tab-button {
+                width: 100%;
+                text-align: left;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .tab-button.active {
+                border-left: 3px solid #1e40af;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .tab-content {
+                padding: 16px;
+            }
+
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-bar {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 11px;
+            }
+
+            th,
+            td {
+                padding: 8px 10px;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+
+            .modal-body {
+                padding: 16px;
+            }
+        }
+
+        /* Focus States */
+        *:focus {
+            outline: none;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
+        }
+
+        /* Number Formatting */
+        .number {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Smooth Transitions */
+        * {
+            transition-property: background-color, border-color, color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        button, .modal, .progress-fill {
+            transition-property: all;
+        }
+    </style>
+</head>
+<body>
+    <!-- Professional Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="header-left">
+                <h1 class="app-title">
+                    <span class="title-icon">📊</span>
+                    FX Options P&L Calculator
+                </h1>
+                <span class="app-subtitle">Delta-Hedged Volatility Analysis</span>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" onclick="switchTab('single-pair')">Single Pair Analysis</button>
+            <button class="tab-button" onclick="switchTab('batch')">Batch Analysis</button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Single Pair Analysis Tab -->
+        <div id="single-pair-tab" class="tab-content active">
+
+        <!-- Configuration Card -->
+        <div class="card">
+            <div class="card-header">Configuration</div>
+
+            <div class="info-box">
+                <div>
+                <strong>Setup:</strong> EURUSD Options (5 strikes) • Notional: 100M Settlement Currency (USD) per strike<br>
+                <strong>Note:</strong> Base currency (EUR) notional varies by strike: Base Notional = 100M / Strike<br>
+                <strong>Data Format:</strong> Variable-length spot series, 10-minute sampling intervals<br>
+                <strong>Model:</strong> Black-Scholes with r=0, q=0<br>
+                <strong>Strikes:</strong> 10Δ Put, 25Δ Put, ATM Call, 25Δ Call, 10Δ Call
+                </div>
+            </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label>Initial Spot (for test data generation):</label>
+                <input type="number" id="initialSpot" step="0.0001" value="1.1000">
+            </div>
+            <div class="input-group">
+                <label>Hours of Data (for test data generation):</label>
+                <input type="number" id="hoursOfData" step="1" value="24" min="0.167" max="1000">
+            </div>
+            <div class="input-group">
+                <label>Implied Volatility (%):</label>
+                <input type="number" id="vol" step="0.1" value="10">
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label>Base Data Frequency (minutes):</label>
+                <select id="baseFrequency">
+                    <option value="10" selected>10 minutes</option>
+                    <option value="30">30 minutes</option>
+                    <option value="60">60 minutes</option>
+                    <option value="120">120 minutes</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Hedging Frequency (minutes):</label>
+                <select id="hedgeFrequency">
+                    <option value="10" selected>10 minutes</option>
+                    <option value="30">30 minutes</option>
+                    <option value="60">60 minutes</option>
+                    <option value="120">120 minutes</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label>Option Expiry:</label>
+                <div style="margin-top: 5px;">
+                    <label style="font-weight: normal; display: block; margin-bottom: 5px;">
+                        <input type="radio" name="expiryMode" value="atEnd" checked onchange="toggleExpiryMode()">
+                        At end of spot series (standard)
+                    </label>
+                    <label style="font-weight: normal; display: block;">
+                        <input type="radio" name="expiryMode" value="custom" onchange="toggleExpiryMode()">
+                        Custom: <input type="number" id="customExpiryValue" value="48" min="0.1" step="0.1" style="width: 80px; margin-left: 5px;" disabled>
+                        <select id="customExpiryUnit" style="width: 90px;" disabled>
+                            <option value="hours">Hours</option>
+                            <option value="minutes">Minutes</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="input-group" id="expiryCalculations" style="display: none; margin-top: 10px; padding: 10px; background-color: #f0f8ff; border-left: 3px solid #007bff; border-radius: 4px;">
+                <div style="font-size: 14px; color: #555;">
+                    <strong>Calculated:</strong><br>
+                    <span id="spotSeriesLengthDisplay" style="margin-left: 10px;">• Spot Series Length: -- hours</span><br>
+                    <span id="timeRemainingDisplay" style="margin-left: 10px;">• Time Remaining at End: -- hours</span><br>
+                    <span id="expiryWarning" style="margin-left: 10px; color: #ff6600; font-weight: bold;"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group input-group-full">
+                <label>Spot Price Series (one per line, interval matches Base Data Frequency):</label>
+                <textarea id="spotSeries" rows="10" placeholder="Paste spot prices here, one per line (minimum 2 values)..."></textarea>
+                <div style="margin-top: 5px;">
+                    <button class="secondary" onclick="generateTestData()">Generate Test Data</button>
+                    <button onclick="calculate()">Calculate All Strikes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group input-group-full">
+                <label><strong>Custom Strikes (Optional - Max 5)</strong></label>
+                <div id="customStrikesContainer" style="margin-top: 10px;">
+                    <!-- Custom strike rows will be added here -->
+                </div>
+                <div style="margin-top: 10px;">
+                    <button class="secondary" onclick="addCustomStrike()" id="addCustomStrikeBtn">Add Custom Strike</button>
+                    <span id="customStrikeCount" style="margin-left: 10px; color: #666;">Custom Strikes: 0/5</span>
+                </div>
+            </div>
+        </div>
+        </div>
+        <!-- End Configuration Card -->
+
+        <!-- Results Section -->
+        <div id="validation-message"></div>
+        <div id="strikes-info"></div>
+        <div id="summary"></div>
+        <div id="results"></div>
+        </div>
+        <!-- End Single Pair Analysis Tab -->
+
+        <!-- Batch Analysis Tab -->
+        <div id="batch-tab" class="tab-content">
+
+            <!-- Upload Section Card -->
+            <div class="card upload-section">
+                <div class="card-header">Data Upload</div>
+
+                <div class="upload-area" onclick="document.getElementById('excelFileInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <h3>Upload Excel File</h3>
+                    <p>Drop your Excel file here or click to browse</p>
+                    <p class="upload-hint">Required sheets: "Spot Data" and "Implied Vols"</p>
+                    <input type="file" id="excelFileInput" accept=".xlsx" onchange="handleExcelUpload(event)" style="display: none;">
+                    <button class="btn-large" onclick="event.stopPropagation(); document.getElementById('excelFileInput').click()">
+                        Choose File
+                    </button>
+                </div>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <div>
+                    <strong>File Requirements:</strong><br>
+                    • Excel file (.xlsx) with two sheets: "Spot Data" and "Implied Vols"<br>
+                    • Spot Data: Timestamp column + currency pair columns<br>
+                    • Implied Vols: Pair names + ImpliedVol (as decimals, e.g., 0.105 = 10.5%)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Status -->
+            <div id="uploadStatus"></div>
+
+            <!-- Configuration Card -->
+            <div class="card" style="display: none;" id="batchConfigSection">
+                <div class="card-header">Configuration</div>
+
+                <div class="input-section">
+                    <div class="input-group">
+                        <label>Base Data Frequency:</label>
+                        <select id="batchBaseFrequency">
+                            <option value="10" selected>10 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="60">60 minutes</option>
+                            <option value="120">120 minutes</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Hedging Frequency:</label>
+                        <select id="batchHedgeFrequency">
+                            <option value="10" selected>10 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="60">60 minutes</option>
+                            <option value="120">120 minutes</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Option Expiry:</label>
+                        <div style="margin-top: 5px;">
+                            <label style="font-weight: normal; display: block; margin-bottom: 5px;">
+                                <input type="radio" id="endOfSeriesRadio" name="batchExpiryMode" value="atEnd" checked>
+                                At end of spot series
+                            </label>
+                            <label style="font-weight: normal; display: block;">
+                                <input type="radio" id="customExpiryRadio" name="batchExpiryMode" value="custom">
+                                Custom: <input type="number" id="customExpiryInput" value="48" min="0.1" step="0.1" style="width: 80px; margin-left: 5px;" disabled>
+                                <select id="customExpiryUnit" style="width: 90px;" disabled>
+                                    <option value="hours">Hours</option>
+                                    <option value="minutes">Minutes</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Configuration Card -->
+
+            <!-- Analysis Window Selection Card -->
+            <div class="card" id="analysisWindowSection" style="display: none;">
+                <div class="card-header">Analysis Window</div>
+                <div style="margin: 15px 0;">
+                    <label style="font-weight: normal; display: block; margin-bottom: 10px;">
+                        <input type="radio" id="useEntireDataset" name="analysisWindowMode" value="entire" checked>
+                        Use entire dataset (default)
+                    </label>
+
+                    <label style="font-weight: normal; display: block; margin-bottom: 10px;">
+                        <input type="radio" id="useCustomWindow" name="analysisWindowMode" value="custom">
+                        Custom window:
+                    </label>
+
+                    <div id="customWindowInputs" style="margin-left: 25px; margin-top: 10px;">
+                        <table style="border-spacing: 10px 5px;">
+                            <tr>
+                                <td style="text-align: right; padding-right: 10px;"><strong>Start:</strong></td>
+                                <td>
+                                    <input type="date" id="analysisStartDate" style="padding: 5px;" disabled onchange="updateAnalysisWindowPreview()">
+                                    <input type="time" id="analysisStartTime" step="600" style="margin-left: 5px; padding: 5px;" disabled onchange="updateAnalysisWindowPreview()">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right; padding-right: 10px;"><strong>End:</strong></td>
+                                <td>
+                                    <input type="date" id="analysisEndDate" style="padding: 5px;" disabled onchange="updateAnalysisWindowPreview()">
+                                    <input type="time" id="analysisEndTime" step="600" style="margin-left: 5px; padding: 5px;" disabled onchange="updateAnalysisWindowPreview()">
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div id="windowPreview" style="margin-top: 15px; padding: 10px; background-color: #e8f4f8; border-left: 3px solid #007bff; border-radius: 4px; font-size: 14px;">
+                            <!-- Preview will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Analysis Window Card -->
+
+            <!-- Pair Selection Card -->
+            <div class="card" id="pairSelectionSection" style="display: none;">
+                <div class="card-header">
+                    Select Currency Pairs
+                    <span class="pair-counter" id="pairSelectionCount">0 selected</span>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <button onclick="selectAllPairs()" class="secondary btn-sm">Select All</button>
+                    <button onclick="deselectAllPairs()" class="secondary btn-sm">Deselect All</button>
+                </div>
+
+                <div id="pairCheckboxGrid" class="pair-selection-grid">
+                    <!-- Checkboxes will be populated here -->
+                </div>
+
+                <button onclick="startBatchCalculation()" class="btn-large" style="width: 100%; margin-top: 16px;">
+                    Calculate All Selected Pairs
+                </button>
+            </div>
+
+            <!-- Progress Section Card -->
+            <div id="progressSection" class="progress-container" style="display: none;">
+                <div class="card-header">Calculating...</div>
+                <div class="progress-info">
+                    <span id="currentPairText">Processing...</span>
+                    <span id="progressText" class="progress-percent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="batchResults" style="display: none;">
+                <h2>Results</h2>
+
+                <!-- Top 5 / Bottom 5 Rankings -->
+                <div id="rankingsSection">
+                    <h3 style="text-align: center; background-color: #007bff; color: white; padding: 15px; border-radius: 8px; margin-top: 30px;">TOP 5 PERFORMERS</h3>
+                    <div id="top5Table"></div>
+
+                    <h3 style="text-align: center; background-color: #dc3545; color: white; padding: 15px; border-radius: 8px; margin-top: 30px;">BOTTOM 5 PERFORMERS</h3>
+                    <div id="bottom5Table"></div>
+                </div>
+
+                <!-- Currency Groups -->
+                <div id="currencyGroupsSection">
+                    <h2 style="margin-top: 40px;">Currency Groups</h2>
+                    <div id="currencyGroupsContent"></div>
+                </div>
+
+                <!-- Expandable Details -->
+                <div id="expandableDetailsSection">
+                    <h2 style="margin-top: 40px;">Pair Details (Click to Expand)</h2>
+                    <div id="expandableDetailsContent"></div>
+                </div>
+            </div>
+        </div>
+        <!-- End Batch Analysis Tab -->
+
+    </div>
+
+    <script>
+        // Constants
+        const SETTLEMENT_NOTIONAL = 100_000_000; // 100 million USD (settlement currency)
+        const MIN_POINTS = 2; // Minimum data points (need at least 1 interval)
+        const MAX_POINTS = 10000; // Maximum data points (reasonable limit)
+        const MAX_CUSTOM_STRIKES = 5;
+        let customStrikeCounter = 0;
+
+        // ============ TAB SWITCHING ============
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            if (tabName === 'single-pair') {
+                document.getElementById('single-pair-tab').classList.add('active');
+                document.querySelectorAll('.tab-button')[0].classList.add('active');
+            } else if (tabName === 'batch') {
+                document.getElementById('batch-tab').classList.add('active');
+                document.querySelectorAll('.tab-button')[1].classList.add('active');
+            }
+        }
+
+        // ============ BATCH ANALYSIS FUNCTIONS ============
+
+        let batchData = {
+            timestamps: [],
+            frequency: 10,
+            pairNames: [],
+            spotPrices: {},
+            impliedVols: {},
+            results: {}
+        };
+
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array', cellFormula: false, cellDates: true});
+
+                    // Check for required sheets
+                    if (!workbook.SheetNames.includes('Spot Data')) {
+                        showBatchMessage('Error: Excel file must contain a sheet named "Spot Data"', 'error');
+                        return;
+                    }
+                    if (!workbook.SheetNames.includes('Implied Vols')) {
+                        showBatchMessage('Error: Excel file must contain a sheet named "Implied Vols"', 'error');
+                        return;
+                    }
+
+                    // Parse Spot Data sheet
+                    const spotSheet = workbook.Sheets['Spot Data'];
+                    const spotData = XLSX.utils.sheet_to_json(spotSheet, {raw: false, dateNF: 'yyyy-mm-dd hh:mm:ss'});
+
+                    // Filter out rows where Timestamp is null/empty
+                    const validData = spotData.filter(row => row.Timestamp != null || row.timestamp != null);
+
+                    if (validData.length < MIN_POINTS) {
+                        showBatchMessage(`Error: Minimum ${MIN_POINTS} valid data points required, got ${validData.length}`, 'error');
+                        return;
+                    }
+
+                    // Extract timestamps
+                    batchData.timestamps = validData.map(row => row.Timestamp || row.timestamp);
+
+                    // Auto-detect frequency
+                    batchData.frequency = detectFrequency(batchData.timestamps);
+
+                    // Extract currency pairs (all columns except Timestamp)
+                    const allKeys = Object.keys(validData[0]);
+                    batchData.pairNames = allKeys.filter(key =>
+                        key !== 'Timestamp' && key !== 'timestamp' && key.trim() !== ''
+                    );
+
+                    // Extract spot prices for each pair
+                    batchData.spotPrices = {};
+                    batchData.pairNames.forEach(pair => {
+                        const prices = validData.map(row => parseFloat(row[pair]));
+                        // Validate all prices are positive numbers
+                        if (prices.some(p => isNaN(p) || p <= 0)) {
+                            throw new Error(`Invalid spot prices found for pair: ${pair}`);
+                        }
+                        batchData.spotPrices[pair] = prices;
+                    });
+
+                    // Parse Implied Vols sheet
+                    const volSheet = workbook.Sheets['Implied Vols'];
+                    const volData = XLSX.utils.sheet_to_json(volSheet);
+
+                    batchData.impliedVols = {};
+                    volData.forEach(row => {
+                        const pairName = row.Pair || row.pair;
+                        const volValue = parseFloat(row.ImpliedVol || row.impliedvol || row.impliedVol);
+
+                        if (isNaN(volValue) || volValue <= 0) {
+                            throw new Error(`Invalid implied vol for pair: ${pairName}`);
+                        }
+
+                        batchData.impliedVols[pairName] = volValue;
+                    });
+
+                    // Validate all pairs have implied vols
+                    const missingVols = batchData.pairNames.filter(pair => !batchData.impliedVols[pair]);
+                    if (missingVols.length > 0) {
+                        showBatchMessage(`Error: Missing implied vols for pairs: ${missingVols.join(', ')}`, 'error');
+                        return;
+                    }
+
+                    // Calculate time period
+                    const numPoints = batchData.timestamps.length;
+                    const totalMinutes = (numPoints - 1) * batchData.frequency;
+                    const totalHours = totalMinutes / 60;
+
+                    // Store full data range
+                    const firstTimestamp = batchData.timestamps[0];
+                    const lastTimestamp = batchData.timestamps[batchData.timestamps.length - 1];
+
+                    batchData.fullDataRange = {
+                        start: firstTimestamp,
+                        end: lastTimestamp,
+                        points: numPoints,
+                        minutes: totalMinutes,
+                        hours: totalHours
+                    };
+
+                    // Show success message with time range
+                    const startStr = formatDateTime(firstTimestamp);
+                    const endStr = formatDateTime(lastTimestamp);
+
+                    showBatchMessage(
+                        `✓ Excel file uploaded successfully<br>` +
+                        `✓ Detected ${numPoints} time points<br>` +
+                        `✓ Data Time Range: ${startStr} → ${endStr}<br>` +
+                        `✓ Total Duration: ${totalMinutes} minutes (${totalHours.toFixed(1)} hours)<br>` +
+                        `✓ Frequency auto-detected: ${batchData.frequency} minutes<br>` +
+                        `✓ Found ${batchData.pairNames.length} currency pairs with complete data`,
+                        'verification'
+                    );
+
+                    // Show configuration and pair selection
+                    document.getElementById('batchConfigSection').style.display = 'grid';
+                    document.getElementById('batchBaseFrequency').value = batchData.frequency;
+                    document.getElementById('analysisWindowSection').style.display = 'block';
+                    initializeAnalysisWindow();
+                    populatePairCheckboxes();
+                    document.getElementById('pairSelectionSection').style.display = 'block';
+
+                } catch (error) {
+                    showBatchMessage(`Error parsing Excel file: ${error.message}`, 'error');
+                    console.error('Excel parsing error:', error);
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function detectFrequency(timestamps) {
+            // Filter out any null/undefined timestamps
+            const validTimestamps = timestamps.filter(t => t != null);
+
+            if (validTimestamps.length < 2) {
+                throw new Error('Need at least 2 valid timestamps to detect frequency');
+            }
+
+            let t1, t2;
+
+            // Handle different timestamp formats
+            if (validTimestamps[0] instanceof Date) {
+                // Already a Date object from SheetJS
+                t1 = validTimestamps[0];
+                t2 = validTimestamps[1];
+            } else if (typeof validTimestamps[0] === 'string') {
+                // String format - parse it
+                t1 = new Date(validTimestamps[0]);
+                t2 = new Date(validTimestamps[1]);
+            } else if (typeof validTimestamps[0] === 'number') {
+                // Excel serial number - convert to Date
+                // Excel epoch is 1900-01-01 (but with a leap year bug, we use 1899-12-30)
+                const excelEpoch = new Date(1899, 11, 30);
+                t1 = new Date(excelEpoch.getTime() + validTimestamps[0] * 86400000);
+                t2 = new Date(excelEpoch.getTime() + validTimestamps[1] * 86400000);
+            }
+
+            // Validate dates
+            if (isNaN(t1.getTime()) || isNaN(t2.getTime())) {
+                console.error('Invalid timestamps:', validTimestamps[0], validTimestamps[1]);
+                throw new Error('Could not parse timestamps');
+            }
+
+            // Calculate difference in minutes
+            const diffMs = t2 - t1;
+            const diffMinutes = Math.round(diffMs / (1000 * 60));
+
+            console.log('Detected frequency:', diffMinutes, 'minutes between', t1, 'and', t2);
+
+            if (diffMinutes <= 0) {
+                throw new Error('Invalid frequency detected: ' + diffMinutes + ' minutes');
+            }
+
+            return diffMinutes;
+        }
+
+        function populatePairCheckboxes() {
+            const grid = document.getElementById('pairCheckboxGrid');
+            grid.innerHTML = '';
+
+            batchData.pairNames.forEach(pair => {
+                const label = document.createElement('label');
+                label.className = 'pair-checkbox';
+                label.innerHTML = `
+                    <input type="checkbox" class="pair-checkbox-input" value="${pair}" onchange="updatePairCount()" checked>
+                    <span>${pair}</span>
+                `;
+                grid.appendChild(label);
+            });
+
+            updatePairCount();
+        }
+
+        function selectAllPairs() {
+            document.querySelectorAll('.pair-checkbox-input').forEach(cb => cb.checked = true);
+            updatePairCount();
+        }
+
+        function deselectAllPairs() {
+            document.querySelectorAll('.pair-checkbox-input').forEach(cb => cb.checked = false);
+            updatePairCount();
+        }
+
+        function updatePairCount() {
+            const checked = document.querySelectorAll('.pair-checkbox-input:checked').length;
+            document.getElementById('pairSelectionCount').textContent = `${checked} selected`;
+        }
+
+        function showBatchMessage(message, type = 'verification') {
+            const div = document.getElementById('uploadStatus');
+            div.innerHTML = `<div class="${type}" style="margin: 10px 0;">${message}</div>`;
+        }
+
+        function toggleBatchExpiryMode() {
+            const customRadio = document.getElementById('customExpiryRadio');
+            const customInput = document.getElementById('customExpiryInput');
+            const customUnit = document.getElementById('customExpiryUnit');
+
+            if (customRadio && customRadio.checked) {
+                customInput.disabled = false;
+                customUnit.disabled = false;
+                customInput.focus();
+            } else {
+                customInput.disabled = true;
+                customUnit.disabled = true;
+            }
+        }
+
+        // Add event listeners for batch expiry radio buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const endOfSeriesRadio = document.getElementById('endOfSeriesRadio');
+            const customExpiryRadio = document.getElementById('customExpiryRadio');
+
+            if (endOfSeriesRadio) {
+                endOfSeriesRadio.addEventListener('change', toggleBatchExpiryMode);
+            }
+            if (customExpiryRadio) {
+                customExpiryRadio.addEventListener('change', toggleBatchExpiryMode);
+            }
+        });
+
+        function formatDateTime(timestamp) {
+            const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
+
+        function formatDateForInput(timestamp) {
+            const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatTimeForInput(timestamp) {
+            const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
+        function initializeAnalysisWindow() {
+            if (!batchData.fullDataRange) return;
+
+            // Set initial values to full data range
+            const startDate = formatDateForInput(batchData.fullDataRange.start);
+            const startTime = formatTimeForInput(batchData.fullDataRange.start);
+            const endDate = formatDateForInput(batchData.fullDataRange.end);
+            const endTime = formatTimeForInput(batchData.fullDataRange.end);
+
+            document.getElementById('analysisStartDate').value = startDate;
+            document.getElementById('analysisStartTime').value = startTime;
+            document.getElementById('analysisEndDate').value = endDate;
+            document.getElementById('analysisEndTime').value = endTime;
+
+            // Show preview for entire dataset
+            updateAnalysisWindowPreview();
+        }
+
+        function toggleAnalysisWindow() {
+            const useCustom = document.getElementById('useCustomWindow').checked;
+            const customInputsDiv = document.getElementById('customWindowInputs');
+
+            const startDate = document.getElementById('analysisStartDate');
+            const startTime = document.getElementById('analysisStartTime');
+            const endDate = document.getElementById('analysisEndDate');
+            const endTime = document.getElementById('analysisEndTime');
+
+            if (useCustom) {
+                // Enable custom inputs
+                customInputsDiv.style.opacity = '1';
+                startDate.disabled = false;
+                startTime.disabled = false;
+                endDate.disabled = false;
+                endTime.disabled = false;
+            } else {
+                // Disable custom inputs
+                customInputsDiv.style.opacity = '0.5';
+                startDate.disabled = true;
+                startTime.disabled = true;
+                endDate.disabled = true;
+                endTime.disabled = true;
+            }
+
+            updateAnalysisWindowPreview();
+        }
+
+        // Add event listeners for analysis window radio buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const useEntireRadio = document.getElementById('useEntireDataset');
+            const useCustomRadio = document.getElementById('useCustomWindow');
+
+            if (useEntireRadio) {
+                useEntireRadio.addEventListener('change', toggleAnalysisWindow);
+            }
+            if (useCustomRadio) {
+                useCustomRadio.addEventListener('change', toggleAnalysisWindow);
+            }
+
+            // Add event listener for base frequency changes to update hedge frequency options
+            const baseFreqSelect = document.getElementById('batchBaseFrequency');
+            if (baseFreqSelect) {
+                baseFreqSelect.addEventListener('change', updateHedgeFrequencyOptions);
+            }
+        });
+
+        function updateHedgeFrequencyOptions() {
+            const baseFreq = parseInt(document.getElementById('batchBaseFrequency').value);
+            const hedgeFreqSelect = document.getElementById('batchHedgeFrequency');
+
+            if (!hedgeFreqSelect) return;
+
+            // Get current selection
+            const currentHedgeFreq = parseInt(hedgeFreqSelect.value);
+
+            // Disable options that are less than base frequency
+            Array.from(hedgeFreqSelect.options).forEach(option => {
+                const freq = parseInt(option.value);
+                if (freq < baseFreq) {
+                    option.disabled = true;
+                    option.style.color = '#ccc';
+                } else {
+                    option.disabled = false;
+                    option.style.color = '';
+                }
+            });
+
+            // If current selection is now invalid, select the first valid option
+            if (currentHedgeFreq < baseFreq) {
+                // Find first valid option >= baseFreq
+                for (let i = 0; i < hedgeFreqSelect.options.length; i++) {
+                    const freq = parseInt(hedgeFreqSelect.options[i].value);
+                    if (freq >= baseFreq) {
+                        hedgeFreqSelect.value = hedgeFreqSelect.options[i].value;
+                        break;
+                    }
+                }
+            }
+        }
+
+        function validateFrequencies(baseFreq, hedgeFreq) {
+            if (hedgeFreq < baseFreq) {
+                return {
+                    valid: false,
+                    message: `Error: Hedging frequency (${hedgeFreq} min) cannot be less than base data frequency (${baseFreq} min).<br>` +
+                             `This would cause the hedging algorithm to attempt rebalancing between data points, resulting in NaN values.<br>` +
+                             `Please select a hedging frequency >= ${baseFreq} minutes.`
+                };
+            }
+
+            // Warning if hedge frequency is not a multiple of base frequency
+            if (hedgeFreq % baseFreq !== 0) {
+                return {
+                    valid: true,
+                    warning: `Warning: Hedging frequency (${hedgeFreq} min) is not a multiple of base frequency (${baseFreq} min).<br>` +
+                             `Some hedge rebalance times may not align exactly with data timestamps.`
+                };
+            }
+
+            return { valid: true };
+        }
+
+        function updateAnalysisWindowPreview() {
+            if (!batchData.fullDataRange) return;
+
+            const useEntire = document.getElementById('useEntireDataset').checked;
+            const previewDiv = document.getElementById('windowPreview');
+
+            if (useEntire) {
+                // Show entire dataset info
+                previewDiv.innerHTML = `
+                    <strong>Analysis Window:</strong> Entire dataset<br>
+                    → ${batchData.fullDataRange.points} data points<br>
+                    → Duration: ${batchData.fullDataRange.hours.toFixed(1)} hours
+                `;
+            } else {
+                // Get selected window
+                const startDateTime = getSelectedStartDateTime();
+                const endDateTime = getSelectedEndDateTime();
+
+                if (!startDateTime || !endDateTime) {
+                    previewDiv.innerHTML = '<strong>Please select valid start and end times</strong>';
+                    return;
+                }
+
+                // Validate
+                if (startDateTime >= endDateTime) {
+                    previewDiv.innerHTML = '<strong style="color: #dc3545;">Error: Start must be before End</strong>';
+                    return;
+                }
+
+                if (startDateTime < batchData.fullDataRange.start || endDateTime > batchData.fullDataRange.end) {
+                    previewDiv.innerHTML = '<strong style="color: #dc3545;">Error: Window must be within data range</strong>';
+                    return;
+                }
+
+                // Calculate window properties
+                const durationMinutes = (endDateTime - startDateTime) / (1000 * 60);
+                const durationHours = (durationMinutes / 60).toFixed(1);
+
+                // Count data points in window
+                const windowPoints = batchData.timestamps.filter(t => {
+                    const ts = t instanceof Date ? t : new Date(t);
+                    return ts >= startDateTime && ts <= endDateTime;
+                }).length;
+
+                previewDiv.innerHTML = `
+                    <strong>Analysis Window:</strong> Custom<br>
+                    → Duration: ${durationHours} hours (${windowPoints} data points)<br>
+                    → Option initiated at: ${formatDateTime(startDateTime)}<br>
+                    → Analysis ends at: ${formatDateTime(endDateTime)}
+                `;
+            }
+        }
+
+        function getSelectedStartDateTime() {
+            const dateStr = document.getElementById('analysisStartDate').value;
+            const timeStr = document.getElementById('analysisStartTime').value;
+            if (!dateStr || !timeStr) return null;
+            return new Date(`${dateStr}T${timeStr}`);
+        }
+
+        function getSelectedEndDateTime() {
+            const dateStr = document.getElementById('analysisEndDate').value;
+            const timeStr = document.getElementById('analysisEndTime').value;
+            if (!dateStr || !timeStr) return null;
+            return new Date(`${dateStr}T${timeStr}`);
+        }
+
+        function filterDataToAnalysisWindow(fullData, windowStart, windowEnd) {
+            const filteredTimestamps = [];
+            const filteredSpotPrices = {};
+
+            // Initialize spot price arrays
+            Object.keys(fullData.spotPrices).forEach(pair => {
+                filteredSpotPrices[pair] = [];
+            });
+
+            // Filter data points within window
+            fullData.timestamps.forEach((timestamp, index) => {
+                const t = timestamp instanceof Date ? timestamp : new Date(timestamp);
+                if (t >= windowStart && t <= windowEnd) {
+                    filteredTimestamps.push(timestamp);
+
+                    // Add spot prices for all pairs
+                    Object.keys(fullData.spotPrices).forEach(pair => {
+                        filteredSpotPrices[pair].push(fullData.spotPrices[pair][index]);
+                    });
+                }
+            });
+
+            return {
+                timestamps: filteredTimestamps,
+                spotPrices: filteredSpotPrices,
+                pairNames: fullData.pairNames,
+                impliedVols: fullData.impliedVols,
+                frequency: fullData.frequency,
+                fullDataRange: fullData.fullDataRange,
+                analysisWindow: {
+                    start: windowStart,
+                    end: windowEnd,
+                    points: filteredTimestamps.length,
+                    minutes: (windowEnd - windowStart) / (1000 * 60)
+                }
+            };
+        }
+
+        async function startBatchCalculation() {
+            // Get selected pairs
+            const selectedPairs = Array.from(document.querySelectorAll('.pair-checkbox-input:checked'))
+                .map(cb => cb.value);
+
+            if (selectedPairs.length === 0) {
+                showBatchMessage('Error: Please select at least one currency pair', 'error');
+                return;
+            }
+
+            // Hide pair selection, show progress
+            document.getElementById('pairSelectionSection').style.display = 'none';
+            document.getElementById('progressSection').style.display = 'block';
+            document.getElementById('batchResults').style.display = 'none';
+
+            // Get configuration
+            const baseFreq = parseInt(document.getElementById('batchBaseFrequency').value);
+            const hedgeFreq = parseInt(document.getElementById('batchHedgeFrequency').value);
+
+            // Validate frequencies
+            const freqValidation = validateFrequencies(baseFreq, hedgeFreq);
+            if (!freqValidation.valid) {
+                showBatchMessage(freqValidation.message, 'error');
+                document.getElementById('progressSection').style.display = 'none';
+                document.getElementById('pairSelectionSection').style.display = 'block';
+                return;
+            }
+
+            // Show warning if hedge frequency is not a multiple of base frequency
+            if (freqValidation.warning) {
+                showBatchMessage(freqValidation.warning, 'warning');
+            }
+
+            // Get option expiry settings
+            const expiryMode = document.querySelector('input[name="batchExpiryMode"]:checked').value;
+            let optionTenorMinutes;
+
+            if (expiryMode === 'custom') {
+                const customValue = parseFloat(document.getElementById('customExpiryInput').value);
+                const customUnit = document.getElementById('customExpiryUnit').value;
+                optionTenorMinutes = (customUnit === 'hours') ? customValue * 60 : customValue;
+            }
+
+            // Apply analysis window filter
+            const useEntire = document.getElementById('useEntireDataset').checked;
+            let analysisData;
+
+            if (useEntire) {
+                // Use full dataset
+                analysisData = batchData;
+            } else {
+                // Filter to custom window
+                const windowStart = getSelectedStartDateTime();
+                const windowEnd = getSelectedEndDateTime();
+
+                // Validation
+                if (!windowStart || !windowEnd) {
+                    showBatchMessage('Error: Please select valid start and end times', 'error');
+                    document.getElementById('progressSection').style.display = 'none';
+                    document.getElementById('pairSelectionSection').style.display = 'block';
+                    return;
+                }
+
+                if (windowStart >= windowEnd) {
+                    showBatchMessage('Error: Analysis window start must be before end', 'error');
+                    document.getElementById('progressSection').style.display = 'none';
+                    document.getElementById('pairSelectionSection').style.display = 'block';
+                    return;
+                }
+
+                if (windowStart < batchData.fullDataRange.start || windowEnd > batchData.fullDataRange.end) {
+                    showBatchMessage('Error: Analysis window must be within data range', 'error');
+                    document.getElementById('progressSection').style.display = 'none';
+                    document.getElementById('pairSelectionSection').style.display = 'block';
+                    return;
+                }
+
+                // Filter data
+                analysisData = filterDataToAnalysisWindow(batchData, windowStart, windowEnd);
+
+                // Validate filtered data
+                if (analysisData.timestamps.length < 2) {
+                    showBatchMessage('Error: Analysis window must contain at least 2 data points', 'error');
+                    document.getElementById('progressSection').style.display = 'none';
+                    document.getElementById('pairSelectionSection').style.display = 'block';
+                    return;
+                }
+
+                const windowDuration = (windowEnd - windowStart) / (1000 * 60);
+                if (windowDuration < hedgeFreq) {
+                    showBatchMessage('Error: Analysis window duration must be >= hedging frequency', 'error');
+                    document.getElementById('progressSection').style.display = 'none';
+                    document.getElementById('pairSelectionSection').style.display = 'block';
+                    return;
+                }
+            }
+
+            // Store analysis data for use in calculations
+            window.currentAnalysisData = analysisData;
+
+            // Initialize results
+            batchData.results = {};
+            batchData.analysisWindow = analysisData.analysisWindow || null;
+
+            // Calculate for each pair sequentially
+            for (let i = 0; i < selectedPairs.length; i++) {
+                const pair = selectedPairs[i];
+                const progress = ((i + 1) / selectedPairs.length) * 100;
+
+                // Update progress
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('progressText').textContent = Math.round(progress) + '%';
+                document.getElementById('currentPairText').textContent = `Processing ${pair}...`;
+
+                // Calculate P&L for this pair
+                try {
+                    const result = await calculatePairPnL(pair, baseFreq, hedgeFreq, optionTenorMinutes, expiryMode);
+                    batchData.results[pair] = result;
+                } catch (error) {
+                    console.error(`Error calculating ${pair}:`, error);
+                    batchData.results[pair] = { error: error.message };
+                }
+
+                // Allow UI to update
+                await new Promise(resolve => setTimeout(resolve, 10));
+            }
+
+            // Hide progress, show results
+            document.getElementById('progressSection').style.display = 'none';
+            document.getElementById('batchResults').style.display = 'block';
+
+            // Display results
+            displayBatchResults();
+        }
+
+        async function calculatePairPnL(pairName, baseFreq, hedgeFreq, optionTenorMinutes, expiryMode) {
+            // Use analysis data (which may be filtered)
+            const analysisData = window.currentAnalysisData;
+            const spots = analysisData.spotPrices[pairName];
+            const impliedVol = analysisData.impliedVols[pairName];
+
+            // Calculate time period
+            const numPoints = spots.length;
+            const totalMinutes = (numPoints - 1) * baseFreq;
+            const totalHours = totalMinutes / 60;
+            const totalDays = totalHours / 24;
+
+            // Determine option tenor
+            let optionTenorYears;
+            if (expiryMode === 'custom' && optionTenorMinutes) {
+                optionTenorYears = optionTenorMinutes / (365 * 24 * 60);
+            } else {
+                optionTenorMinutes = totalMinutes;
+                optionTenorYears = totalDays / 365;
+            }
+
+            // Calculate hedge times
+            const lastCalculationMinutes = Math.min(totalMinutes, optionTenorMinutes);
+            const hedgeTimes = calculateHedgeTimes(lastCalculationMinutes, hedgeFreq);
+
+            // Calculate realized volatility
+            const realizedVol = calculateRealizedVolatility(spots, totalDays, hedgeTimes, baseFreq);
+
+            // Calculate strikes (5 standard strikes only for batch mode)
+            const S0 = spots[0];
+            const strikes = [
+                { name: '10Δ Put', strike: calculateStrikeFromDelta(S0, impliedVol, optionTenorYears, -0.10), type: 'put' },
+                { name: '25Δ Put', strike: calculateStrikeFromDelta(S0, impliedVol, optionTenorYears, -0.25), type: 'put' },
+                { name: 'ATM Call', strike: S0, type: 'call' },
+                { name: '25Δ Call', strike: calculateStrikeFromDelta(S0, impliedVol, optionTenorYears, 0.25), type: 'call' },
+                { name: '10Δ Call', strike: calculateStrikeFromDelta(S0, impliedVol, optionTenorYears, 0.10), type: 'call' }
+            ];
+
+            // Calculate P&L for each strike
+            const strikePnLs = {};
+            let totalPnL = 0;
+
+            strikes.forEach(s => {
+                const baseNotional = SETTLEMENT_NOTIONAL / s.strike;
+                const pnlData = calculateStrikePnL(spots, s.strike, impliedVol, s.type, baseNotional, totalMinutes, hedgeTimes, baseFreq, optionTenorMinutes);
+                const finalPnL = pnlData[pnlData.length - 1].portfolioValue;
+                strikePnLs[s.name] = {
+                    strikePrice: s.strike,
+                    finalPnL: finalPnL,
+                    pnlData: pnlData // Store for chart viewing
+                };
+                totalPnL += finalPnL;
+            });
+
+            const avgPnL = totalPnL / strikes.length;
+
+            return {
+                avgPnL: avgPnL,
+                strikes: strikePnLs,
+                realizedVol: realizedVol,
+                impliedVol: impliedVol,
+                volDiff: realizedVol - impliedVol,
+                spotData: spots,
+                baseFreq: baseFreq,
+                hedgeFreq: hedgeFreq,
+                totalMinutes: totalMinutes
+            };
+        }
+
+        function displayBatchResults() {
+            // Sort pairs by avgPnL
+            const pairResults = Object.entries(batchData.results)
+                .filter(([_, result]) => !result.error)
+                .sort((a, b) => b[1].avgPnL - a[1].avgPnL);
+
+            // Display Top 5 / Bottom 5
+            displayRankings(pairResults);
+
+            // Display Currency Groups
+            displayCurrencyGroups(pairResults);
+
+            // Display Expandable Details
+            displayExpandableDetails(pairResults);
+        }
+
+        function displayRankings(pairResults) {
+            const top5 = pairResults.slice(0, 5);
+            const bottom5 = pairResults.slice(-5).reverse();
+
+            document.getElementById('top5Table').innerHTML = generateRankingTable(top5, 1);
+            document.getElementById('bottom5Table').innerHTML = generateRankingTable(bottom5, pairResults.length - 4);
+        }
+
+        function generateRankingTable(pairs, startRank) {
+            let html = '<table class="ranking-table" style="width: 100%; border-collapse: collapse; margin: 10px 0;"><thead><tr>';
+            html += '<th>Rank</th><th>Pair</th><th>Avg P&L</th>';
+            html += '<th>10Δ Put</th><th>25Δ Put</th><th>ATM Call</th><th>25Δ Call</th><th>10Δ Call</th>';
+            html += '<th>Real Vol</th><th>Impl Vol</th><th>Vol Diff</th>';
+            html += '</tr></thead><tbody>';
+
+            pairs.forEach(([pair, result], idx) => {
+                const rank = startRank + idx;
+                const avgColor = getPnLColor(result.avgPnL * 1000);
+
+                html += '<tr>';
+                html += `<td>${rank}</td>`;
+                html += `<td style="font-weight: bold;">${pair}</td>`;
+                html += `<td style="background-color: ${avgColor.bg}; color: ${avgColor.text}; font-weight: bold;">${formatThousand(result.avgPnL)}</td>`;
+
+                // Individual strike P&Ls
+                ['10Δ Put', '25Δ Put', 'ATM Call', '25Δ Call', '10Δ Call'].forEach(strikeName => {
+                    const pnl = result.strikes[strikeName].finalPnL;
+                    const color = getPnLColor(pnl);
+                    html += `<td style="background-color: ${color.bg}; color: ${color.text};">${formatThousand(pnl)}</td>`;
+                });
+
+                html += `<td>${(result.realizedVol * 100).toFixed(2)}%</td>`;
+                html += `<td>${(result.impliedVol * 100).toFixed(2)}%</td>`;
+                html += `<td>${result.volDiff >= 0 ? '+' : ''}${(result.volDiff * 100).toFixed(2)}pp</td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function displayCurrencyGroups(pairResults) {
+            const currencies = ['USD', 'EUR', 'JPY', 'GBP', 'AUD', 'NZD', 'CAD', 'CHF', 'SEK', 'NOK', 'DKK'];
+            const groups = {};
+
+            // Group pairs by currency
+            currencies.forEach(currency => {
+                groups[currency] = pairResults.filter(([pair, _]) => pair.includes(currency));
+            });
+
+            // Generate HTML for each non-empty group
+            let html = '';
+            Object.entries(groups).forEach(([currency, pairs]) => {
+                if (pairs.length === 0) return;
+
+                // Calculate group average
+                const groupAvg = pairs.reduce((sum, [_, result]) => sum + result.avgPnL, 0) / pairs.length;
+
+                html += `<div class="currency-group-section">`;
+                html += `<h3 style="text-align: center; background-color: #007bff; color: white; padding: 10px; border-radius: 4px;">${currency} PAIRS</h3>`;
+                html += generateCurrencyGroupTable(pairs);
+                html += `<div style="margin-top: 10px; font-weight: bold; font-size: 16px;">Group Average: ${formatThousand(groupAvg)}</div>`;
+                html += `</div>`;
+            });
+
+            document.getElementById('currencyGroupsContent').innerHTML = html;
+        }
+
+        function generateCurrencyGroupTable(pairs) {
+            let html = '<table style="width: 100%; border-collapse: collapse; margin: 10px 0;"><thead><tr>';
+            html += '<th>Pair</th><th>Avg P&L</th>';
+            html += '<th>10Δ Put</th><th>25Δ Put</th><th>ATM Call</th><th>25Δ Call</th><th>10Δ Call</th>';
+            html += '<th>Real Vol</th><th>Impl Vol</th><th>Vol Diff</th>';
+            html += '</tr></thead><tbody>';
+
+            pairs.forEach(([pair, result]) => {
+                const avgColor = getPnLColor(result.avgPnL * 1000);
+
+                html += '<tr>';
+                html += `<td style="font-weight: bold;">${pair}</td>`;
+                html += `<td style="background-color: ${avgColor.bg}; color: ${avgColor.text}; font-weight: bold;">${formatThousand(result.avgPnL)}</td>`;
+
+                ['10Δ Put', '25Δ Put', 'ATM Call', '25Δ Call', '10Δ Call'].forEach(strikeName => {
+                    const pnl = result.strikes[strikeName].finalPnL;
+                    const color = getPnLColor(pnl);
+                    html += `<td style="background-color: ${color.bg}; color: ${color.text};">${formatThousand(pnl)}</td>`;
+                });
+
+                html += `<td>${(result.realizedVol * 100).toFixed(2)}%</td>`;
+                html += `<td>${(result.impliedVol * 100).toFixed(2)}%</td>`;
+                html += `<td>${result.volDiff >= 0 ? '+' : ''}${(result.volDiff * 100).toFixed(2)}pp</td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function displayExpandableDetails(pairResults) {
+            let html = '';
+
+            pairResults.forEach(([pair, result]) => {
+                const avgColor = getPnLColor(result.avgPnL * 1000);
+
+                html += `<div class="expandable-pair">`;
+                html += `<div class="pair-header" onclick="togglePairDetails('${pair}')">`;
+                html += `<span style="font-weight: bold; font-size: 16px;">▶ ${pair}</span>`;
+                html += `<span style="background-color: ${avgColor.bg}; color: ${avgColor.text}; padding: 5px 10px; border-radius: 4px; font-weight: bold;">Avg P&L: ${formatThousand(result.avgPnL)}</span>`;
+                html += `</div>`;
+                html += `<div class="pair-details" id="details-${pair}">`;
+
+                // Strike P&L Summary Table
+                html += '<h4>Strike P&L Summary:</h4>';
+                html += '<table style="width: 100%; border-collapse: collapse;"><thead><tr><th></th>';
+
+                ['10Δ Put', '25Δ Put', 'ATM Call', '25Δ Call', '10Δ Call'].forEach(strikeName => {
+                    const strikePrice = result.strikes[strikeName].strikePrice;
+                    html += `<th>${strikePrice.toFixed(4)}</th>`;
+                });
+                html += '</tr></thead><tbody><tr><td><strong>Strike</strong></td>';
+
+                ['10Δ Put', '25Δ Put', 'ATM Call', '25Δ Call', '10Δ Call'].forEach(strikeName => {
+                    html += `<td>${strikeName}</td>`;
+                });
+                html += '</tr><tr><td><strong>P&L (k)</strong></td>';
+
+                ['10Δ Put', '25Δ Put', 'ATM Call', '25Δ Call', '10Δ Call'].forEach(strikeName => {
+                    const pnl = result.strikes[strikeName].finalPnL;
+                    const color = getPnLColor(pnl);
+                    html += `<td style="background-color: ${color.bg}; color: ${color.text}; font-weight: bold;">${formatThousand(pnl)}</td>`;
+                });
+                html += '</tr></tbody></table>';
+
+                // Summary stats
+                html += `<div style="margin-top: 15px; padding: 10px; background-color: #f9f9f9; border-radius: 4px;">`;
+                html += `<strong>Summary:</strong> `;
+                html += `Avg P&L: ${formatThousand(result.avgPnL)} | `;
+                html += `Impl Vol: ${(result.impliedVol * 100).toFixed(2)}% | `;
+                html += `Real Vol: ${(result.realizedVol * 100).toFixed(2)}% | `;
+                html += `Vol Diff: ${result.volDiff >= 0 ? '+' : ''}${(result.volDiff * 100).toFixed(2)}pp`;
+                html += `</div>`;
+
+                // View Charts button
+                html += `<button style="margin-top: 15px;" onclick="showBatchPairCharts('${pair}')">View P&L Charts</button>`;
+
+                html += `</div>`;
+                html += `</div>`;
+            });
+
+            document.getElementById('expandableDetailsContent').innerHTML = html;
+        }
+
+        function togglePairDetails(pair) {
+            const detailsDiv = document.getElementById(`details-${pair}`);
+            const header = detailsDiv.previousElementSibling;
+            const arrow = header.querySelector('span:first-child');
+
+            if (detailsDiv.classList.contains('expanded')) {
+                detailsDiv.classList.remove('expanded');
+                arrow.textContent = `▶ ${pair}`;
+            } else {
+                detailsDiv.classList.add('expanded');
+                arrow.textContent = `▼ ${pair}`;
+            }
+        }
+
+        function showBatchPairCharts(pair) {
+            const result = batchData.results[pair];
+            if (!result) {
+                alert('Data not available for ' + pair);
+                return;
+            }
+
+            // Create modal if it doesn't exist
+            let modal = document.getElementById('batchChartModal');
+            if (!modal) {
+                const modalHTML = `
+                    <div id="batchChartModal" class="modal">
+                        <div class="modal-content" style="width: 95%; max-width: 1600px;">
+                            <div class="modal-header">
+                                <h2 id="batchChartTitle"></h2>
+                                <span class="close" onclick="closeBatchChartModal()">&times;</span>
+                            </div>
+                            <div id="batchChartsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
+                                <!-- Charts will be added here -->
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+                modal = document.getElementById('batchChartModal');
+            }
+
+            // Set title
+            document.getElementById('batchChartTitle').textContent = `P&L Path Charts - ${pair}`;
+
+            // Clear previous charts
+            const container = document.getElementById('batchChartsContainer');
+            container.innerHTML = '';
+
+            // Prepare spot time points for all strikes
+            const allSpotTimes = [];
+            const allSpotPrices = result.spotData;
+            for (let i = 0; i < allSpotPrices.length; i++) {
+                allSpotTimes.push(i * result.baseFreq);
+            }
+
+            // Create a chart for each strike
+            const strikeNames = ['10Δ Put', '25Δ Put', 'ATM Call', '25Δ Call', '10Δ Call'];
+
+            strikeNames.forEach(strikeName => {
+                const strikeData = result.strikes[strikeName];
+                if (!strikeData || !strikeData.pnlData) return;
+
+                // Extract time series data
+                const pnlData = strikeData.pnlData;
+                const timePoints = pnlData.map(p => p.time);
+                const premiumValues = pnlData.map(p => p.premium / 1000);
+                const optionValues = pnlData.map(p => p.optionValue / 1000);
+                const hedgePnLs = pnlData.map(p => p.hedgePnL / 1000);
+                const portfolioValues = pnlData.map(p => p.portfolioValue / 1000);
+
+                // Create canvas container
+                const chartDiv = document.createElement('div');
+                chartDiv.innerHTML = `
+                    <h3 style="text-align: center; margin-bottom: 10px;">${strikeName} (Strike: ${strikeData.strikePrice.toFixed(4)})</h3>
+                    <canvas id="chart_${pair}_${strikeName.replace(/[^a-zA-Z0-9]/g, '_')}" width="800" height="500"></canvas>
+                `;
+                container.appendChild(chartDiv);
+
+                // Draw chart
+                const canvasId = `chart_${pair}_${strikeName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                const canvas = document.getElementById(canvasId);
+                drawCustomChart(canvas, timePoints, premiumValues, optionValues, hedgePnLs, portfolioValues, allSpotTimes, allSpotPrices);
+            });
+
+            // Show modal
+            modal.style.display = 'block';
+        }
+
+        function closeBatchChartModal() {
+            const modal = document.getElementById('batchChartModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('batchChartModal');
+            if (event.target === modal) {
+                closeBatchChartModal();
+            }
+        });
+
+        // ============ STRIKE CALCULATION - EXACT CODE ============
+
+        function erf(x) {
+            const sign = x >= 0 ? 1 : -1;
+            x = Math.abs(x);
+            const a1 = 0.254829592;
+            const a2 = -0.284496736;
+            const a3 = 1.421413741;
+            const a4 = -1.453152027;
+            const a5 = 1.061405429;
+            const p = 0.3275911;
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+            return sign * y;
+        }
+
+        function normalCDF(x) {
+            return 0.5 * (1 + erf(x / Math.sqrt(2)));
+        }
+
+        function inverseNormalCDF(p) {
+            if (p <= 0 || p >= 1) throw new Error('p must be between 0 and 1');
+
+            const a = [
+                -3.969683028665376e+01, 2.209460984245205e+02,
+                -2.759285104469687e+02, 1.383577518672690e+02,
+                -3.066479806614716e+01, 2.506628277459239e+00
+            ];
+            const b = [
+                -5.447609879822406e+01, 1.615858368580409e+02,
+                -1.556989798598866e+02, 6.680131188771972e+01,
+                -1.328068155288572e+01
+            ];
+            const c = [
+                -7.784894002430293e-03, -3.223964580411365e-01,
+                -2.400758277161838e+00, -2.549732539343734e+00,
+                4.374664141464968e+00, 2.938163982698783e+00
+            ];
+            const d = [
+                7.784695709041462e-03, 3.224671290700398e-01,
+                2.445134137142996e+00, 3.754408661907416e+00
+            ];
+
+            const pLow = 0.02425;
+            const pHigh = 1 - pLow;
+
+            let q, r, result;
+
+            if (p < pLow) {
+                q = Math.sqrt(-2 * Math.log(p));
+                result = (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+                         ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+            } else if (p <= pHigh) {
+                q = p - 0.5;
+                r = q * q;
+                result = (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q /
+                         (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+            } else {
+                q = Math.sqrt(-2 * Math.log(1 - p));
+                result = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+                          ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+            }
+
+            return result;
+        }
+
+        function calculateStrikeFromDelta(spot, annualVol, timeYears, targetDelta) {
+            const volSqrtT = annualVol * Math.sqrt(timeYears);
+            const varianceAdj = 0.5 * annualVol * annualVol * timeYears;
+            const d1Input = (targetDelta < 0) ? (targetDelta + 1.0) : targetDelta;
+            const d1 = inverseNormalCDF(d1Input);
+            const logMoneyness = d1 * volSqrtT - varianceAdj;
+            const strike = spot * Math.exp(-logMoneyness);
+            return strike;
+        }
+
+        // ============ END STRIKE CALCULATION CODE ============
+
+        function normCDF(x) {
+            return normalCDF(x);
+        }
+
+        function blackScholesCall(S, K, T, sigma) {
+            if (T <= 0) {
+                return Math.max(S - K, 0);
+            }
+
+            const sqrtT = Math.sqrt(T);
+            const d1 = (Math.log(S / K) + (0.5 * sigma * sigma * T)) / (sigma * sqrtT);
+            const d2 = d1 - sigma * sqrtT;
+
+            return S * normCDF(d1) - K * normCDF(d2);
+        }
+
+        function blackScholesPut(S, K, T, sigma) {
+            if (T <= 0) {
+                return Math.max(K - S, 0);
+            }
+
+            const sqrtT = Math.sqrt(T);
+            const d1 = (Math.log(S / K) + (0.5 * sigma * sigma * T)) / (sigma * sqrtT);
+            const d2 = d1 - sigma * sqrtT;
+
+            return K * normCDF(-d2) - S * normCDF(-d1);
+        }
+
+        function callDelta(S, K, T, sigma) {
+            if (T <= 0) {
+                return S > K ? 1 : 0;
+            }
+
+            const sqrtT = Math.sqrt(T);
+            const d1 = (Math.log(S / K) + (0.5 * sigma * sigma * T)) / (sigma * sqrtT);
+
+            return normCDF(d1);
+        }
+
+        function putDelta(S, K, T, sigma) {
+            return callDelta(S, K, T, sigma) - 1;
+        }
+
+        function formatThousand(value) {
+            const thousands = value / 1_000;
+            const absThousands = Math.abs(thousands);
+            const sign = thousands < 0 ? '-' : '';
+            const formatted = absThousands.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return sign + formatted + 'k';
+        }
+
+        function formatMillion(value) {
+            const millions = value / 1_000_000;
+            const absMillion = Math.abs(millions);
+            const sign = millions < 0 ? '-' : '';
+            const formatted = absMillion.toFixed(1);
+            return sign + formatted + 'm';
+        }
+
+        function formatNumber(value, decimals = 4) {
+            return value.toFixed(decimals);
+        }
+
+        // ============ P&L COLOR CODING ============
+
+        function getPnLColor(pnl) {
+            // Convert from base to thousands for threshold comparison
+            const pnlK = pnl / 1000;
+
+            if (pnlK >= 200) return { bg: '#006400', text: 'white' };      // Dark green
+            if (pnlK >= 100) return { bg: '#90EE90', text: 'black' };      // Light green
+            if (pnlK >= 0) return { bg: '#FFFFE0', text: 'black' };        // Light yellow
+            if (pnlK >= -100) return { bg: '#FFB6C1', text: 'black' };     // Light red
+            if (pnlK >= -200) return { bg: '#FF6B6B', text: 'white' };     // Medium red
+            return { bg: '#8B0000', text: 'white' };                       // Dark red
+        }
+
+        // ============ CUSTOM STRIKES MANAGEMENT ============
+
+        function addCustomStrike() {
+            const container = document.getElementById('customStrikesContainer');
+            const currentCount = container.children.length;
+
+            if (currentCount >= MAX_CUSTOM_STRIKES) {
+                showValidationMessage('Maximum 5 custom strikes allowed', 'warning');
+                return;
+            }
+
+            const rowId = `custom-strike-${customStrikeCounter++}`;
+            const row = document.createElement('div');
+            row.className = 'custom-strike-row';
+            row.id = rowId;
+
+            row.innerHTML = `
+                <input type="number" class="custom-strike-value" step="0.0001" placeholder="Value">
+                <select class="custom-strike-mode" onchange="toggleCallPutDropdown('${rowId}')">
+                    <option value="strike">Strike Price</option>
+                    <option value="delta">Delta</option>
+                </select>
+                <select class="custom-strike-type hidden">
+                    <option value="call">Call</option>
+                    <option value="put">Put</option>
+                </select>
+                <button class="secondary" onclick="removeCustomStrike('${rowId}')">Remove</button>
+            `;
+
+            container.appendChild(row);
+            updateCustomStrikeCount();
+        }
+
+        function removeCustomStrike(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) {
+                row.remove();
+                updateCustomStrikeCount();
+            }
+        }
+
+        function toggleCallPutDropdown(rowId) {
+            const row = document.getElementById(rowId);
+            const mode = row.querySelector('.custom-strike-mode').value;
+            const typeDropdown = row.querySelector('.custom-strike-type');
+
+            if (mode === 'delta') {
+                typeDropdown.classList.remove('hidden');
+            } else {
+                typeDropdown.classList.add('hidden');
+            }
+        }
+
+        function updateCustomStrikeCount() {
+            const container = document.getElementById('customStrikesContainer');
+            const count = container.children.length;
+            document.getElementById('customStrikeCount').textContent = `Custom Strikes: ${count}/${MAX_CUSTOM_STRIKES}`;
+
+            const addBtn = document.getElementById('addCustomStrikeBtn');
+            addBtn.disabled = count >= MAX_CUSTOM_STRIKES;
+        }
+
+        // ============ OPTION EXPIRY TOGGLE ============
+
+        function toggleExpiryMode() {
+            const customRadio = document.querySelector('input[name="expiryMode"][value="custom"]');
+            const customInput = document.getElementById('customExpiryValue');
+            const customUnit = document.getElementById('customExpiryUnit');
+            const calculationsDiv = document.getElementById('expiryCalculations');
+
+            if (customRadio.checked) {
+                customInput.disabled = false;
+                customUnit.disabled = false;
+                calculationsDiv.style.display = 'block';
+                updateExpiryCalculations();
+            } else {
+                customInput.disabled = true;
+                customUnit.disabled = true;
+                calculationsDiv.style.display = 'none';
+            }
+        }
+
+        function updateExpiryCalculations() {
+            // This will be called during calculate() to show spot series length
+            // and time remaining. Placeholder for now.
+            const customExpiryValue = parseFloat(document.getElementById('customExpiryValue').value);
+            const customExpiryUnit = document.getElementById('customExpiryUnit').value;
+            if (!isNaN(customExpiryValue)) {
+                document.getElementById('spotSeriesLengthDisplay').textContent = '• Spot Series Length: (will calculate when you click Calculate)';
+                document.getElementById('timeRemainingDisplay').textContent = '• Time Remaining at End: (will calculate when you click Calculate)';
+            }
+        }
+
+        function parseCustomStrikes(initialSpot, sigma, timeYears) {
+            const container = document.getElementById('customStrikesContainer');
+            const customStrikes = [];
+
+            for (let i = 0; i < container.children.length; i++) {
+                const row = container.children[i];
+                const value = parseFloat(row.querySelector('.custom-strike-value').value);
+                const mode = row.querySelector('.custom-strike-mode').value;
+                const type = row.querySelector('.custom-strike-type').value;
+
+                if (isNaN(value) || value <= 0) {
+                    showValidationMessage(`Custom strike ${i + 1}: Please enter a valid positive value`, 'error');
+                    return null;
+                }
+
+                let strike, optionType, label;
+
+                if (mode === 'strike') {
+                    // Strike Price mode: auto-determine Call/Put
+                    strike = value;
+                    optionType = (strike < initialSpot) ? 'put' : 'call';
+                    label = `Custom: ${strike.toFixed(4)} ${optionType.charAt(0).toUpperCase() + optionType.slice(1)}`;
+                } else {
+                    // Delta mode
+                    if (value < 0 || value > 100) {
+                        showValidationMessage(`Custom strike ${i + 1}: Delta must be between 0 and 100`, 'error');
+                        return null;
+                    }
+
+                    const deltaDecimal = value / 100;
+                    optionType = type; // User selected
+                    const targetDelta = (optionType === 'put') ? -deltaDecimal : deltaDecimal;
+
+                    // Calculate strike using delta
+                    strike = calculateStrikeFromDelta(initialSpot, sigma, timeYears, targetDelta);
+                    label = `Custom: ${value}Δ ${optionType.charAt(0).toUpperCase() + optionType.slice(1)} (Strike: ${strike.toFixed(4)})`;
+                }
+
+                customStrikes.push({
+                    name: label,
+                    strike: strike,
+                    type: optionType,
+                    isCustom: true
+                });
+            }
+
+            return customStrikes;
+        }
+
+        // ============ END CUSTOM STRIKES MANAGEMENT ============
+
+        function generateTestData() {
+            const initialSpot = parseFloat(document.getElementById('initialSpot').value);
+            if (isNaN(initialSpot) || initialSpot <= 0) {
+                showValidationMessage('Please enter a valid initial spot price', 'error');
+                return;
+            }
+
+            const hoursOfData = parseFloat(document.getElementById('hoursOfData').value);
+            if (isNaN(hoursOfData) || hoursOfData <= 0) {
+                showValidationMessage('Please enter valid hours of data (e.g., 1, 24, 48)', 'error');
+                return;
+            }
+
+            const baseFreq = parseInt(document.getElementById('baseFrequency').value);
+
+            // Calculate number of points: hours * 60 / base_freq + 1
+            // Example: 24 hours, base=10 → 24 * 60 / 10 + 1 = 144 + 1 = 145 points
+            const totalMinutes = hoursOfData * 60;
+            const numIntervals = Math.floor(totalMinutes / baseFreq);
+            const numPoints = numIntervals + 1;
+
+            if (numPoints < MIN_POINTS) {
+                showValidationMessage(`Hours too small. Minimum ${MIN_POINTS} points needed (${((MIN_POINTS - 1) * baseFreq / 60).toFixed(2)} hours)`, 'error');
+                return;
+            }
+
+            if (numPoints > MAX_POINTS) {
+                showValidationMessage(`Hours too large. Maximum ${MAX_POINTS} points allowed (${((MAX_POINTS - 1) * baseFreq / 60).toFixed(0)} hours)`, 'error');
+                return;
+            }
+
+            const spots = [initialSpot];
+            let currentSpot = initialSpot;
+
+            // Generate random walk data
+            for (let i = 1; i < numPoints; i++) {
+                // Random move: ±0.01% to ±0.05% per interval
+                const randomMove = (Math.random() - 0.5) * 0.0008 * currentSpot;
+                currentSpot = currentSpot + randomMove;
+                spots.push(currentSpot);
+            }
+
+            // Fill textarea
+            document.getElementById('spotSeries').value = spots.map(s => s.toFixed(4)).join('\n');
+            showValidationMessage(`Test data generated successfully (${numPoints} values at ${baseFreq}-minute intervals, ${hoursOfData} hours)`, 'verification');
+        }
+
+        function showValidationMessage(message, type = 'verification') {
+            const div = document.getElementById('validation-message');
+            div.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        function parseSpotSeries() {
+            const text = document.getElementById('spotSeries').value.trim();
+            if (!text) {
+                showValidationMessage('Please enter spot price series', 'error');
+                return null;
+            }
+
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+            if (lines.length < MIN_POINTS) {
+                showValidationMessage(`Error: Minimum ${MIN_POINTS} values required, got ${lines.length}`, 'error');
+                return null;
+            }
+
+            if (lines.length > MAX_POINTS) {
+                showValidationMessage(`Error: Maximum ${MAX_POINTS} values allowed, got ${lines.length}`, 'error');
+                return null;
+            }
+
+            const spots = [];
+            for (let i = 0; i < lines.length; i++) {
+                const value = parseFloat(lines[i]);
+                if (isNaN(value) || value <= 0) {
+                    showValidationMessage(`Error: Invalid value at line ${i + 1}: "${lines[i]}"`, 'error');
+                    return null;
+                }
+                spots.push(value);
+            }
+
+            return spots;
+        }
+
+        function calculateHedgeTimes(totalMinutes, hedgeFrequency) {
+            // Calculate all hedge times: [0, hedge_freq, 2*hedge_freq, ...]
+            // Stop when hedge_time <= total_minutes
+            const hedgeTimes = [];
+            let hedgeTime = 0;
+            while (hedgeTime <= totalMinutes) {
+                hedgeTimes.push(hedgeTime);
+                hedgeTime += hedgeFrequency;
+            }
+            return hedgeTimes;
+        }
+
+        function calculateRealizedVolatility(spotPrices, totalDays, hedgeTimes, baseFreq) {
+            // Calculate returns at hedging frequency
+            // Get spot prices only at hedge times (and final time if not aligned)
+
+            const spotsAtHedgeTimes = [];
+            const numDataPoints = spotPrices.length;
+            const totalMinutes = (numDataPoints - 1) * baseFreq;
+
+            // Add spots at all hedge times
+            for (const hedgeTime of hedgeTimes) {
+                const spotIndex = hedgeTime / baseFreq;
+                if (spotIndex < numDataPoints) {
+                    spotsAtHedgeTimes.push(spotPrices[spotIndex]);
+                }
+            }
+
+            // If final time is not a hedge time, include it
+            const lastHedgeTime = hedgeTimes[hedgeTimes.length - 1];
+            if (lastHedgeTime < totalMinutes) {
+                spotsAtHedgeTimes.push(spotPrices[numDataPoints - 1]);
+            }
+
+            // Calculate log returns between consecutive hedge spots
+            const returns = [];
+            for (let i = 1; i < spotsAtHedgeTimes.length; i++) {
+                returns.push(Math.log(spotsAtHedgeTimes[i] / spotsAtHedgeTimes[i-1]));
+            }
+
+            // Calculate total period variance (sum of squared returns, NOT divided by n)
+            // This represents variance over the entire period
+            const varianceTotalPeriod = returns.reduce((sum, r) => sum + r*r, 0);
+
+            // Annualize based on actual days covered
+            // Example: 1 day → multiply by 365, 2 days → multiply by 182.5, etc.
+            const annualizedVariance = varianceTotalPeriod * (365 / totalDays);
+
+            // Get volatility
+            const realizedVol = Math.sqrt(annualizedVariance);
+
+            return realizedVol; // Returns decimal (e.g., 0.3507 for 35.07%)
+        }
+
+        function calculateStrikePnL(spots, strike, sigma, optionType, baseNotional, totalMinutes, hedgeTimes, baseFreq, optionTenorMinutes) {
+            let results = [];
+            let cumulativeHedge = 0;
+            let weightedSumHedge = 0;
+            let avgSpot = 0;
+            let realizedPnL = 0;
+            let previousDelta = 0;
+            let lastHedgePnL = 0; // Track last hedge P&L for final row if needed
+            let lastCumulativeHedge = 0; // Track last cumulative hedge position
+            let lastAvgSpot = 0; // Track last weighted avg spot
+
+            // Calculate premium at t=0 using OPTION TENOR
+            const T0 = optionTenorMinutes / (365 * 24 * 60); // Initial time to expiry in years
+            const premium = optionType === 'call'
+                ? blackScholesCall(spots[0], strike, T0, sigma)
+                : blackScholesPut(spots[0], strike, T0, sigma);
+            const premiumPaid = -premium * baseNotional;
+
+            // Only process hedge times
+            for (let hedgeIdx = 0; hedgeIdx < hedgeTimes.length; hedgeIdx++) {
+                const hedgeTime = hedgeTimes[hedgeIdx];
+                const spotIndex = hedgeTime / baseFreq;
+                const spot = spots[spotIndex];
+
+                // Time remaining in years (based on OPTION EXPIRY, not spot series length)
+                const minutesRemaining = optionTenorMinutes - hedgeTime;
+
+                // If option has expired, stop calculations
+                if (minutesRemaining < 0) {
+                    break;
+                }
+
+                const T = minutesRemaining / (365 * 24 * 60);
+
+                // Calculate option value and delta
+                const optionValue = optionType === 'call'
+                    ? blackScholesCall(spot, strike, T, sigma)
+                    : blackScholesPut(spot, strike, T, sigma);
+
+                const delta = optionType === 'call'
+                    ? callDelta(spot, strike, T, sigma)
+                    : putDelta(spot, strike, T, sigma);
+
+                // Calculate incremental hedge
+                let incrementalHedge;
+                if (hedgeIdx === 0) {
+                    incrementalHedge = -delta * baseNotional;
+                } else {
+                    const deltaChange = delta - previousDelta;
+                    incrementalHedge = -deltaChange * baseNotional;
+                }
+
+                // Update cumulative hedge with realized/unrealized P&L tracking
+                const prevCumHedge = cumulativeHedge;
+                const prevAvgSpot = avgSpot;
+                const newCumHedge = prevCumHedge + incrementalHedge;
+
+                if (prevCumHedge === 0) {
+                    cumulativeHedge = newCumHedge;
+                    weightedSumHedge = newCumHedge * spot;
+                    avgSpot = spot;
+                } else if (newCumHedge === 0) {
+                    realizedPnL += prevCumHedge * (spot - prevAvgSpot);
+                    cumulativeHedge = 0;
+                    weightedSumHedge = 0;
+                    avgSpot = 0;
+                } else if (Math.sign(prevCumHedge) !== Math.sign(newCumHedge)) {
+                    realizedPnL += prevCumHedge * (spot - prevAvgSpot);
+                    cumulativeHedge = newCumHedge;
+                    weightedSumHedge = newCumHedge * spot;
+                    avgSpot = spot;
+                } else if (Math.abs(newCumHedge) < Math.abs(prevCumHedge)) {
+                    const closedAmount = prevCumHedge - newCumHedge;
+                    realizedPnL += closedAmount * (spot - prevAvgSpot);
+                    cumulativeHedge = newCumHedge;
+                    weightedSumHedge = newCumHedge * prevAvgSpot;
+                    avgSpot = prevAvgSpot;
+                } else {
+                    cumulativeHedge = newCumHedge;
+                    weightedSumHedge += incrementalHedge * spot;
+                    avgSpot = weightedSumHedge / cumulativeHedge;
+                }
+
+                const unrealizedPnL = cumulativeHedge !== 0 ? cumulativeHedge * (spot - avgSpot) : 0;
+                const hedgePnL = realizedPnL + unrealizedPnL;
+                const portfolioValue = premiumPaid + (optionValue * baseNotional) + hedgePnL;
+
+                // Save state for potential final row mark-to-market calculation
+                lastHedgePnL = hedgePnL;
+                lastCumulativeHedge = cumulativeHedge;
+                lastAvgSpot = avgSpot;
+
+                results.push({
+                    time: hedgeTime,
+                    spot: spot,
+                    delta: delta,
+                    incrementalHedge: incrementalHedge,
+                    cumulativeHedge: cumulativeHedge,
+                    avgSpot: avgSpot,
+                    realizedPnL: realizedPnL,
+                    unrealizedPnL: unrealizedPnL,
+                    hedgePnL: hedgePnL,
+                    optionValue: optionValue * baseNotional,
+                    premium: premiumPaid,
+                    portfolioValue: portfolioValue,
+                    isHedgeTime: true
+                });
+
+                previousDelta = delta;
+            }
+
+            // Check if we need to add a final row
+            const lastHedgeTime = hedgeTimes[hedgeTimes.length - 1];
+            const optionExpiryTime = optionTenorMinutes;
+
+            // Determine the effective final time (min of spot series end and option expiry)
+            const effectiveFinalTime = Math.min(totalMinutes, optionExpiryTime);
+
+            if (lastHedgeTime < effectiveFinalTime) {
+                // Add final row with mark-to-market
+                // Use spot at effective final time (which might be before end of series if option expires early)
+                const finalSpotIndex = Math.floor(effectiveFinalTime / baseFreq);
+                const finalSpot = spots[finalSpotIndex];
+
+                // Calculate time remaining at effective final time
+                const minutesRemainingAtFinal = optionExpiryTime - effectiveFinalTime;
+                const T = Math.max(0, minutesRemainingAtFinal / (365 * 24 * 60));
+
+                const optionValue = optionType === 'call'
+                    ? blackScholesCall(finalSpot, strike, T, sigma)
+                    : blackScholesPut(finalSpot, strike, T, sigma);
+
+                // CRITICAL FIX: Mark-to-market hedge P&L at CURRENT spot (finalSpot)
+                // Hedge position stays same as last hedge, but revalue at current spot
+                // Formula: Hedge_P&L = Cumulative_Hedge × (Current_Spot - Weighted_Avg_Spot)
+                const unrealizedPnL = lastCumulativeHedge !== 0
+                    ? lastCumulativeHedge * (finalSpot - lastAvgSpot)
+                    : 0;
+                const hedgePnL = realizedPnL + unrealizedPnL;
+
+                // Portfolio value uses mark-to-market hedge P&L
+                const portfolioValue = premiumPaid + (optionValue * baseNotional) + hedgePnL;
+
+                results.push({
+                    time: effectiveFinalTime,
+                    spot: finalSpot,
+                    delta: null, // No delta calculation at non-hedge time
+                    incrementalHedge: null,
+                    cumulativeHedge: lastCumulativeHedge, // Show position from last hedge
+                    avgSpot: lastAvgSpot, // Show avg spot from last hedge
+                    realizedPnL: realizedPnL,
+                    unrealizedPnL: unrealizedPnL,
+                    hedgePnL: hedgePnL, // Mark-to-market at current spot
+                    optionValue: optionValue * baseNotional,
+                    premium: premiumPaid,
+                    portfolioValue: portfolioValue,
+                    isHedgeTime: false
+                });
+            }
+
+            return results;
+        }
+
+        function calculate() {
+            console.log("=== CALCULATION START ===");
+
+            // Parse and validate spot series
+            console.log("Parsing spot series...");
+            const spots = parseSpotSeries();
+            if (!spots) {
+                console.log("Spot parsing failed, aborting");
+                return;
+            }
+            console.log("Spots parsed successfully:", spots.length, "values");
+            console.log("First spot:", spots[0], "Last spot:", spots[spots.length - 1]);
+
+            // Read frequencies
+            const baseFreq = parseInt(document.getElementById('baseFrequency').value);
+            const hedgeFreq = parseInt(document.getElementById('hedgeFrequency').value);
+            console.log("Base frequency:", baseFreq, "minutes");
+            console.log("Hedge frequency:", hedgeFreq, "minutes");
+
+            // Validate: hedging frequency must be >= base frequency
+            if (hedgeFreq < baseFreq) {
+                showValidationMessage('Error: Hedging frequency must be greater than or equal to base data frequency', 'error');
+                console.log("Validation failed: hedgeFreq < baseFreq");
+                return;
+            }
+
+            // Calculate time period from number of data points
+            const numPoints = spots.length;
+            const numIntervals = numPoints - 1;
+            const totalMinutes = numIntervals * baseFreq;
+            const totalHours = totalMinutes / 60;
+            const totalDays = totalHours / 24;
+            const spotSeriesTimeYears = totalDays / 365;
+
+            console.log("Spot series time period:", totalMinutes, "minutes =", totalHours, "hours =", totalDays, "days");
+
+            // Get option expiry settings
+            const expiryMode = document.querySelector('input[name="expiryMode"]:checked').value;
+            let optionTenorHours, optionTenorYears, optionTenorMinutes, lastCalculationMinutes;
+
+            if (expiryMode === 'custom') {
+                const customExpiryValue = parseFloat(document.getElementById('customExpiryValue').value);
+                const customExpiryUnit = document.getElementById('customExpiryUnit').value;
+
+                if (isNaN(customExpiryValue) || customExpiryValue <= 0) {
+                    showValidationMessage('Error: Option expiry must be a positive number', 'error');
+                    return;
+                }
+
+                // Convert to minutes based on unit
+                optionTenorMinutes = (customExpiryUnit === 'hours') ? customExpiryValue * 60 : customExpiryValue;
+                optionTenorHours = optionTenorMinutes / 60;
+                optionTenorYears = optionTenorMinutes / (365 * 24 * 60);
+
+                // Update display
+                lastCalculationMinutes = Math.min(totalMinutes, optionTenorMinutes);
+                const timeRemainingHours = (optionTenorMinutes - totalMinutes) / 60;
+
+                document.getElementById('spotSeriesLengthDisplay').textContent = `• Spot Series Length: ${totalHours.toFixed(1)} hours`;
+                if (timeRemainingHours > 0) {
+                    document.getElementById('timeRemainingDisplay').textContent = `• Time Remaining at End: ${timeRemainingHours.toFixed(1)} hours`;
+                    document.getElementById('expiryWarning').textContent = `⚠️ Analysis ends with ${timeRemainingHours.toFixed(1)}h remaining. Option has not expired.`;
+                    document.getElementById('expiryWarning').style.color = '#ff6600';
+                } else if (timeRemainingHours < 0) {
+                    const expiryTime = optionTenorMinutes;
+                    document.getElementById('timeRemainingDisplay').textContent = `• Time Remaining at End: 0 hours (expires at ${(expiryTime / 60).toFixed(1)}h)`;
+                    document.getElementById('expiryWarning').textContent = `⚠️ Option expires at ${(expiryTime / 60).toFixed(1)}h. Analysis stops at expiry.`;
+                    document.getElementById('expiryWarning').style.color = '#ff0000';
+                } else {
+                    document.getElementById('timeRemainingDisplay').textContent = `• Time Remaining at End: 0 hours (expires at end)`;
+                    document.getElementById('expiryWarning').textContent = '';
+                }
+
+                console.log("Option tenor:", optionTenorHours, "hours =", optionTenorYears, "years");
+                console.log("Last calculation time:", lastCalculationMinutes, "minutes");
+            } else {
+                // Standard mode: option expires at end of spot series
+                optionTenorHours = totalHours;
+                optionTenorMinutes = totalMinutes;
+                optionTenorYears = spotSeriesTimeYears;
+                lastCalculationMinutes = totalMinutes;
+                console.log("Standard mode: option expires at end of spot series");
+            }
+
+            // Calculate hedge times (up to lastCalculationMinutes)
+            const hedgeTimes = calculateHedgeTimes(lastCalculationMinutes, hedgeFreq);
+            console.log("Hedge times:", hedgeTimes.length, "points -", hedgeTimes);
+
+            showValidationMessage(
+                `✓ Validated ${numPoints} spot prices at ${baseFreq}-minute intervals, representing ${totalMinutes} minutes (${totalHours.toFixed(1)} hours) of data. Hedging every ${hedgeFreq} minutes (${hedgeTimes.length} hedge points).`,
+                'verification'
+            );
+
+            const volPercent = parseFloat(document.getElementById('vol').value);
+            const sigma = volPercent / 100;
+            console.log("Volatility:", volPercent + "%", "Sigma:", sigma);
+
+            // Calculate realized volatility from spot series at hedging frequency
+            console.log("Calculating realized volatility...");
+            const realizedVol = calculateRealizedVolatility(spots, totalDays, hedgeTimes, baseFreq);
+            const realizedVolPercent = realizedVol * 100;
+            console.log("Realized volatility:", realizedVolPercent.toFixed(2) + "%");
+
+            // Calculate strikes at inception
+            const S0 = spots[0];
+            const T0 = optionTenorYears; // Use OPTION TENOR for strike calculation, not spot series length
+            console.log("Initial spot (S0):", S0, "Option tenor (T0):", T0, "years");
+
+            console.log("Calculating standard strikes...");
+            const standardStrikes = [
+                { name: '10Δ Put', strike: calculateStrikeFromDelta(S0, sigma, T0, -0.10), type: 'put', isCustom: false },
+                { name: '25Δ Put', strike: calculateStrikeFromDelta(S0, sigma, T0, -0.25), type: 'put', isCustom: false },
+                { name: 'ATM Call', strike: S0, type: 'call', isCustom: false },
+                { name: '25Δ Call', strike: calculateStrikeFromDelta(S0, sigma, T0, 0.25), type: 'call', isCustom: false },
+                { name: '10Δ Call', strike: calculateStrikeFromDelta(S0, sigma, T0, 0.10), type: 'call', isCustom: false }
+            ];
+            console.log("Standard strikes calculated:", standardStrikes.map(s => `${s.name}: ${s.strike.toFixed(4)}`).join(', '));
+
+            // Parse and add custom strikes
+            console.log("Parsing custom strikes...");
+            const customStrikes = parseCustomStrikes(S0, sigma, T0);
+            if (customStrikes === null) {
+                console.log("Custom strike parsing failed, aborting");
+                return;
+            }
+            console.log("Custom strikes parsed:", customStrikes.length, "strikes");
+            if (customStrikes.length > 0) {
+                console.log("Custom strikes:", customStrikes.map(s => `${s.name}: ${s.strike.toFixed(4)}`).join(', '));
+            }
+
+            // Combine standard and custom strikes
+            const strikes = [...standardStrikes, ...customStrikes];
+            console.log("Total strikes:", strikes.length);
+
+            // Calculate P&L for each strike with base notional = 100M / strike
+            console.log("Starting P&L calculations for all strikes...");
+            const allResults = strikes.map((s, idx) => {
+                console.log(`Calculating strike ${idx + 1}/${strikes.length}: ${s.name} (${s.strike.toFixed(4)})`);
+                const baseNotional = SETTLEMENT_NOTIONAL / s.strike;
+                console.log(`  Base notional: ${(baseNotional / 1_000_000).toFixed(1)}M`);
+
+                const result = {
+                    name: s.name,
+                    strike: s.strike,
+                    type: s.type,
+                    baseNotional: baseNotional,
+                    isCustom: s.isCustom || false,
+                    results: calculateStrikePnL(spots, s.strike, sigma, s.type, baseNotional, totalMinutes, hedgeTimes, baseFreq, optionTenorMinutes)
+                };
+                console.log(`  Calculated ${result.results.length} time points`);
+                return result;
+            });
+            console.log("P&L calculations complete for all strikes");
+
+            // Sort all results by strike price (ascending) for better display organization
+            console.log("Sorting results by strike price...");
+            allResults.sort((a, b) => a.strike - b.strike);
+            console.log("Results sorted:", allResults.map(r => `${r.name}: ${r.strike.toFixed(4)}`).join(', '));
+
+            console.log("Calling displayResults...");
+            try {
+                displayResults(allResults, strikes, spots, volPercent, realizedVolPercent, totalHours, totalDays, numPoints, baseFreq, hedgeFreq, hedgeTimes.length, optionTenorHours, expiryMode);
+            } catch (error) {
+                console.error("ERROR in displayResults:", error);
+                console.error("Stack trace:", error.stack);
+            }
+            console.log("=== CALCULATION END ===");
+        }
+
+        function displayResults(allResults, strikes, spots, impliedVolPercent, realizedVolPercent, totalHours, totalDays, numPoints, baseFreq, hedgeFreq, numHedgePoints, optionTenorHours, expiryMode) {
+            console.log("=== DISPLAY RESULTS START ===");
+            console.log("allResults:", allResults.length, "strikes");
+
+            // Diagnostic check
+            if (!allResults || allResults.length === 0) {
+                console.error("ERROR: No results to display!");
+                return;
+            }
+
+            // Check DOM elements exist
+            const strikesInfoDiv = document.getElementById('strikes-info');
+            const summaryDiv = document.getElementById('summary');
+            const resultsDiv = document.getElementById('results');
+
+            console.log("DOM elements:", {
+                'strikes-info': !!strikesInfoDiv,
+                'summary': !!summaryDiv,
+                'results': !!resultsDiv
+            });
+
+            if (!strikesInfoDiv || !summaryDiv || !resultsDiv) {
+                console.error("ERROR: Required DOM elements not found!");
+                return;
+            }
+
+            // Calculate spot range
+            const initialSpot = spots[0];
+            const finalSpot = spots[spots.length - 1];
+            const volDifference = realizedVolPercent - impliedVolPercent;
+            const volDifferenceSign = volDifference >= 0 ? '+' : '';
+            const totalMinutes = (numPoints - 1) * baseFreq;
+
+            // Display Analysis Summary
+            console.log("Building analysis summary...");
+            let analysisHTML = '<div class="verification"><strong>Analysis Summary:</strong><br>';
+            analysisHTML += `• Data Points: ${numPoints}<br>`;
+            analysisHTML += `• Base Data Frequency: ${baseFreq} minutes<br>`;
+            analysisHTML += `• Total Time Period: ${totalMinutes} minutes (${totalHours.toFixed(1)} hours)<br>`;
+
+            // Add option expiry information
+            if (expiryMode === 'custom') {
+                analysisHTML += `• <strong>Option Tenor: ${optionTenorHours.toFixed(1)} hours</strong> (custom expiry)<br>`;
+                const timeRemainingHours = optionTenorHours - totalHours;
+                if (timeRemainingHours > 0) {
+                    analysisHTML += `• Time Remaining at End: ${timeRemainingHours.toFixed(1)} hours (long-dated option)<br>`;
+                } else if (timeRemainingHours < 0) {
+                    analysisHTML += `• Time Remaining at End: 0 hours - <strong>Option expires at ${optionTenorHours.toFixed(1)}h</strong> (short-dated option)<br>`;
+                } else {
+                    analysisHTML += `• Time Remaining at End: 0 hours (expires at end)<br>`;
+                }
+            } else {
+                analysisHTML += `• Option Tenor: ${optionTenorHours.toFixed(1)} hours (expires at end of spot series)<br>`;
+            }
+
+            analysisHTML += `• Hedging Frequency: ${hedgeFreq} minutes<br>`;
+            analysisHTML += `• Number of Hedges: ${numHedgePoints}<br>`;
+            analysisHTML += `• Spot Range: ${formatNumber(initialSpot)} → ${formatNumber(finalSpot)}<br>`;
+            analysisHTML += `• Implied Volatility: ${impliedVolPercent.toFixed(2)}%<br>`;
+            analysisHTML += `• <strong>Realized Volatility: ${realizedVolPercent.toFixed(2)}%</strong><br>`;
+            analysisHTML += `• Realized vs Implied: ${volDifferenceSign}${volDifference.toFixed(2)} percentage points`;
+            analysisHTML += '</div>';
+            strikesInfoDiv.innerHTML = analysisHTML;
+            console.log("Analysis summary set");
+
+            // Display calculated strikes
+            console.log("Building strikes HTML...");
+            let strikesHTML = '<div class="verification" style="margin-top: 10px;"><strong>Calculated Strikes (with t=0 Delta):</strong><br>';
+            allResults.forEach((r, idx) => {
+                const initialDelta = r.results[0].delta;
+                strikesHTML += `${r.name}: Strike = ${formatNumber(r.strike)}, Δ = ${formatNumber(initialDelta, 3)}`;
+                if (idx < allResults.length - 1) strikesHTML += ' | ';
+            });
+            strikesHTML += '<br><strong>Verification:</strong> Strikes ordered: 10Δ Put &lt; 25Δ Put &lt; ATM &lt; 25Δ Call &lt; 10Δ Call</div>';
+            console.log("Strikes HTML length:", strikesHTML.length);
+            strikesInfoDiv.innerHTML += strikesHTML;
+            console.log("Strikes HTML appended, div has", strikesInfoDiv.children.length, "children");
+
+            // Create summary table - COLUMN-BASED LAYOUT (strikes as columns)
+            console.log("Building summary table...");
+            let summaryHTML = '<h2>Strike P&L Summary</h2>';
+
+            // Calculate statistics for summary line
+            let totalPnL = 0;
+            const finalPnLs = [];
+            allResults.forEach(r => {
+                const finalPnL = r.results[r.results.length - 1].portfolioValue;
+                finalPnLs.push(finalPnL);
+                totalPnL += finalPnL;
+            });
+            const averagePnL = totalPnL / allResults.length;
+            // volDifference and volDifferenceSign already calculated above (lines 1023-1024)
+
+            // Store allResults globally for chart access
+            window.strikeResultsData = allResults;
+            window.chartMetadata = {
+                spots: spots,
+                impliedVolPercent: impliedVolPercent,
+                baseFreq: baseFreq,
+                hedgeFreq: hedgeFreq,
+                totalMinutes: totalMinutes,
+                optionTenorHours: optionTenorHours,
+                expiryMode: expiryMode
+            };
+
+            // Build transposed table - strikes as columns
+            summaryHTML += '<div class="strike-summary-container">';
+            summaryHTML += '<table class="strike-summary"><thead><tr>';
+            summaryHTML += '<th></th>'; // Empty corner cell
+
+            // Header row: strike prices (will be made clickable via event listeners)
+            allResults.forEach((r, idx) => {
+                summaryHTML += `<th data-strike-idx="${idx}" class="strike-header" title="Click to view P&L chart">${formatNumber(r.strike)}</th>`;
+            });
+            summaryHTML += '</tr></thead><tbody>';
+
+            // Row 1: Strike (standardized delta labels) - will be clickable
+            summaryHTML += '<tr><td class="row-label"><strong>Strike</strong></td>';
+            allResults.forEach((r, idx) => {
+                // Get initial delta from first time point
+                const initialDelta = r.results[0].delta;
+
+                // Convert to 0-100 integer scale
+                const deltaInt = Math.round(Math.abs(initialDelta) * 100);
+
+                // Capitalize option type
+                const optionTypeLabel = r.type.charAt(0).toUpperCase() + r.type.slice(1);
+
+                // Create standardized label: "[Delta]Δ [Put/Call]"
+                const strikeLabel = `${deltaInt}Δ ${optionTypeLabel}`;
+
+                summaryHTML += `<td data-strike-idx="${idx}" class="strike-cell" title="Click to view P&L chart">${strikeLabel}</td>`;
+            });
+            summaryHTML += '</tr>';
+
+            // Row 2: Final P&L (with color coding) - clickable
+            summaryHTML += '<tr><td class="row-label"><strong>Final P&L (k)</strong></td>';
+            allResults.forEach((r, idx) => {
+                const finalPnL = finalPnLs[idx];
+                const pnlColors = getPnLColor(finalPnL);
+                summaryHTML += `<td data-strike-idx="${idx}" class="strike-cell" title="Click to view P&L chart" style="background-color: ${pnlColors.bg}; color: ${pnlColors.text}; font-weight: bold;">${formatThousand(finalPnL)}</td>`;
+            });
+            summaryHTML += '</tr>';
+
+            summaryHTML += '</tbody></table>';
+            summaryHTML += '</div>'; // Close strike-summary-container
+
+            // Add summary statistics line
+            summaryHTML += '<div class="summary-stats">';
+            summaryHTML += '<strong>Summary:</strong> ';
+            summaryHTML += `Average P&L: ${formatThousand(averagePnL)} | `;
+            summaryHTML += `Implied Vol: ${impliedVolPercent.toFixed(2)}% | `;
+            summaryHTML += `Realized Vol: ${realizedVolPercent.toFixed(2)}% | `;
+            summaryHTML += `Vol Diff: ${volDifferenceSign}${volDifference.toFixed(2)}pp`;
+            summaryHTML += '</div>';
+
+            console.log("Summary HTML length:", summaryHTML.length);
+            summaryDiv.innerHTML = summaryHTML;
+            console.log("Summary table HTML set, div has", summaryDiv.children.length, "children");
+
+            // Attach click event listeners to strike columns
+            console.log("Attaching click handlers to strike columns...");
+
+            // Get all strike headers
+            const strikeHeaders = summaryDiv.querySelectorAll('.strike-header');
+            console.log("Found", strikeHeaders.length, "strike headers");
+
+            strikeHeaders.forEach(header => {
+                const strikeIdx = parseInt(header.getAttribute('data-strike-idx'));
+                console.log("Attaching handler to header for strike", strikeIdx);
+                header.addEventListener('click', function(e) {
+                    console.log("Header clicked for strike index:", strikeIdx);
+                    showStrikeChart(strikeIdx);
+                });
+            });
+
+            // Get all strike cells
+            const strikeCells = summaryDiv.querySelectorAll('.strike-cell');
+            console.log("Found", strikeCells.length, "strike cells");
+
+            strikeCells.forEach(cell => {
+                const strikeIdx = parseInt(cell.getAttribute('data-strike-idx'));
+                console.log("Attaching handler to cell for strike", strikeIdx);
+                cell.addEventListener('click', function(e) {
+                    console.log("Cell clicked for strike index:", strikeIdx);
+                    showStrikeChart(strikeIdx);
+                });
+            });
+
+            console.log("Click handlers attached successfully");
+
+            // Create individual tables for each strike
+            console.log("Building individual strike tables...");
+            let resultsHTML = '';
+
+            allResults.forEach((strikeData, idx) => {
+                console.log(`  Building table for strike ${idx + 1}: ${strikeData.name}`);
+                const numRows = strikeData.results.length;
+                resultsHTML += `<div class="strike-section">`;
+                const headerStyle = strikeData.isCustom ? 'style="color: #007bff; font-weight: bold;"' : '';
+                resultsHTML += `<div class="strike-header" ${headerStyle}>Strike: ${formatNumber(strikeData.strike)} (${strikeData.name}) - ${numRows} Rows (Hedge Times + Final)</div>`;
+
+                // Verification at t=0
+                const t0Portfolio = strikeData.results[0].portfolioValue;
+                const isValid = Math.abs(t0Portfolio) < 1;
+                resultsHTML += `<div class="verification ${isValid ? '' : 'warning'}" style="font-size: 11px; padding: 8px;">`;
+                resultsHTML += `<strong>t=0 Verification:</strong> Portfolio = ${formatThousand(t0Portfolio)} `;
+                resultsHTML += isValid ? '✓' : '✗ ERROR';
+                resultsHTML += '</div>';
+
+                // Table wrapper for scrolling
+                resultsHTML += '<div class="strike-table-wrapper">';
+                resultsHTML += '<table class="strike-table"><thead><tr>';
+                resultsHTML += '<th>Time (min)</th><th>Spot</th><th>Delta</th>';
+                resultsHTML += '<th>Incr Hedge (m)</th><th>Cum Hedge (m)</th><th>Avg Spot</th>';
+                resultsHTML += '<th>Hedge P&L (k)</th><th>Option Value (k)</th><th>Premium (k)</th><th>Portfolio Value (k)</th>';
+                resultsHTML += '</tr></thead><tbody>';
+
+                strikeData.results.forEach(r => {
+                    resultsHTML += '<tr>';
+                    resultsHTML += `<td>${r.time}</td>`;
+                    resultsHTML += `<td>${formatNumber(r.spot)}</td>`;
+                    // Handle null values for non-hedge times (delta and incremental hedge only)
+                    resultsHTML += `<td>${r.delta !== null ? formatNumber(r.delta, 3) : '--'}</td>`;
+                    resultsHTML += `<td>${r.incrementalHedge !== null ? formatMillion(r.incrementalHedge) : '--'}</td>`;
+                    // Cumulative hedge and avg spot are shown even at final time (from last hedge)
+                    resultsHTML += `<td>${r.cumulativeHedge !== null ? formatMillion(r.cumulativeHedge) : '--'}</td>`;
+                    resultsHTML += `<td>${r.avgSpot !== null && r.avgSpot !== 0 ? formatNumber(r.avgSpot) : '--'}</td>`;
+                    // Hedge P&L is always shown (mark-to-market at current spot)
+                    resultsHTML += `<td>${formatThousand(r.hedgePnL)}</td>`;
+                    resultsHTML += `<td>${formatThousand(r.optionValue)}</td>`;
+                    resultsHTML += `<td>${formatThousand(r.premium)}</td>`;
+                    resultsHTML += `<td>${formatThousand(r.portfolioValue)}</td>`;
+                    resultsHTML += '</tr>';
+                });
+
+                resultsHTML += '</tbody></table></div></div>';
+            });
+
+            console.log("Setting results HTML...");
+            console.log("Results HTML length:", resultsHTML.length, "characters");
+            console.log("First 200 chars of results HTML:", resultsHTML.substring(0, 200));
+            resultsDiv.innerHTML = resultsHTML;
+            console.log("Results HTML set successfully");
+            console.log("resultsDiv now has", resultsDiv.children.length, "child elements");
+            console.log("=== DISPLAY RESULTS COMPLETE ===");
+        }
+
+        // ============ CUSTOM CHART DRAWING (NO EXTERNAL DEPENDENCIES) ============
+
+        function drawCustomChart(canvas, timePoints, premiumValues, optionValues, hedgePnLs, portfolioValues, allSpotTimes, allSpotPrices) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+
+            // Margins - increased right margin for secondary Y-axis
+            const margin = {top: 40, right: 90, bottom: 60, left: 70};
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            // Find min/max for P&L scaling (left Y-axis)
+            const allPnLValues = [...premiumValues, ...optionValues, ...hedgePnLs, ...portfolioValues];
+            const minPnL = Math.min(...allPnLValues);
+            const maxPnL = Math.max(...allPnLValues);
+            const pnlRange = maxPnL - minPnL;
+            const pnlPadding = pnlRange * 0.1;
+
+            // Find min/max for spot scaling (right Y-axis)
+            const minSpot = Math.min(...allSpotPrices);
+            const maxSpot = Math.max(...allSpotPrices);
+            const spotRange = maxSpot - minSpot;
+            const spotPadding = spotRange * 0.1;
+
+            const minTime = Math.min(...timePoints);
+            const maxTime = Math.max(...timePoints);
+            const timeRange = maxTime - minTime;
+
+            // Scale functions
+            const xScale = (time) => margin.left + ((time - minTime) / timeRange) * chartWidth;
+            const yScalePnL = (val) => margin.top + chartHeight - ((val - (minPnL - pnlPadding)) / (pnlRange + 2 * pnlPadding)) * chartHeight;
+            const yScaleSpot = (val) => margin.top + chartHeight - ((val - (minSpot - spotPadding)) / (spotRange + 2 * spotPadding)) * chartHeight;
+
+            // Draw background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw grid lines (for left Y-axis only)
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            const numYLines = 8;
+            for (let i = 0; i <= numYLines; i++) {
+                const y = margin.top + (i / numYLines) * chartHeight;
+                ctx.beginPath();
+                ctx.moveTo(margin.left, y);
+                ctx.lineTo(width - margin.right, y);
+                ctx.stroke();
+
+                // Left Y-axis labels (P&L)
+                const val = maxPnL + pnlPadding - (i / numYLines) * (pnlRange + 2 * pnlPadding);
+                ctx.fillStyle = '#666';
+                ctx.font = '11px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(val.toFixed(0) + 'k', margin.left - 10, y + 4);
+            }
+
+            // Right Y-axis labels (Spot Price)
+            for (let i = 0; i <= numYLines; i++) {
+                const y = margin.top + (i / numYLines) * chartHeight;
+                const val = maxSpot + spotPadding - (i / numYLines) * (spotRange + 2 * spotPadding);
+                ctx.fillStyle = '#666';
+                ctx.font = '11px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(val.toFixed(4), width - margin.right + 10, y + 4);
+            }
+
+            // X-axis labels
+            const numXLabels = 6;
+            for (let i = 0; i <= numXLabels; i++) {
+                const time = minTime + (i / numXLabels) * timeRange;
+                const x = xScale(time);
+                ctx.fillStyle = '#666';
+                ctx.font = '11px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(Math.round(time), x, height - margin.bottom + 20);
+            }
+
+            // Draw axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            // Left Y-axis
+            ctx.moveTo(margin.left, margin.top);
+            ctx.lineTo(margin.left, height - margin.bottom);
+            // X-axis
+            ctx.lineTo(width - margin.right, height - margin.bottom);
+            // Right Y-axis
+            ctx.lineTo(width - margin.right, margin.top);
+            ctx.stroke();
+
+            // Helper function to draw line on P&L scale
+            function drawPnLLine(data, times, color, lineWidth = 1, dashed = false, stepped = false) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = lineWidth;
+                if (dashed) ctx.setLineDash([5, 5]);
+                else ctx.setLineDash([]);
+
+                ctx.beginPath();
+                for (let i = 0; i < times.length; i++) {
+                    const x = xScale(times[i]);
+                    const y = yScalePnL(data[i]);
+
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        if (stepped) {
+                            // Step function: horizontal then vertical
+                            ctx.lineTo(x, yScalePnL(data[i-1]));
+                            ctx.lineTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Helper function to draw spot line on spot scale
+            function drawSpotLine(spotData, spotTimes, color, lineWidth = 1.5) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = lineWidth;
+                ctx.setLineDash([]);
+
+                ctx.beginPath();
+                for (let i = 0; i < spotTimes.length; i++) {
+                    const x = xScale(spotTimes[i]);
+                    const y = yScaleSpot(spotData[i]);
+
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+            }
+
+            // Draw spot price line FIRST (background)
+            drawSpotLine(allSpotPrices, allSpotTimes, 'rgb(128, 128, 128)', 1.5);
+
+            // Draw P&L lines (adjusted widths - thinner for emphasis on portfolio)
+            drawPnLLine(premiumValues, timePoints, 'rgb(255, 99, 132)', 1, true); // Premium (1px, dashed)
+            drawPnLLine(optionValues, timePoints, 'rgb(54, 162, 235)', 1); // Option Value (1px)
+            drawPnLLine(hedgePnLs, timePoints, 'rgb(255, 206, 86)', 1, false, true); // Hedge P&L (1px, stepped)
+            drawPnLLine(portfolioValues, timePoints, 'rgb(75, 192, 192)', 3); // Portfolio Value (3px, BOLD)
+
+            // Add axis labels
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Time (minutes)', width / 2, height - 15);
+
+            // Left Y-axis label
+            ctx.save();
+            ctx.translate(20, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('P&L (thousands)', 0, 0);
+            ctx.restore();
+
+            // Right Y-axis label
+            ctx.save();
+            ctx.translate(width - 20, height / 2);
+            ctx.rotate(Math.PI / 2);
+            ctx.fillText('Spot Price', 0, 0);
+            ctx.restore();
+
+            // Draw legend
+            const legends = [
+                { color: 'rgb(255, 99, 132)', text: 'Premium Paid', dashed: true, width: 1 },
+                { color: 'rgb(54, 162, 235)', text: 'Option Value', dashed: false, width: 1 },
+                { color: 'rgb(255, 206, 86)', text: 'Hedge P&L', dashed: false, width: 1 },
+                { color: 'rgb(75, 192, 192)', text: 'Total Portfolio Value', dashed: false, width: 3 },
+                { color: 'rgb(128, 128, 128)', text: 'Spot Price (right axis)', dashed: false, width: 1.5 }
+            ];
+
+            const legendX = margin.left + 20;
+            const legendY = margin.top + 10;
+
+            legends.forEach((legend, i) => {
+                const y = legendY + i * 22;
+
+                // Draw line sample
+                ctx.strokeStyle = legend.color;
+                ctx.lineWidth = legend.width;
+                if (legend.dashed) ctx.setLineDash([5, 5]);
+                else ctx.setLineDash([]);
+                ctx.beginPath();
+                ctx.moveTo(legendX, y);
+                ctx.lineTo(legendX + 40, y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Draw text
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(legend.text, legendX + 50, y + 4);
+            });
+        }
+
+        // ============ INTERACTIVE CHART FUNCTIONS ============
+
+        function showStrikeChart(strikeIndex) {
+            console.log("=== showStrikeChart called ===");
+            console.log("Strike index:", strikeIndex);
+
+            const strikeData = window.strikeResultsData[strikeIndex];
+            const metadata = window.chartMetadata;
+
+            if (!strikeData || !metadata) {
+                console.error("Strike data not available");
+                return;
+            }
+
+            console.log("Data validated, proceeding with custom chart generation...");
+
+            // Prepare chart data
+            const timePoints = [];
+            const premiumValues = [];
+            const optionValues = [];
+            const hedgePnLs = [];
+            const portfolioValues = [];
+
+            // Extract data from results
+            strikeData.results.forEach(point => {
+                timePoints.push(point.time);
+                premiumValues.push(point.premium / 1000); // Convert to thousands
+                optionValues.push(point.optionValue / 1000);
+                hedgePnLs.push(point.hedgePnL / 1000);
+                portfolioValues.push(point.portfolioValue / 1000);
+            });
+
+            // Calculate statistics
+            const initialPortfolio = portfolioValues[0];
+            const finalPortfolio = portfolioValues[portfolioValues.length - 1];
+            const maxPortfolio = Math.max(...portfolioValues);
+            const minPortfolio = Math.min(...portfolioValues);
+            const maxTime = timePoints[portfolioValues.indexOf(maxPortfolio)];
+            const minTime = timePoints[portfolioValues.indexOf(minPortfolio)];
+
+            // Get strike label
+            const initialDelta = strikeData.results[0].delta;
+            const deltaInt = Math.round(Math.abs(initialDelta) * 100);
+            const optionTypeLabel = strikeData.type.charAt(0).toUpperCase() + strikeData.type.slice(1);
+            const strikeLabel = `${deltaInt}Δ ${optionTypeLabel}`;
+
+            // Build chart title with option tenor info
+            let chartTitle = `P&L Path - ${strikeLabel} (Strike: ${formatNumber(strikeData.strike)})`;
+            if (metadata.expiryMode === 'custom') {
+                chartTitle += ` - ${metadata.optionTenorHours.toFixed(1)}h Option`;
+            } else {
+                chartTitle += ` - ${metadata.optionTenorHours.toFixed(1)}h Option (expires at end)`;
+            }
+
+            // Update modal title
+            document.getElementById('chartTitle').textContent = chartTitle;
+
+            // Update statistics
+            const statsHTML = `
+                <p><strong>Initial Portfolio Value:</strong> ${formatThousand(initialPortfolio * 1000)}</p>
+                <p><strong>Final Portfolio Value:</strong> ${formatThousand(finalPortfolio * 1000)}</p>
+                <p><strong>Max Portfolio Value:</strong> ${formatThousand(maxPortfolio * 1000)} (at t=${maxTime} min)</p>
+                <p><strong>Min Portfolio Value:</strong> ${formatThousand(minPortfolio * 1000)} (at t=${minTime} min)</p>
+            `;
+            document.getElementById('chartStats').innerHTML = statsHTML;
+
+            // Prepare spot data (ALL time points at base frequency)
+            const allSpotTimes = [];
+            const allSpotPrices = [];
+            const spots = metadata.spots;
+            const baseFreq = metadata.baseFreq;
+
+            for (let i = 0; i < spots.length; i++) {
+                allSpotTimes.push(i * baseFreq);
+                allSpotPrices.push(spots[i]);
+            }
+
+            // Get canvas and draw custom chart
+            const canvas = document.getElementById('pnlChart');
+            canvas.width = 1000;  // Set explicit dimensions for better quality
+            canvas.height = 500;
+
+            // Draw the custom chart with spot data
+            drawCustomChart(canvas, timePoints, premiumValues, optionValues, hedgePnLs, portfolioValues, allSpotTimes, allSpotPrices);
+
+            // Show modal
+            console.log("Attempting to show modal...");
+            const modal = document.getElementById('chartModal');
+            console.log("Modal element:", modal);
+
+            if (!modal) {
+                console.error("CRITICAL: Modal element not found!");
+                alert("Error: Chart modal not found. Please refresh the page.");
+                return;
+            }
+
+            modal.style.display = 'block';
+            console.log("Modal display set to block. Modal should now be visible.");
+            console.log("Modal computed style display:", window.getComputedStyle(modal).display);
+        }
+
+        function closeChartModal() {
+            console.log("closeChartModal called");
+            const modal = document.getElementById('chartModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            // Clear canvas
+            const canvas = document.getElementById('pnlChart');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('chartModal');
+            if (event.target === modal) {
+                closeChartModal();
+            }
+        }
+
+        // No auto-calculate on load - wait for user input
+    </script>
+
+    <!-- Modal for P&L Chart -->
+    <div id="chartModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="chartTitle">P&L Path</h2>
+                <span class="close" onclick="closeChartModal()">&times;</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="pnlChart"></canvas>
+            </div>
+            <div class="chart-stats" id="chartStats">
+                <!-- Stats will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

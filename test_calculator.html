@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+</head>
+<body>
+    <button onclick="test()">Test</button>
+    <div id="output"></div>
+    <script>
+        function test() {
+            console.log("Test button clicked");
+            try {
+                const div = document.getElementById('output');
+                console.log("Got div:", div);
+                div.innerHTML = '<h1>Success!</h1>';
+                console.log("Set innerHTML");
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+    </script>
+</body>
+</html>
