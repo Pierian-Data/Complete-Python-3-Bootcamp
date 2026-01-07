@@ -1,0 +1,34 @@
+
+---
+- name: Create groups and users on ansible.example.com
+  hosts: ansible.example.com
+  become: yes
+  gather_facts: no
+
+  vars:
+    # Define groups to ensure they exist
+    groups_to_create:
+      - developer
+      - manager
+
+    # Define users with their primary groups
+    users_to_create:
+      - { name: "frank",  group: "developer" }
+      - { name: "harry",  group: "manager"   }
+      - { name: "bob",    group: "developer" }
+
+  tasks:
+    - name: Ensure groups exist
+      ansible.builtin.group:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ groups_to_create }}"
+
+    - name: Ensure users exist with correct primary group
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        state: present
+        group: "{{ item.group }}"     # primary group
+        create_home: yes              # creates /home/<user> if absent
+        shell: /bin/bash
+      loop: "{{ users_to_create }}"
