@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ playlist.name }} — mixtape{% endblock %}
+
+{% block content %}
+<section class="form-page">
+  <h1>edit playlist</h1>
+  <form method="POST" action="{{ url_for('edit_playlist', slug=playlist.slug) }}">
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" value="{{ playlist.name }}" required autofocus />
+    </div>
+    <div class="field">
+      <label for="description">Description <span class="optional">(optional)</span></label>
+      <textarea id="description" name="description" rows="3">{{ playlist.description }}</textarea>
+    </div>
+    <button class="btn btn--primary" type="submit">Save changes</button>
+    <a class="btn btn--ghost" href="{{ url_for('view_playlist', slug=playlist.slug) }}">Cancel</a>
+  </form>
+
+  <hr class="divider" />
+
+  <form method="POST" action="{{ url_for('delete_playlist', slug=playlist.slug) }}"
+        onsubmit="return confirm('Delete this playlist? This cannot be undone.')">
+    <button class="btn btn--danger" type="submit">Delete playlist</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}{{ playlist.name }} — mixtape{% endblock %}
+
+{% block content %}
+<section class="playlist-header">
+  <div class="playlist-header__text">
+    <h1>{{ playlist.name }}</h1>
+    {% if playlist.description %}
+    <p class="playlist-desc">{{ playlist.description }}</p>
+    {% endif %}
+    <span class="playlist-meta">{{ playlist.tracks | length }} track{% if playlist.tracks | length != 1 %}s{% endif %}</span>
+  </div>
+  <div class="playlist-header__actions">
+    <a class="btn btn--ghost btn--sm" href="{{ url_for('edit_playlist', slug=playlist.slug) }}">edit</a>
+  </div>
+</section>
+
+<!-- Add track form -->
+<section class="add-track-section">
+  <h2>add a track</h2>
+  <form id="add-track-form" method="POST" action="{{ url_for('add_track', slug=playlist.slug) }}">
+    <div class="add-track-row">
+      <input
+        id="track-url"
+        name="url"
+        type="url"
+        placeholder="Paste an Apple Music or Bandcamp link…"
+        required
+        autocomplete="off"
+      />
+      <button class="btn btn--primary" type="submit" id="add-btn">Add</button>
+    </div>
+    <div class="field field--inline">
+      <label for="track-note">Note <span class="optional">(optional)</span></label>
+      <input id="track-note" name="note" type="text" placeholder="Why you love this track…" />
+    </div>
+
+    <!-- Live preview -->
+    <div id="track-preview" class="track-preview hidden"></div>
+  </form>
+</section>
+
+<!-- Track list -->
+{% if playlist.tracks %}
+<ol class="track-list">
+  {% for track in playlist.tracks %}
+  <li class="track-item" id="track-{{ track.id }}">
+    <div class="track-item__left">
+      <span class="track-num">{{ loop.index }}</span>
+      {% if track.artwork_url %}
+      <img class="track-artwork" src="{{ track.artwork_url }}" alt="{{ track.title }} artwork" loading="lazy" />
+      {% else %}
+      <div class="track-artwork track-artwork--placeholder">
+        {% if track.source == 'apple' %}🎵{% else %}🎸{% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="track-item__info">
+      <div class="track-item__title-row">
+        <a class="track-title" href="{{ track.url }}" target="_blank" rel="noopener">
+          {{ track.title }}
+        </a>
+        <span class="source-badge source-badge--{{ track.source }}">
+          {% if track.source == 'apple' %}Apple Music{% else %}Bandcamp{% endif %}
+        </span>
+      </div>
+      {% if track.artist %}<p class="track-artist">{{ track.artist }}{% if track.album %} &mdash; {{ track.album }}{% endif %}{% if track.duration_seconds %}<span class="track-duration">{{ track.duration_seconds | duration }}</span>{% endif %}</p>{% endif %}
+      {% if track.note %}<p class="track-note">"{{ track.note }}"</p>{% endif %}
+
+      {% if track.embed_url %}
+      <details class="embed-toggle">
+        <summary>play</summary>
+        <div class="embed-container">
+          {% if track.source == 'apple' %}
+          <iframe
+            src="{{ track.embed_url }}"
+            allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+            frameborder="0"
+            height="175"
+            style="width:100%;max-width:660px;border-radius:10px;"
+            sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
+          ></iframe>
+          {% else %}
+          <iframe
+            src="{{ track.embed_url }}"
+            seamless
+            frameborder="0"
+            height="120"
+            style="width:100%;max-width:660px;"
+          ></iframe>
+          {% endif %}
+        </div>
+      </details>
+      {% endif %}
+    </div>
+
+    <div class="track-item__actions">
+      <form method="POST" action="{{ url_for('delete_track', slug=playlist.slug, track_id=track.id) }}"
+            onsubmit="return confirm('Remove this track?')">
+        <button class="btn-icon btn-icon--danger" type="submit" title="Remove track">&times;</button>
+      </form>
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+{% set timed_tracks = playlist.tracks | selectattr("duration_seconds") | list %}
+{% if timed_tracks | length > 0 %}
+{% set total_seconds = timed_tracks | sum(attribute="duration_seconds") %}
+<div class="runtime-bar">
+  <span class="runtime-bar__count">{{ playlist.tracks | length }} track{% if playlist.tracks | length != 1 %}s{% endif %}</span>
+  <span class="runtime-bar__total">total runtime: <strong>{{ total_seconds | duration }}</strong></span>
+  {% if timed_tracks | length < playlist.tracks | length %}
+  <span class="runtime-bar__note">({{ playlist.tracks | length - timed_tracks | length }} track{% if playlist.tracks | length - timed_tracks | length != 1 %}s{% endif %} without duration data)</span>
+  {% endif %}
+</div>
+{% endif %}
+{% else %}
+<p class="empty-state">No tracks yet. Add your first one above!</p>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const urlInput = document.getElementById('track-url');
+  const preview  = document.getElementById('track-preview');
+  const addBtn   = document.getElementById('add-btn');
+  let debounce;
+
+  function showPreview(data) {
+    preview.classList.remove('hidden');
+    preview.innerHTML = `
+      ${data.artwork_url ? `<img class="preview-art" src="${data.artwork_url}" alt="artwork" />` : ''}
+      <div class="preview-info">
+        <strong>${escHtml(data.title)}</strong>
+        ${data.artist ? `<span>${escHtml(data.artist)}</span>` : ''}
+        ${data.album  ? `<span class="preview-album">${escHtml(data.album)}</span>` : ''}
+        <span class="source-badge source-badge--${data.source}">${data.source === 'apple' ? 'Apple Music' : 'Bandcamp'}</span>
+      </div>`;
+  }
+
+  function clearPreview() {
+    preview.classList.add('hidden');
+    preview.innerHTML = '';
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  urlInput.addEventListener('input', function () {
+    clearTimeout(debounce);
+    const val = this.value.trim();
+    if (!val) { clearPreview(); return; }
+    debounce = setTimeout(async () => {
+      try {
+        addBtn.disabled = true;
+        addBtn.textContent = '…';
+        const res  = await fetch('/api/preview?url=' + encodeURIComponent(val));
+        const data = await res.json();
+        if (data.error) { clearPreview(); }
+        else { showPreview(data); }
+      } catch (_) { clearPreview(); }
+      finally { addBtn.disabled = false; addBtn.textContent = 'Add'; }
+    }, 600);
+  });
+})();
+</script>
+{% endblock %}

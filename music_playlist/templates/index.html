@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}mixtape — your playlists{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>your playlists</h1>
+  <p class="subtitle">Share songs from Apple Music and Bandcamp in one place.</p>
+  <a class="btn btn--primary" href="{{ url_for('new_playlist') }}">+ create playlist</a>
+</section>
+
+{% if playlists %}
+<ul class="playlist-list">
+  {% for pl in playlists %}
+  <li class="playlist-card">
+    <a class="playlist-card__title" href="{{ url_for('view_playlist', slug=pl.slug) }}">{{ pl.name }}</a>
+    {% if pl.description %}
+    <p class="playlist-card__desc">{{ pl.description }}</p>
+    {% endif %}
+    <span class="playlist-card__meta">{{ pl.tracks | length }} track{% if pl.tracks | length != 1 %}s{% endif %}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="empty-state">No playlists yet. <a href="{{ url_for('new_playlist') }}">Create your first one!</a></p>
+{% endif %}
+{% endblock %}

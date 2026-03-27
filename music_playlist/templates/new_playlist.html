@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}New Playlist — mixtape{% endblock %}
+
+{% block content %}
+<section class="form-page">
+  <h1>create a playlist</h1>
+  <form method="POST" action="{{ url_for('new_playlist') }}">
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" placeholder="Summer 2025" required autofocus />
+    </div>
+    <div class="field">
+      <label for="description">Description <span class="optional">(optional)</span></label>
+      <textarea id="description" name="description" rows="3" placeholder="What's this playlist about?"></textarea>
+    </div>
+    <button class="btn btn--primary" type="submit">Create playlist</button>
+    <a class="btn btn--ghost" href="{{ url_for('index') }}">Cancel</a>
+  </form>
+</section>
+{% endblock %}
