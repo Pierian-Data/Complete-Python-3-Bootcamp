@@ -1,15 +1,15 @@
 {
-  "sealed_at": "2026-11-13T15:13:25+00:00",
+  "sealed_at": "2026-11-13T20:01:36+00:00",
   "chain_head": "0000000000000000000000000000000000000000000000000000000000000000",
   "chain_length": 0,
-  "manifest_sha256": "a32e6885e60f7e2719d15856625f459577b92546f6ebacb1c0d6cc5b4fc500a3",
+  "manifest_sha256": "4e6782308321562503ccb9ef87a0b0fe3254726136603d1db6c418af6c123f8d",
   "attestations": [],
   "attestations_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-  "git_commit": "339ecbd7b0533e590a3377a2419cbe007cc37486",
+  "git_commit": "31c069824d53e0a12a2adb4c55ce1268b5176671",
   "signature": {
     "algorithm": "ed25519",
     "key_id": "72bcc37874f12772",
     "public_key": "n1aBXmqoaAWKH6kPGEylAy3PrVYFVeejiP8eaRYKXDg=",
-    "signature": "1CKWswRQjibn8d9HUHzWMzWQ4RW6gAeZVsEZ89Mzf1QGRtPmHz/uX1jvzdpGYS0HFKrK/ujmm79fAfkGsumqCQ=="
+    "signature": "l1HzXtRi/iR9dstEyALECttuDaZy9zz2bE2cmpshf73XCOO9kto+F77uNw/FQoKUieBXyQlyhbyclbHSQpJtBw=="
   }
 }

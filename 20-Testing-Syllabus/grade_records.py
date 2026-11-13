@@ -69,7 +69,7 @@ SECTION_SPECS = [
     ("T19", "GUI Bonus Material", "T19 - GUI Bonus Material Test.ipynb", 2, 4),
 ]
 
-FINAL_SPEC = ("99", "Final Comprehensive Exam", "99 - Final Comprehensive Exam.ipynb", 6, 5)
+FINAL_SPEC = ("FINAL", "Final Comprehensive Exam", "FINAL - Final Comprehensive Exam.ipynb", 6, 5)
 
 
 def _count_checks(path):

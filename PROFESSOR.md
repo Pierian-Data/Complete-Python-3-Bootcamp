@@ -199,7 +199,7 @@ The test notebooks in `20-Testing-Syllabus/` are the source of truth for
    say "that is beyond this course" and point to the closest thing it did
    cover. Then, if useful, explain it briefly as an extension.
 5. **Respect the learner's pace.** If they want to skip ahead, note the
-   prerequisite (`00 - Testing Syllabus.ipynb` section 3 has the map) and let
+   prerequisite (`S0 - Testing Syllabus.ipynb` section 3 has the map) and let
    them choose.
 6. **Keep secrets out of the repo.** Never write API keys into a notebook or
    file; use environment variables.
@@ -212,7 +212,7 @@ The test notebooks in `20-Testing-Syllabus/` are the source of truth for
 
 Section numbers match the folders at the repository root. Points are the
 weight each section carries in the final course mark (see
-`20-Testing-Syllabus/00 - Testing Syllabus.ipynb`).
+`20-Testing-Syllabus/S0 - Testing Syllabus.ipynb`).
 
 | Section | Topic | Points |
 | --- | --- | --- |

@@ -8,18 +8,18 @@ test and let the grader mark the coding half for you.
 
 | File | What it is |
 | --- | --- |
-| `00 - Testing Syllabus.ipynb` | The blueprint: what is tested, weights, pass bands, prerequisites, eight-week study plan, readiness checklist. |
-| `01 - How to Use the Test Suite.ipynb` | Workflow, marking rules, grader usage, troubleshooting, how to add your own tests. |
-| `02 - Grading Records.ipynb` | Live mark sheet: best score per module, weighted course mark, band, sign-off checklist, attempt history. |
-| `03 - Project Portfolio.ipynb` | One portfolio project per course section: deliverables to tick, and the README entry to copy. |
-| `04 - AI Tutor.ipynb` | How to reach the professor: the agent in this repo, the local `professor.py` CLI, or any chat assistant. |
-| `05 - Using the Learning System.ipynb` | The lesson: how the pieces fit together, how to take a test, do a project, log progress, and the weekly loop. |
+| `S0 - Testing Syllabus.ipynb` | The blueprint: what is tested, weights, pass bands, prerequisites, eight-week study plan, readiness checklist. |
+| `S1 - How to Use the Test Suite.ipynb` | Workflow, marking rules, grader usage, troubleshooting, how to add your own tests. |
+| `S2 - Grading Records.ipynb` | Live mark sheet: best score per module, weighted course mark, band, sign-off checklist, attempt history. |
+| `S3 - Project Portfolio.ipynb` | One portfolio project per course section: deliverables to tick, and the README entry to copy. |
+| `S4 - AI Tutor.ipynb` | How to reach the professor: the agent in this repo, the local `professor.py` CLI, or any chat assistant. |
+| `S5 - Using the Learning System.ipynb` | The lesson: how the pieces fit together, how to take a test, do a project, log progress, and the weekly loop. |
 | `PRACTICE - Practice Test.ipynb` | A dry run of the test mechanics. Not graded for the mark. |
 | `PRACTICE - Practice Project - Book Tracker.ipynb` | A practice project: full brief, four stages, and the rubric to self-score against. |
 | `rubrics.json` | The project grading contract: six criteria, weights, and the 0-4 scale. |
 | `professor.py` | Local AI tutor CLI. Talks to any OpenAI-compatible endpoint (OpenAI, OpenRouter, Ollama, LM Studio), grounded in the course material and your record. |
 | `T00` ... `T19` | One marked test per course section, 20 points each. |
-| `99 - Final Comprehensive Exam.ipynb` | Cumulative exam: 36 questions, 60 points. |
+| `FINAL - Final Comprehensive Exam.ipynb` | Cumulative exam: 36 questions, 60 points. |
 | `grade.py` | Self-grader. Standard library only. |
 | `grade_records.py` | Ledger tool: logs attempts, computes the course mark, exports `GRADE_REPORT.md`. |
 | `records.json` | The ledger: a hash-chained entry per attempt. Plain JSON, yours to read. |
@@ -82,12 +82,12 @@ choice or conceptual question). `summary` prints the per-module best scores,
 the weighted course mark and the band. `report` writes `GRADE_REPORT.md`.
 
 The course mark is `0.85 * section mark + 0.15 * final exam`, with the module
-weights from `00 - Testing Syllabus.ipynb`. `02 - Grading Records.ipynb` shows
+weights from `S0 - Testing Syllabus.ipynb`. `S2 - Grading Records.ipynb` shows
 the same information as live notebook output.
 
 ## Portfolio
 
-`03 - Project Portfolio.ipynb` gives you one project per course section, the
+`S3 - Project Portfolio.ipynb` gives you one project per course section, the
 deliverables that make it portfolio ready, and the README entry to copy into
 your own repository. The capstone (section 18) is the flagship project; the
 other nineteen entries are supporting evidence.
@@ -228,8 +228,29 @@ python 20-Testing-Syllabus/professor.py progress
 ```
 
 Both write to `reviews/` and both add a journal entry, so the written advice
-is part of the recorded history. `02 - Grading Records.ipynb` renders the
+is part of the recorded history. `S2 - Grading Records.ipynb` renders the
 project table, the weakest-criterion analysis and the journal.
+
+## Naming scheme
+
+Every artifact has one prefix, and each prefix means one thing:
+
+| Prefix | Means | Examples |
+| --- | --- | --- |
+| `T00` - `T19` | A graded test for that course section | `T05 - Object Oriented Programming Test.ipynb` |
+| `FINAL` | The cumulative exam | `FINAL - Final Comprehensive Exam.ipynb` |
+| `P00` - `P19` | The portfolio project for that course section (a rubric id, not a file) | `record-project P05` |
+| `P-PRACTICE` | The practice project (a rubric id, not a file) | `record-project P-PRACTICE` |
+| `S0` - `S5` | The suite's own documentation | `S0 - Testing Syllabus.ipynb` |
+| `PRACTICE` | A drill that is never graded for the mark | `PRACTICE - Practice Test.ipynb` |
+| `00-` - `19-` | The original course folders at the repository root | `05-Object Oriented Programming/` |
+
+The numbers always mean the same thing: the prefix number is the course
+section it belongs to. `T05`, `P05` and section `05` are the same topic in
+three different roles - the test, the project, and the lectures.
+
+The final exam used to be `99` and the system docs used to be `00`-`05`,
+which made them look like course sections. They are now `FINAL` and `S0`-`S5`.
 
 ## Requirements
 

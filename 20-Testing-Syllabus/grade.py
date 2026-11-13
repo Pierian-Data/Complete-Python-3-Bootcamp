@@ -114,7 +114,7 @@ def main(argv=None):
         # practice drills and the final exam.
         targets = sorted(glob.glob(os.path.join(HERE, "T*.ipynb")))
         targets += sorted(glob.glob(os.path.join(HERE, "PRACTICE*.ipynb")))
-        targets += sorted(glob.glob(os.path.join(HERE, "99 - *.ipynb")))
+        targets += sorted(glob.glob(os.path.join(HERE, "FINAL*.ipynb")))
 
     if not targets:
         print("no notebooks found in %s" % HERE)

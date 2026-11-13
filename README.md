@@ -16,7 +16,7 @@ This fork adds a self-assessment layer on top of the course material:
 
 | Folder / file | What it is |
 | --- | --- |
-| `20-Testing-Syllabus/` | A marked test per course section, a blueprint, a mark sheet, a project portfolio, a lesson on the system, and practice drills. Start with `20-Testing-Syllabus/00 - Testing Syllabus.ipynb`, then `05 - Using the Learning System.ipynb`. |
+| `20-Testing-Syllabus/` | A marked test per course section, a blueprint, a mark sheet, a project portfolio, a lesson on the system, and practice drills. Start with `20-Testing-Syllabus/S0 - Testing Syllabus.ipynb`, then `S5 - Using the Learning System.ipynb`. |
 | `PROFESSOR.md` | The operating manual for an AI tutor that teaches this course. |
 | `AGENTS.md` | Makes any AI agent working in this repository behave like that professor. |
 
