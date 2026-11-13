@@ -1,0 +1,438 @@
+"""Grading records - a small ledger for the test suite.
+
+Keeps every attempt at every test, computes your weighted course mark from the
+blueprint in "00 - Testing Syllabus.ipynb", and exports a markdown report you
+can paste into a portfolio.
+
+Commands
+--------
+    record   record an attempt by hand
+    run      grade a notebook with grade.py and record the result
+    list     show every attempt
+    summary  per-test best scores, weighted course mark, band, next target
+    report   write a markdown report (default: GRADE_REPORT.md)
+    reset    drop the attempts for one test
+
+Examples
+--------
+    python grade_records.py run "T03 - Methods and Functions Test.ipynb" --prose 7
+    python grade_records.py record T00 --checks 5/6 --prose 6 --notes "slicing still slips"
+    python grade_records.py summary
+    python grade_records.py report
+"""
+
+import argparse
+import datetime
+import json
+import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+RECORDS_PATH = os.path.join(HERE, "records.json")
+
+PASS_MARK = 14          # out of 20, per module test
+FINAL_PASS = 42         # out of 60, final exam
+SECTION_SHARE = 0.85    # section tests -> 85% of the course mark
+FINAL_SHARE = 0.15      # final exam   -> 15% of the course mark
+
+# id, title, file name, weight (% of the 400 section points), expected checks
+SECTION_SPECS = [
+    ("T00", "Objects and Data Structures", "T00 - Objects and Data Structures Test.ipynb", 12, 6),
+    ("T01", "Comparison Operators", "T01 - Comparison Operators Test.ipynb", 3, 6),
+    ("T02", "Python Statements", "T02 - Python Statements Test.ipynb", 9, 6),
+    ("T03", "Methods and Functions", "T03 - Methods and Functions Test.ipynb", 9, 6),
+    ("T04", "Milestone Project 1", "T04 - Milestone Project 1 Test.ipynb", 4, 4),
+    ("T05", "Object Oriented Programming", "T05 - Object Oriented Programming Test.ipynb", 7, 6),
+    ("T06", "Modules and Packages", "T06 - Modules and Packages Test.ipynb", 3, 6),
+    ("T07", "Errors and Exception Handling", "T07 - Errors and Exception Handling Test.ipynb", 5, 6),
+    ("T08", "Milestone Project 2", "T08 - Milestone Project 2 Test.ipynb", 3, 2),
+    ("T09", "Built-in Functions", "T09 - Built-in Functions Test.ipynb", 5, 6),
+    ("T10", "Decorators", "T10 - Decorators Test.ipynb", 4, 6),
+    ("T11", "Generators", "T11 - Generators Test.ipynb", 4, 6),
+    ("T12", "Advanced Python Modules", "T12 - Advanced Python Modules Test.ipynb", 7, 6),
+    ("T13", "Web Scraping", "T13 - Web Scraping Test.ipynb", 4, 6),
+    ("T14", "Working with Images", "T14 - Working with Images Test.ipynb", 3, 6),
+    ("T15", "PDFs and Spreadsheets", "T15 - PDFs and Spreadsheets Test.ipynb", 3, 6),
+    ("T16", "Emailing with Python", "T16 - Emailing with Python Test.ipynb", 2, 6),
+    ("T17", "Advanced Python Objects", "T17 - Advanced Python Objects Test.ipynb", 8, 6),
+    ("T18", "Milestone Project 3 (Capstone)", "T18 - Milestone Project 3 Test.ipynb", 3, 2),
+    ("T19", "GUI Bonus Material", "T19 - GUI Bonus Material Test.ipynb", 2, 4),
+]
+
+FINAL_SPEC = ("99", "Final Comprehensive Exam", "99 - Final Comprehensive Exam.ipynb", 6, 5)
+
+
+def _count_checks(path):
+    """Number of cells tagged 'check' in a notebook, or None if unreadable."""
+    try:
+        with open(path, encoding="utf-8") as handle:
+            document = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    return sum(
+        1
+        for cell in document.get("cells", [])
+        if "check" in cell.get("metadata", {}).get("tags", [])
+    )
+
+
+def load_tests():
+    """Test catalogue. Check counts come from the notebooks when they exist."""
+    tests = []
+    for tid, title, filename, weight, expected_checks in SECTION_SPECS:
+        checks = _count_checks(os.path.join(HERE, filename))
+        if checks is None:
+            checks = expected_checks
+        tests.append(
+            {
+                "id": tid,
+                "title": title,
+                "file": filename,
+                "weight": weight,
+                "points_possible": 20,
+                "checks": checks,
+                "points_per_check": 2,
+            }
+        )
+    tid, title, filename, expected_checks, points_per_check = FINAL_SPEC
+    checks = _count_checks(os.path.join(HERE, filename))
+    if checks is None:
+        checks = expected_checks
+    final = {
+        "id": tid,
+        "title": title,
+        "file": filename,
+        "weight": 0,
+        "points_possible": 60,
+        "checks": checks,
+        "points_per_check": points_per_check,
+    }
+    return tests, final
+
+
+def prose_max(test):
+    """Points available for the hand-marked (prose) questions."""
+    return test["points_possible"] - test["checks"] * test["points_per_check"]
+
+
+def load_records():
+    if not os.path.exists(RECORDS_PATH):
+        return {"attempts": []}
+    try:
+        with open(RECORDS_PATH, encoding="utf-8") as handle:
+            data = json.load(handle)
+    except ValueError:
+        return {"attempts": []}
+    data.setdefault("attempts", [])
+    return data
+
+
+def save_records(data):
+    with open(RECORDS_PATH, "w", encoding="utf-8", newline="\n") as handle:
+        json.dump(data, handle, indent=2, ensure_ascii=False)
+        handle.write("\n")
+
+
+def find_test(identifier, tests, final):
+    """Resolve a test id, file name or bare file name to a test record."""
+    for test in list(tests) + [final]:
+        if identifier.lower() in (test["id"].lower(), test["file"].lower()):
+            return test
+    for test in list(tests) + [final]:
+        if os.path.basename(test["file"]).lower() == os.path.basename(identifier).lower():
+            return test
+    for test in list(tests) + [final]:
+        if test["title"].lower() == identifier.lower():
+            return test
+    return None
+
+
+def record_attempt(test, checks_passed, prose_points, notes="", date=None):
+    data = load_records()
+    attempt = {
+        "date": date or datetime.date.today().isoformat(),
+        "test": test["id"],
+        "title": test["title"],
+        "checks_passed": checks_passed,
+        "checks_total": test["checks"],
+        "coding_points": checks_passed * test["points_per_check"],
+        "prose_points": prose_points,
+        "points": checks_passed * test["points_per_check"] + prose_points,
+        "points_possible": test["points_possible"],
+        "notes": notes,
+    }
+    data["attempts"].append(attempt)
+    save_records(data)
+    return attempt
+
+
+def best_scores(records, tests, final):
+    """Best points achieved per test id."""
+    best = {}
+    for attempt in records["attempts"]:
+        tid = attempt["test"]
+        if attempt["points"] > best.get(tid, -1):
+            best[tid] = attempt["points"]
+    return best
+
+
+def summarize(records=None, tests=None, final=None):
+    """Everything the summary and report need, computed once."""
+    records = load_records() if records is None else records
+    if tests is None:
+        tests, final = load_tests()
+    best = best_scores(records, tests, final)
+
+    rows = []
+    weighted_points = 0.0
+    for test in tests:
+        points = best.get(test["id"])
+        rows.append({"test": test, "best": points})
+        if points is not None:
+            weighted_points += points * test["weight"]
+
+    section_max = sum(t["points_possible"] * t["weight"] for t in tests)
+    section_mark = weighted_points / section_max if section_max else 0.0
+    final_points = best.get(final["id"])
+    final_mark = (final_points / final["points_possible"]) if final_points else 0.0
+    course_mark = SECTION_SHARE * section_mark + FINAL_SHARE * final_mark
+
+    if course_mark >= 85:
+        band = "Distinction"
+    elif course_mark >= 70:
+        band = "Merit"
+    elif course_mark >= 55:
+        band = "Pass"
+    else:
+        band = "Below pass"
+
+    signed_off = [r["test"]["id"] for r in rows if r["best"] is not None and r["best"] >= PASS_MARK]
+    pending = [r["test"]["id"] for r in rows if r["best"] is None or r["best"] < PASS_MARK]
+    next_target = pending[0] if pending else None
+
+    return {
+        "rows": rows,
+        "best": best,
+        "weighted_points": weighted_points,
+        "section_max": section_max,
+        "section_mark": section_mark,
+        "final_points": final_points,
+        "final_mark": final_mark,
+        "course_mark": course_mark,
+        "band": band,
+        "signed_off": signed_off,
+        "pending": pending,
+        "next_target": next_target,
+        "attempts": records["attempts"],
+    }
+
+
+def format_bar(points, points_possible, width=20):
+    if points is None:
+        return "[" + " " * width + "]"
+    filled = int(round(width * points / points_possible))
+    return "[" + "#" * filled + "." * (width - filled) + "]"
+
+
+def summary_text(summary):
+    lines = []
+    lines.append("=" * 78)
+    lines.append("GRADING RECORDS - Complete Python 3 Bootcamp")
+    lines.append("=" * 78)
+    for row in summary["rows"]:
+        test = row["test"]
+        best = row["best"]
+        mark = ("%2d/%d" % (best, test["points_possible"])) if best is not None else "  -/%d" % test["points_possible"]
+        status = "signed off" if best is not None and best >= PASS_MARK else (
+            "attempted" if best is not None else "not attempted")
+        lines.append("%-4s %-34s %-7s %4d%%  %s  %s" % (
+            test["id"], test["title"][:34], mark, test["weight"], format_bar(best, test["points_possible"]), status))
+    lines.append("-" * 78)
+    lines.append("Section mark   : %5.1f / 100  (85%% of the course mark)" % (summary["section_mark"] * 100))
+    if summary["final_points"] is None:
+        lines.append("Final exam     : not attempted (15% of the course mark)")
+    else:
+        lines.append("Final exam     : %5.1f / 100  (pass %d/%d)" % (
+            summary["final_mark"] * 100, FINAL_PASS, 60))
+    lines.append("Course mark    : %5.1f / 100  ->  %s" % (summary["course_mark"] * 100, summary["band"]))
+    lines.append("Signed off     : %d / %d modules (pass mark %d/%d)" % (
+        len(summary["signed_off"]), len(summary["rows"]), PASS_MARK, 20))
+    if summary["next_target"]:
+        lines.append("Next target    : %s" % summary["next_target"])
+    lines.append("Attempts logged: %d" % len(summary["attempts"]))
+    return "\n".join(lines)
+
+
+def report_markdown(summary):
+    lines = []
+    lines.append("# Grading Record - Complete Python 3 Bootcamp")
+    lines.append("")
+    lines.append("Generated %s by `grade_records.py report`." % datetime.date.today().isoformat())
+    lines.append("")
+    lines.append("**Course mark: %.1f / 100 (%s)** - section mark %.1f / 100, final exam %s." % (
+        summary["course_mark"] * 100,
+        summary["band"],
+        summary["section_mark"] * 100,
+        ("%.1f / 100" % (summary["final_mark"] * 100)) if summary["final_points"] is not None else "not attempted",
+    ))
+    lines.append("")
+    lines.append("## Module tests")
+    lines.append("")
+    lines.append("| Test | Module | Best | Weight | Result |")
+    lines.append("| --- | --- | --- | --- | --- |")
+    for row in summary["rows"]:
+        test = row["test"]
+        best = row["best"]
+        mark = "%d / %d" % (best, test["points_possible"]) if best is not None else "- / %d" % test["points_possible"]
+        result = "signed off" if best is not None and best >= PASS_MARK else (
+            "attempted" if best is not None else "not attempted")
+        lines.append("| %s | %s | %s | %d%% | %s |" % (test["id"], test["title"], mark, test["weight"], result))
+    lines.append("")
+    lines.append("## Attempt history")
+    lines.append("")
+    if summary["attempts"]:
+        lines.append("| Date | Test | Coding | Prose | Total | Notes |")
+        lines.append("| --- | --- | --- | --- | --- | --- |")
+        for attempt in summary["attempts"]:
+            lines.append("| %s | %s | %d | %d | %d / %d | %s |" % (
+                attempt["date"], attempt["test"], attempt["coding_points"], attempt["prose_points"],
+                attempt["points"], attempt["points_possible"], attempt["notes"].replace("|", "/") or "-"))
+    else:
+        lines.append("No attempts recorded yet.")
+    lines.append("")
+    lines.append("## Sign-off checklist")
+    lines.append("")
+    for row in summary["rows"]:
+        test = row["test"]
+        best = row["best"]
+        done = best is not None and best >= PASS_MARK
+        lines.append("- [%s] %s %s (%d%% weight)" % ("x" if done else " ", test["id"], test["title"], test["weight"]))
+    lines.append("")
+    return "\n".join(lines)
+
+
+def parse_checks(text):
+    """Parse '5/6' into (5, 6)."""
+    parts = str(text).split("/")
+    if len(parts) != 2:
+        raise argparse.ArgumentTypeError("checks must look like 5/6")
+    try:
+        return int(parts[0]), int(parts[1])
+    except ValueError:
+        raise argparse.ArgumentTypeError("checks must look like 5/6")
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p_record = sub.add_parser("record", help="record an attempt by hand")
+    p_record.add_argument("test", help="test id (T03) or file name")
+    p_record.add_argument("--checks", required=True, type=parse_checks, help="checks passed, e.g. 5/6")
+    p_record.add_argument("--prose", type=int, default=None, help="points for the hand-marked questions")
+    p_record.add_argument("--notes", default="")
+    p_record.add_argument("--date", default=None)
+
+    p_run = sub.add_parser("run", help="grade a notebook and record the result")
+    p_run.add_argument("test", help="test id (T03) or file name")
+    p_run.add_argument("--prose", type=int, default=None, help="points for the hand-marked questions")
+    p_run.add_argument("--notes", default="")
+    p_run.add_argument("--date", default=None)
+
+    sub.add_parser("list", help="show every attempt")
+    sub.add_parser("summary", help="per-test best scores and the course mark")
+
+    p_report = sub.add_parser("report", help="write a markdown report")
+    p_report.add_argument("--out", default=os.path.join(HERE, "GRADE_REPORT.md"))
+
+    p_reset = sub.add_parser("reset", help="drop attempts for one test")
+    p_reset.add_argument("test")
+    p_reset.add_argument("--all", action="store_true", help="drop every attempt")
+
+    args = parser.parse_args(argv)
+    tests, final = load_tests()
+
+    if args.command == "record":
+        test = find_test(args.test, tests, final)
+        if test is None:
+            print("unknown test: %s" % args.test)
+            return 1
+        passed, total = args.checks
+        if total != test["checks"]:
+            print("note: the notebook has %d check cells, you entered %d" % (test["checks"], total))
+        prose = args.prose if args.prose is not None else 0
+        if not 0 <= prose <= prose_max(test):
+            print("prose points must be between 0 and %d for %s" % (prose_max(test), test["id"]))
+            return 1
+        attempt = record_attempt(test, min(passed, total), prose, args.notes, args.date)
+        print("recorded %s: %d/%d (%d/%d points)" % (
+            test["id"], attempt["checks_passed"], attempt["checks_total"],
+            attempt["points"], attempt["points_possible"]))
+        return 0
+
+    if args.command == "run":
+        test = find_test(args.test, tests, final)
+        if test is None:
+            print("unknown test: %s" % args.test)
+            return 1
+        path = os.path.join(HERE, test["file"])
+        sys.path.insert(0, HERE)
+        import grade
+
+        passed, failed, failures, problems = grade.grade(path, solutions=False)
+        for label, error in failures:
+            print("FAIL %s: %s" % (label, error))
+        for problem in problems:
+            print("PROBLEM %s" % problem)
+        prose = args.prose
+        if prose is None:
+            limit = prose_max(test)
+            prose = int(input("points for the hand-marked questions (0-%d)? " % limit) or 0)
+        attempt = record_attempt(test, passed, prose, args.notes, args.date)
+        print("recorded %s: checks %d/%d, total %d/%d" % (
+            test["id"], passed, passed + failed, attempt["points"], attempt["points_possible"]))
+        return 0
+
+    if args.command == "list":
+        records = load_records()
+        if not records["attempts"]:
+            print("no attempts recorded yet.")
+            return 0
+        for attempt in records["attempts"]:
+            print("%s  %-4s  %2d/%2d checks  %2d/%2d points  %s" % (
+                attempt["date"], attempt["test"], attempt["checks_passed"], attempt["checks_total"],
+                attempt["points"], attempt["points_possible"], attempt["notes"]))
+        return 0
+
+    if args.command == "summary":
+        print(summary_text(summarize()))
+        return 0
+
+    if args.command == "report":
+        summary = summarize()
+        with open(args.out, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(report_markdown(summary))
+        print("wrote %s" % args.out)
+        return 0
+
+    if args.command == "reset":
+        if args.all:
+            save_records({"attempts": []})
+            print("cleared every attempt")
+            return 0
+        test = find_test(args.test, tests, final)
+        if test is None:
+            print("unknown test: %s" % args.test)
+            return 1
+        data = load_records()
+        before = len(data["attempts"])
+        data["attempts"] = [a for a in data["attempts"] if a["test"] != test["id"]]
+        save_records(data)
+        print("removed %d attempt(s) for %s" % (before - len(data["attempts"]), test["id"]))
+        return 0
+
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
