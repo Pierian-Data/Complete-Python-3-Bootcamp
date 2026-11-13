@@ -1,8 +1,13 @@
-"""Grading records - a small ledger for the test suite.
+"""Grading records - a tamper-evident ledger for the test suite.
 
 Keeps every attempt at every test, computes your weighted course mark from the
 blueprint in "00 - Testing Syllabus.ipynb", and exports a markdown report you
 can paste into a portfolio.
+
+Every entry is appended to a hash chain (see integrity.py): each entry carries
+the hash of its predecessor and of its own content, plus the SHA-256 and git
+blob id of the notebook that was graded. Editing or deleting a past entry
+breaks the chain and `integrity.py verify` reports exactly where.
 
 Commands
 --------
@@ -11,7 +16,7 @@ Commands
     list     show every attempt
     summary  per-test best scores, weighted course mark, band, next target
     report   write a markdown report (default: GRADE_REPORT.md)
-    reset    drop the attempts for one test
+    reset    void the attempts for one test (the history stays, marked void)
 
 Examples
 --------
@@ -28,7 +33,11 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-RECORDS_PATH = os.path.join(HERE, "records.json")
+sys.path.insert(0, HERE)
+
+import integrity
+
+RECORDS_PATH = integrity.LEDGER
 
 PASS_MARK = 14          # out of 20, per module test
 FINAL_PASS = 42         # out of 60, final exam
@@ -116,21 +125,11 @@ def prose_max(test):
 
 
 def load_records():
-    if not os.path.exists(RECORDS_PATH):
-        return {"attempts": []}
-    try:
-        with open(RECORDS_PATH, encoding="utf-8") as handle:
-            data = json.load(handle)
-    except ValueError:
-        return {"attempts": []}
-    data.setdefault("attempts", [])
-    return data
+    return integrity.load_ledger()
 
 
 def save_records(data):
-    with open(RECORDS_PATH, "w", encoding="utf-8", newline="\n") as handle:
-        json.dump(data, handle, indent=2, ensure_ascii=False)
-        handle.write("\n")
+    integrity.save_ledger(data)
 
 
 def find_test(identifier, tests, final):
@@ -147,9 +146,11 @@ def find_test(identifier, tests, final):
     return None
 
 
-def record_attempt(test, checks_passed, prose_points, notes="", date=None):
-    data = load_records()
-    attempt = {
+def record_attempt(test, checks_passed, prose_points, notes="", date=None,
+                   notebook=None, failures=None):
+    """Append an attempt to the hash-chained ledger and return the entry."""
+    payload = {
+        "event": "attempt",
         "date": date or datetime.date.today().isoformat(),
         "test": test["id"],
         "title": test["title"],
@@ -161,15 +162,42 @@ def record_attempt(test, checks_passed, prose_points, notes="", date=None):
         "points_possible": test["points_possible"],
         "notes": notes,
     }
-    data["attempts"].append(attempt)
-    save_records(data)
-    return attempt
+    # A redo never overwrites: it is a new entry that names the attempt it
+    # supersedes, so the full history stays legible in the chain.
+    previous = [
+        entry for entry in attempt_entries()
+        if entry.get("test") == test["id"]
+    ]
+    payload["attempt_number"] = len(previous) + 1
+    if previous:
+        payload["supersedes"] = previous[-1]["seq"]
+    if notebook:
+        path = notebook if os.path.isabs(notebook) else os.path.join(HERE, notebook)
+        if os.path.exists(path):
+            payload["notebook"] = os.path.basename(path)
+            payload["notebook_sha256"] = integrity.sha256_file(path)
+            blob = integrity.git_blob(path)
+            if blob:
+                payload["notebook_git_blob"] = blob
+    if failures:
+        payload["grader_failures"] = list(failures)
+    return integrity.append_entry(payload)
+
+
+def attempt_entries(data=None):
+    """Attempt entries that have not been voided by a reset."""
+    data = load_records() if data is None else data
+    voided = integrity.voided_tests(data)
+    return [
+        entry for entry in integrity.chain_entries(data)
+        if entry.get("event") == "attempt" and entry.get("test") not in voided
+    ]
 
 
 def best_scores(records, tests, final):
     """Best points achieved per test id."""
     best = {}
-    for attempt in records["attempts"]:
+    for attempt in attempt_entries(records):
         tid = attempt["test"]
         if attempt["points"] > best.get(tid, -1):
             best[tid] = attempt["points"]
@@ -223,7 +251,8 @@ def summarize(records=None, tests=None, final=None):
         "signed_off": signed_off,
         "pending": pending,
         "next_target": next_target,
-        "attempts": records["attempts"],
+        "attempts": attempt_entries(records),
+        "history": integrity.chain_entries(records),
     }
 
 
@@ -260,6 +289,8 @@ def summary_text(summary):
     if summary["next_target"]:
         lines.append("Next target    : %s" % summary["next_target"])
     lines.append("Attempts logged: %d" % len(summary["attempts"]))
+    lines.append("Ledger chain   : %d entries, head %s" % (
+        len(summary["history"]), summary["history"][-1]["hash"][:16] if summary["history"] else "-"))
     return "\n".join(lines)
 
 
@@ -290,13 +321,22 @@ def report_markdown(summary):
     lines.append("")
     lines.append("## Attempt history")
     lines.append("")
+    lines.append("Retakes are expected and are never deleted. Each attempt is an entry in the hash")
+    lines.append("chain; a redo names the attempt it supersedes, and the best attempt per module")
+    lines.append("is the one that counts.")
+    lines.append("")
     if summary["attempts"]:
-        lines.append("| Date | Test | Coding | Prose | Total | Notes |")
-        lines.append("| --- | --- | --- | --- | --- | --- |")
+        best = summary["best"]
+        lines.append("| Date | Test | Attempt | Coding | Prose | Total | Status | Supersedes | Ledger hash | Notes |")
+        lines.append("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
         for attempt in summary["attempts"]:
-            lines.append("| %s | %s | %d | %d | %d / %d | %s |" % (
-                attempt["date"], attempt["test"], attempt["coding_points"], attempt["prose_points"],
-                attempt["points"], attempt["points_possible"], attempt["notes"].replace("|", "/") or "-"))
+            status = "current best" if best.get(attempt["test"]) == attempt["points"] else "superseded"
+            lines.append("| %s | %s | %d | %d | %d | %d / %d | %s | %s | `%s` | %s |" % (
+                attempt["date"], attempt["test"], attempt.get("attempt_number", 1),
+                attempt["coding_points"], attempt["prose_points"],
+                attempt["points"], attempt["points_possible"], status,
+                ("#%d" % attempt["supersedes"]) if attempt.get("supersedes") else "-",
+                attempt["hash"][:12], attempt["notes"].replace("|", "/") or "-"))
     else:
         lines.append("No attempts recorded yet.")
     lines.append("")
@@ -307,6 +347,27 @@ def report_markdown(summary):
         best = row["best"]
         done = best is not None and best >= PASS_MARK
         lines.append("- [%s] %s %s (%d%% weight)" % ("x" if done else " ", test["id"], test["title"], test["weight"]))
+    lines.append("")
+    lines.append("## Tamper evidence")
+    lines.append("")
+    history = summary["history"]
+    if history:
+        lines.append("Every row above is an entry in a hash chain: each entry carries the hash of its")
+        lines.append("predecessor and of its own content, plus the SHA-256 of the notebook that was graded.")
+        lines.append("")
+        lines.append("| Seq | Date | Event | Test | Points | Chain hash |")
+        lines.append("| --- | --- | --- | --- | --- | --- |")
+        for entry in history:
+            lines.append("| %d | %s | %s | %s | %s | `%s` |" % (
+                entry["seq"], entry.get("date", "-"), entry.get("event", "attempt"),
+                entry.get("test", "-"),
+                ("%d / %d" % (entry["points"], entry["points_possible"]))
+                if entry.get("event") == "attempt" else "voided",
+                entry["hash"][:12]))
+        lines.append("")
+        lines.append("Verify it yourself: `python 20-Testing-Syllabus/integrity.py verify`")
+    else:
+        lines.append("No ledger entries yet.")
     lines.append("")
     return "\n".join(lines)
 
@@ -338,6 +399,7 @@ def main(argv=None):
     p_run.add_argument("--prose", type=int, default=None, help="points for the hand-marked questions")
     p_run.add_argument("--notes", default="")
     p_run.add_argument("--date", default=None)
+    p_run.add_argument("--seal", action="store_true", help="re-seal after recording (agent key required)")
 
     sub.add_parser("list", help="show every attempt")
     sub.add_parser("summary", help="per-test best scores and the course mark")
@@ -345,9 +407,9 @@ def main(argv=None):
     p_report = sub.add_parser("report", help="write a markdown report")
     p_report.add_argument("--out", default=os.path.join(HERE, "GRADE_REPORT.md"))
 
-    p_reset = sub.add_parser("reset", help="drop attempts for one test")
+    p_reset = sub.add_parser("reset", help="void the attempts for one test (history is kept)")
     p_reset.add_argument("test")
-    p_reset.add_argument("--all", action="store_true", help="drop every attempt")
+    p_reset.add_argument("--all", action="store_true", help="void every attempt")
 
     args = parser.parse_args(argv)
     tests, final = load_tests()
@@ -364,10 +426,11 @@ def main(argv=None):
         if not 0 <= prose <= prose_max(test):
             print("prose points must be between 0 and %d for %s" % (prose_max(test), test["id"]))
             return 1
-        attempt = record_attempt(test, min(passed, total), prose, args.notes, args.date)
-        print("recorded %s: %d/%d (%d/%d points)" % (
-            test["id"], attempt["checks_passed"], attempt["checks_total"],
-            attempt["points"], attempt["points_possible"]))
+        entry = record_attempt(test, min(passed, total), prose, args.notes, args.date,
+                               notebook=test["file"])
+        print("recorded %s: %d/%d (%d/%d points) chain hash %s" % (
+            test["id"], entry["checks_passed"], entry["checks_total"],
+            entry["points"], entry["points_possible"], entry["hash"][:12]))
         return 0
 
     if args.command == "run":
@@ -388,20 +451,36 @@ def main(argv=None):
         if prose is None:
             limit = prose_max(test)
             prose = int(input("points for the hand-marked questions (0-%d)? " % limit) or 0)
-        attempt = record_attempt(test, passed, prose, args.notes, args.date)
-        print("recorded %s: checks %d/%d, total %d/%d" % (
-            test["id"], passed, passed + failed, attempt["points"], attempt["points_possible"]))
+        entry = record_attempt(test, passed, prose, args.notes, args.date,
+                               notebook=test["file"],
+                               failures=["%s: %s" % (label, error) for label, error in failures])
+        print("recorded %s: checks %d/%d, total %d/%d, chain hash %s" % (
+            test["id"], passed, passed + failed, entry["points"], entry["points_possible"],
+            entry["hash"][:12]))
+        if args.seal:
+            integrity.build_manifest()
+            integrity.seal()
         return 0
 
     if args.command == "list":
         records = load_records()
-        if not records["attempts"]:
+        history = integrity.chain_entries(records)
+        if not history:
             print("no attempts recorded yet.")
             return 0
-        for attempt in records["attempts"]:
-            print("%s  %-4s  %2d/%2d checks  %2d/%2d points  %s" % (
-                attempt["date"], attempt["test"], attempt["checks_passed"], attempt["checks_total"],
-                attempt["points"], attempt["points_possible"], attempt["notes"]))
+        best = best_scores(records, tests, final)
+        for entry in history:
+            if entry.get("event") == "reset":
+                print("%s  %-4s  VOIDED by reset - the history above is kept" % (
+                    entry.get("date", "-"), entry.get("test", "-")))
+                continue
+            status = "best" if best.get(entry["test"]) == entry["points"] else "superseded"
+            print("%s  %-4s  attempt %d%s  %2d/%2d checks  %2d/%2d points  %-10s %s  %s" % (
+                entry.get("date", "-"), entry["test"], entry.get("attempt_number", 1),
+                (" (supersedes #%d)" % entry["supersedes"]) if entry.get("supersedes") else "",
+                entry["checks_passed"], entry["checks_total"],
+                entry["points"], entry["points_possible"], status, entry["hash"][:12],
+                entry.get("notes", "")))
         return 0
 
     if args.command == "summary":
@@ -417,18 +496,25 @@ def main(argv=None):
 
     if args.command == "reset":
         if args.all:
-            save_records({"attempts": []})
-            print("cleared every attempt")
+            integrity.append_entry({
+                "event": "reset",
+                "date": datetime.date.today().isoformat(),
+                "test": "*",
+                "notes": "every attempt voided",
+            })
+            print("voided every attempt (history kept in the chain)")
             return 0
         test = find_test(args.test, tests, final)
         if test is None:
             print("unknown test: %s" % args.test)
             return 1
-        data = load_records()
-        before = len(data["attempts"])
-        data["attempts"] = [a for a in data["attempts"] if a["test"] != test["id"]]
-        save_records(data)
-        print("removed %d attempt(s) for %s" % (before - len(data["attempts"]), test["id"]))
+        integrity.append_entry({
+            "event": "reset",
+            "date": datetime.date.today().isoformat(),
+            "test": test["id"],
+            "notes": "attempts voided",
+        })
+        print("voided the attempts for %s (history kept in the chain)" % test["id"])
         return 0
 
     return 1

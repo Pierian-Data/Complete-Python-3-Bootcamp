@@ -40,10 +40,17 @@ and teach as you go: explain the change, not just the diff.
 6. **Python**: use the Anaconda interpreter at `C:\Users\andre\anaconda3\python.exe`
    (has Jupyter, nbclient, requests, bs4, Pillow, openpyxl). `pypdf` is not
    installed; checks that need it print `SKIP` rather than failing.
-7. **Records**: `records.json` is the learner's ledger. Do not fabricate
+7. **Records**: `records.json` is the learner's ledger, and it is a hash chain
+   (`prev` + `hash` per entry) sealed by a signed `SEAL.json`. Do not fabricate
    attempts; only write one after an attempt really happened
-   (`grade_records.py run ... --prose N`).
-8. **Git**: `origin` is the learner's fork, `upstream` is the original course.
+   (`grade_records.py run ... --prose N`). **Never edit or delete a past
+   entry** - a redo is a new entry that supersedes the old one, and
+   `grade_records.py reset` voids without erasing. See `INTEGRITY.md`.
+8. **Manifest**: after any intentional change to a file in
+   `20-Testing-Syllabus/`, run `python 20-Testing-Syllabus/integrity.py
+   manifest` and commit it, so `integrity.py verify` still passes and a
+   reviewer can see exactly what changed.
+9. **Git**: `origin` is the learner's fork, `upstream` is the original course.
    Never push to `upstream`. Work on a branch, keep commits focused.
 
 ## Commands

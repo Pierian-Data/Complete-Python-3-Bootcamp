@@ -357,6 +357,50 @@ def cmd_explain(args):
     return 0
 
 
+def cmd_attest(args):
+    """Grade the learner's attempt, log it, seal it and sign an attestation."""
+    import grade
+    import grade_records as gr
+    import integrity
+
+    tests, final = gr.load_tests()
+    test = gr.find_test(args.test, tests, final)
+    if test is None:
+        print("unknown test: %s" % args.test)
+        return 1
+    path = os.path.join(HERE, test["file"])
+    passed, failed, failures, problems = grade.grade(path, solutions=False)
+    for label, error in failures:
+        print("FAIL %s: %s" % (label, error))
+    prose = args.prose
+    if prose is None:
+        prose = int(input("points for the hand-marked questions (0-%d)? " % gr.prose_max(test)) or 0)
+    entry = gr.record_attempt(test, passed, prose, args.notes, None, notebook=test["file"],
+                              failures=["%s: %s" % (label, error) for label, error in failures])
+    print("recorded %s: %d/%d points, chain hash %s" % (
+        test["id"], entry["points"], entry["points_possible"], entry["hash"][:12]))
+
+    integrity.build_manifest()
+    integrity.seal()
+
+    statement = ("%s signed off: %d/%d points (%d/%d checks passed)." % (
+        test["id"], entry["points"], entry["points_possible"], passed, passed + failed))
+    if failures:
+        statement += " Failing checks: " + "; ".join(label for label, _ in failures) + "."
+    integrity.attest(statement, context={
+        "test": test["id"],
+        "title": test["title"],
+        "points": entry["points"],
+        "points_possible": entry["points_possible"],
+        "checks": "%d/%d" % (passed, passed + failed),
+        "notebook": test["file"],
+        "notebook_sha256": entry.get("notebook_sha256"),
+        "attempt_number": entry.get("attempt_number"),
+    })
+    print("attestation signed with the agent key and the ledger sealed.")
+    return 0
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--offline", action="store_true", help="print the payload instead of calling the model")
@@ -377,6 +421,11 @@ def main(argv=None):
     p_explain = sub.add_parser("explain", help="print the course material for a section")
     p_explain.add_argument("--section", required=True)
 
+    p_attest = sub.add_parser("attest", help="grade an attempt, log it, seal it and sign an attestation")
+    p_attest.add_argument("test", help="test id (T03) or file name")
+    p_attest.add_argument("--prose", type=int, default=None, help="points for the hand-marked questions")
+    p_attest.add_argument("--notes", default="")
+
     args = parser.parse_args(argv)
 
     if args.command == "ask":
@@ -387,6 +436,8 @@ def main(argv=None):
         return cmd_check(args)
     if args.command == "explain":
         return cmd_explain(args)
+    if args.command == "attest":
+        return cmd_attest(args)
     return 1
 
 

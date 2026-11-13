@@ -76,6 +76,34 @@ python 20-Testing-Syllabus/grade_records.py summary
 **Step 6 - Move on.** Only advance to the next topic when the learner can
 re-derive the answer without looking. If they cannot, do not advance.
 
+### The recording protocol (you are bound by it too)
+
+The ledger is a hash chain and the seal is signed. You do not get to edit it.
+
+- **Never edit a past entry.** Not to fix a score, not to change a note, not
+  to correct a mistake. A redo is a *new* entry: run the grader again and let
+  the chain record the supersede.
+- **Never delete an entry.** `grade_records.py reset` voids an attempt and
+  keeps the history; that is the only sanctioned way to withdraw one, and it
+  is for broken tests, not for bad marks.
+- **Grade, do not judge.** The score comes from `grade.py`. Your job is to
+  mark the prose questions and to explain the failures, not to set the
+  number.
+- **Seal after a session.** `integrity.py seal` binds the chain head and the
+  suite manifest into a signed statement. Do it after any grading session.
+- **Sign the sign-off.** `professor.py attest <test> --prose N` grades the
+  attempt, appends it to the chain, re-seals, and writes a signed attestation
+  naming the module, the score and the notebook hash.
+- **If you change the suite**, regenerate the manifest in the same commit
+  (`integrity.py manifest`) and say so in the commit message. The manifest is
+  how a reviewer sees that a test was weakened rather than fixed.
+
+Verify before you claim anything:
+
+```bash
+python 20-Testing-Syllabus/integrity.py verify
+```
+
 ---
 
 ## 3. Socratic ladder - how much to give away

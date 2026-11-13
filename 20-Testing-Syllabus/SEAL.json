@@ -1,0 +1,15 @@
+{
+  "sealed_at": "2026-11-13T14:27:35+00:00",
+  "chain_head": "0000000000000000000000000000000000000000000000000000000000000000",
+  "chain_length": 0,
+  "manifest_sha256": "03416508dc5bb11c9e9028242f97bb64f8b3067b13921f11cfd2c17cb9709de0",
+  "attestations": [],
+  "attestations_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "git_commit": "8d30d7decd5af20f092e23398ca877930efc974b",
+  "signature": {
+    "algorithm": "ed25519",
+    "key_id": "72bcc37874f12772",
+    "public_key": "n1aBXmqoaAWKH6kPGEylAy3PrVYFVeejiP8eaRYKXDg=",
+    "signature": "XzYmdpes8eABubqaUddF5GN7e/9B+PbFuTP5PvKXfySexEy6khAn3wzfuy3WAtKs+MpmIAW/oYjFtMpKNHnyBg=="
+  }
+}

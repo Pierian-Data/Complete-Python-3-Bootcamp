@@ -18,7 +18,12 @@ test and let the grader mark the coding half for you.
 | `99 - Final Comprehensive Exam.ipynb` | Cumulative exam: 36 questions, 60 points. |
 | `grade.py` | Self-grader. Standard library only. |
 | `grade_records.py` | Ledger tool: logs attempts, computes the course mark, exports `GRADE_REPORT.md`. |
-| `records.json` | The ledger: one entry per attempt. Plain JSON, yours to edit or import. |
+| `records.json` | The ledger: a hash-chained entry per attempt. Plain JSON, yours to read. |
+| `integrity.py` | Tamper evidence: manifest of every file, signed seal over the chain, attestation writer, verifier. |
+| `SEAL.json` | The signed seal: chain head + manifest + attestations, Ed25519 signed. |
+| `suite.manifest.json` | SHA-256 of every file in this folder, so a weakened test cannot pass unnoticed. |
+| `agent.pub` | The professor agent's public key. The private key lives outside the repository. |
+| `INTEGRITY.md` | What the scheme guarantees, what it cannot, and how to anchor the seal externally. |
 | `GRADE_REPORT.md` | Generated report - commit it into your portfolio repository as proof of work. |
 | `nbkit.py` | Small builder used to generate the notebooks in this folder. |
 
@@ -115,10 +120,33 @@ set PROFESSOR_MODEL=llama3.1
 Use `--offline` to see the exact payload that would be sent without calling
 anything.
 
+## Integrity - tamper evidence
+
+The ledger is append-only and hash-chained: every entry carries the hash of
+its predecessor and of its own content, plus the SHA-256 and git blob id of
+the notebook that was graded. The suite itself is covered by a manifest of
+file hashes, and a signed `SEAL.json` binds the chain head to that manifest.
+
+```bash
+python 20-Testing-Syllabus/integrity.py verify     # chain + manifest + seal + attestations
+python 20-Testing-Syllabus/integrity.py manifest   # re-hash the suite after an intentional change
+python 20-Testing-Syllabus/integrity.py seal       # sign the current state
+```
+
+**Redoing a test or a project is documented, never erased.** A redo is a new
+entry that names the attempt it supersedes; the best attempt per module is
+the one that counts; `grade_records.py reset` voids an attempt but keeps the
+history. `INTEGRITY.md` has the full protocol, the threat model, and how to
+anchor the seal somewhere you do not control (GitHub artifact attestation,
+OpenTimestamps).
+
 ## Requirements
 
 - Python 3.8 or newer for the grader (standard library only).
 - Jupyter or JupyterLab to work through the notebooks.
+- `cryptography` for the integrity tooling (Ed25519 signing). It ships with
+  Anaconda; `pip install cryptography` otherwise. Everything else - the
+  grader, the ledger, the builder - is standard library only.
 - Optional, only for full marks on the tooling sections: `requests`,
   `beautifulsoup4`, `pillow`, `pypdf`, `openpyxl`. Checks that need a missing
   package skip themselves instead of failing.
