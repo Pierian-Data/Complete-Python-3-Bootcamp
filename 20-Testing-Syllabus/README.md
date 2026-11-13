@@ -140,6 +140,48 @@ history. `INTEGRITY.md` has the full protocol, the threat model, and how to
 anchor the seal somewhere you do not control (GitHub artifact attestation,
 OpenTimestamps).
 
+## Version control - what lives where
+
+Everything in this folder is a git-tracked file, so the whole suite, your
+grades and your work live in your fork's history.
+
+| Thing | Where | In git? |
+| --- | --- | --- |
+| The tests, the grader, the tools | this folder | Yes |
+| Your attempt history | `records.json` | Yes - hash-chained, append-only |
+| The signed seal | `SEAL.json` | Yes - Ed25519 signed |
+| The file manifest | `suite.manifest.json` | Yes |
+| The professor agent's public key | `agent.pub` | Yes |
+| **The professor agent's private key** | `%USERPROFILE%\.professor\professor_key.pem` | **No** - it must never enter the repository. Back it up somewhere safe (a password manager); with it you can keep signing, without it you can still verify every seal already made. |
+| **Your model API key** | the `PROFESSOR_API_KEY` environment variable | **No** - `.env` and `*.pem` are git-ignored |
+| Your answers | the `T**` notebooks | Yes - commit them as you go |
+| Your report | `GRADE_REPORT.md` | Yes - a regenerated snapshot of the ledger |
+| The environment | `requirements.txt` | Yes - pinned versions |
+
+### The loop per section
+
+```bash
+# 1. work in the test notebook and save it
+# 2. grade and log the attempt
+python 20-Testing-Syllabus/grade_records.py run "T03 - Methods and Functions Test.ipynb" --prose 7
+# 3. re-seal so the signature covers the new chain head
+python 20-Testing-Syllabus/integrity.py seal
+# 4. commit and push
+git add -A && git commit -m "T03: 19/20, signed off" && git push
+# 5. mark the milestone with a signed tag (GitHub shows "Verified")
+git tag -s v1.0-T03-pass -m "T03 signed off: 19/20"
+git push origin v1.0-T03-pass
+```
+
+The signed tag is the git-native half of the guarantee: it says *this exact
+state was signed off*, and the seal says *these are the grades that led to
+it*. GitHub stores both, and its transparency log stores the attestation.
+
+**Two independent layers.** Git history is the record of your *work*; the hash
+chain and the seal are the record of your *grades*. Each attempt stores the
+git blob id of the notebook as graded, so if you later edit your answer cells,
+`integrity.py verify` reports the drift and `git log` shows the change.
+
 ## Requirements
 
 - Python 3.8 or newer for the grader (standard library only).

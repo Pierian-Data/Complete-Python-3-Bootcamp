@@ -40,7 +40,10 @@ PUBKEY = os.path.join(HERE, "agent.pub")
 GENESIS = "0" * 64
 
 # Files whose content is expected to change; they are not in the manifest.
-VOLATILE = {"records.json", "suite.manifest.json", "SEAL.json"}
+# records.json is covered by the hash chain, SEAL.json by the signature, and
+# GRADE_REPORT.md is regenerated from the chain - CI diffs the committed
+# report against a fresh one, so a hand-edited report is still caught.
+VOLATILE = {"records.json", "suite.manifest.json", "SEAL.json", "GRADE_REPORT.md"}
 
 
 # --------------------------------------------------------------------------

@@ -31,6 +31,10 @@ Generated 2026-11-13 by `grade_records.py report`.
 
 ## Attempt history
 
+Retakes are expected and are never deleted. Each attempt is an entry in the hash
+chain; a redo names the attempt it supersedes, and the best attempt per module
+is the one that counts.
+
 No attempts recorded yet.
 
 ## Sign-off checklist
@@ -55,3 +59,7 @@ No attempts recorded yet.
 - [ ] T17 Advanced Python Objects (8% weight)
 - [ ] T18 Milestone Project 3 (Capstone) (3% weight)
 - [ ] T19 GUI Bonus Material (2% weight)
+
+## Tamper evidence
+
+No ledger entries yet.

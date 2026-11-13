@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+# Uncomment to strip cell outputs from committed notebooks:
+# .gitattributes filter for nbstripout is set up in the suite README instead.
+
+# Environment and secrets - never commit these
+.env
+.env.*
+*.pem
+*.key
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

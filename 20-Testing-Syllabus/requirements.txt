@@ -1,0 +1,35 @@
+# Environment for the testing suite (20-Testing-Syllabus).
+#
+# The grader, the ledger and the notebook builder need nothing but the
+# standard library. These are the extras:
+#
+#   cryptography  Ed25519 signing for integrity.py (the seal and attestations)
+#   jupyterlab    working through the notebooks
+#
+# The optional section packages are only needed for full marks on sections
+# 13-16; the checks skip themselves when a package is missing.
+#
+#   pip install -r requirements.txt
+#
+# Versions below are the ones this repository was verified against.
+
+# --- integrity ------------------------------------------------------------
+cryptography==46.0.3
+
+# --- notebooks ------------------------------------------------------------
+jupyterlab==4.5.9
+notebook==7.5.7
+nbformat==5.10.4
+nbclient==0.11.0
+nbconvert==7.17.1
+ipykernel==6.31.0
+
+# --- optional course sections (13, 14, 15, 16) ---------------------------
+requests==2.34.2
+beautifulsoup4==4.15.0
+pillow==12.0.0
+openpyxl==3.1.5
+pypdf==7.1.0
+
+# --- optional --------------------------------------------------------------
+pytest==9.0.1

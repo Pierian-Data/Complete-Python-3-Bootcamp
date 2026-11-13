@@ -21,8 +21,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install the one dependency
-        run: pip install cryptography
+      - name: Install the suite requirements
+        run: pip install -r 20-Testing-Syllabus/requirements.txt
 
       - name: The tests still grade their own reference solutions
         run: python 20-Testing-Syllabus/grade.py --solutions
@@ -35,6 +35,10 @@ jobs:
 
       - name: Export the report
         run: python 20-Testing-Syllabus/grade_records.py report
+
+      - name: The committed report matches the ledger
+        run: |
+          git diff -I"^Generated" --exit-code 20-Testing-Syllabus/GRADE_REPORT.md
 
       - uses: actions/upload-artifact@v4
         with:

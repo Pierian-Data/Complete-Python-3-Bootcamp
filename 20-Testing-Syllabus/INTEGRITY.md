@@ -185,16 +185,58 @@ GitHub then shows a green **Verified** badge on the commit, and
 
 ---
 
-## 7. What the CI workflow checks
+## 7. The git layer
+
+Git is the other half of the guarantee, and it covers a different thing:
+
+| Layer | Covers | Where it lives |
+| --- | --- | --- |
+| Git history and signed tags | **your work** - every edit to a notebook, and *when* | your fork on GitHub |
+| Hash chain and seal | **your grades** - every attempt, and that it was not edited | `records.json`, `SEAL.json` |
+| CI | that neither was quietly changed | `.github/workflows/integrity.yml` |
+| GitHub transparency log | third-party evidence of the seal | `gh attestation verify` |
+
+The two layers are linked: each attempt in the ledger stores the git blob id
+of the notebook as it was graded, so an edit to your answer after grading is
+visible both in `integrity.py verify` (work drift) and in `git log`.
+
+Signed tags mark a milestone:
+
+```bash
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/id_ed25519.pub
+git config --global tag.gpgsign true
+
+git tag -s v1.0-T03-pass -m "T03 signed off: 19/20"
+git push origin v1.0-T03-pass
+```
+
+What is tracked, and what deliberately is not:
+
+| Tracked in git | Deliberately not tracked |
+| --- | --- |
+| Tests, tools, notebooks | The agent private key (`%USERPROFILE%\.professor\professor_key.pem`) |
+| `records.json`, `SEAL.json`, `suite.manifest.json`, `agent.pub` | API keys and `.env` files |
+| `GRADE_REPORT.md` (a regenerated snapshot; CI diffs it against a fresh one) | `__pycache__`, `.ipynb_checkpoints` |
+
+Back the private key up outside the repository (a password manager is fine).
+Without it you can still verify every seal already made - the public key is
+committed - you just cannot sign new ones.
+
+---
+
+## 8. What the CI workflow checks
 
 On every push to the branch, `.github/workflows/integrity.yml`:
 
-1. runs `grade.py --solutions` - the tests themselves still pass their own
-   reference solutions, so nobody can weaken a check without CI noticing;
+1. installs `requirements.txt` and runs `grade.py --solutions` - the tests
+   themselves still pass their own reference solutions, so nobody can weaken a
+   check without CI noticing;
 2. runs `integrity.py verify` - chain, manifest, seal and attestations;
-3. runs `grade_records.py summary` and uploads `GRADE_REPORT.md` as an
-   artifact;
-4. attests the commit to GitHub's transparency log (keyless, OIDC).
+3. regenerates `GRADE_REPORT.md` and fails if it differs from the committed
+   one (a hand-edited report is caught here);
+4. uploads `GRADE_REPORT.md`, `SEAL.json` and the manifest as artifacts;
+5. attests the commit to GitHub's transparency log (keyless, OIDC).
 
 A red build means: a test was changed without regenerating the manifest, a
 grade was edited, or the seal no longer matches. Read the diff before you
