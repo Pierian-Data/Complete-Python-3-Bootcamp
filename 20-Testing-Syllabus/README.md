@@ -12,6 +12,8 @@ test and let the grader mark the coding half for you.
 | `01 - How to Use the Test Suite.ipynb` | Workflow, marking rules, grader usage, troubleshooting, how to add your own tests. |
 | `02 - Grading Records.ipynb` | Live mark sheet: best score per module, weighted course mark, band, sign-off checklist, attempt history. |
 | `03 - Project Portfolio.ipynb` | One portfolio project per course section: deliverables to tick, and the README entry to copy. |
+| `04 - AI Tutor.ipynb` | How to reach the professor: the agent in this repo, the local `professor.py` CLI, or any chat assistant. |
+| `professor.py` | Local AI tutor CLI. Talks to any OpenAI-compatible endpoint (OpenAI, OpenRouter, Ollama, LM Studio), grounded in the course material and your record. |
 | `T00` ... `T19` | One marked test per course section, 20 points each. |
 | `99 - Final Comprehensive Exam.ipynb` | Cumulative exam: 36 questions, 60 points. |
 | `grade.py` | Self-grader. Standard library only. |
@@ -80,6 +82,38 @@ the same information as live notebook output.
 deliverables that make it portfolio ready, and the README entry to copy into
 your own repository. The capstone (section 18) is the flagship project; the
 other nineteen entries are supporting evidence.
+
+## The professor
+
+`PROFESSOR.md` at the repository root is the operating manual for an AI tutor
+that teaches this course: diagnose the misconception first, explain from the
+actual lecture notebook, practise, verify with the grader, record the attempt.
+
+Three ways to reach it:
+
+```
+# A. the agent already in this repository (Claude Code, Copilot, Cursor, ...)
+#    AGENTS.md makes it behave like the professor - nothing to set up
+
+# B. the local tutor CLI
+C:\Users\andre\anaconda3\python.exe 20-Testing-Syllabus/professor.py ask --section 02 "why does range(0, 6) give me five items?"
+C:\Users\andre\anaconda3\python.exe 20-Testing-Syllabus/professor.py ask --check "T02 - Python Statements Test.ipynb" "why did Q7 fail?"
+C:\Users\andre\anaconda3\python.exe 20-Testing-Syllabus/professor.py office-hours --section 05
+C:\Users\andre\anaconda3\python.exe 20-Testing-Syllabus/professor.py check "T02 - Python Statements Test.ipynb"
+
+# C. any chat assistant: paste PROFESSOR.md as the system prompt
+```
+
+Route B needs a model. Set `PROFESSOR_API_KEY` for a hosted model, or point it
+at a local one:
+
+```
+set PROFESSOR_BASE_URL=http://localhost:11434/v1
+set PROFESSOR_MODEL=llama3.1
+```
+
+Use `--offline` to see the exact payload that would be sent without calling
+anything.
 
 ## Requirements
 
