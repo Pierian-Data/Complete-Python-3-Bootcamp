@@ -1,0 +1,148 @@
+{
+  "created": "2026-11-13T20:12:06+00:00",
+  "files": {
+    ".gitignore": {
+      "sha256": "8b05df261858040f76ca1fd3ea21cd11ceb221a9fea55d573f9949eae6f663e4"
+    },
+    "FINAL - Final Comprehensive Exam.ipynb": {
+      "sha256": "1d2c75cf8a3a67713c91fa54fbeebd8d68e496a4b592f2ceac5a9b9cc5e5693d",
+      "fingerprint": "ec451e60f777e08304dd7ea8caaefeace3214de87d163a1b7233499a1446345e"
+    },
+    "INTEGRITY.md": {
+      "sha256": "91ab9639a15a1b198eb42541b5912d59e653f61ead035bcf645be1439c2fc19c"
+    },
+    "PRACTICE - Practice Project - Book Tracker.ipynb": {
+      "sha256": "7bd0d8ae86c5e55eec4d7c1b1d012b5793cbbffceeb1fe4df1b0f2dc731abf72",
+      "fingerprint": "b159e5b2928f60aba80279365b232f53f22a120d4c01fb70e0f05f0d1c7fcf88"
+    },
+    "PRACTICE - Practice Test.ipynb": {
+      "sha256": "135b1e791d0e1266b54fab1ee0efb6d1b4071d14218b8f19c1dc174044a1ea8d",
+      "fingerprint": "34454ce3e80b7b9f7806d73c76eeac1e1f6179b9b21ab9e83f2c81fbce0d62e4"
+    },
+    "README.md": {
+      "sha256": "f8cec3742e7a00e5a5ad8d0a582d407a199a0f4be57cf7eb8a328ee3c64cb3eb"
+    },
+    "S0 - Testing Syllabus.ipynb": {
+      "sha256": "3ab5bcdd9a63a8416d1a7b77604c170ef6b70af7c3e9c59047a0749f9f769975"
+    },
+    "S1 - How to Use the Test Suite.ipynb": {
+      "sha256": "2926e86fdaad212fe8efba1c96931903df7bcfe06d3cbc91b941052cd9f56e4e"
+    },
+    "S2 - Grading Records.ipynb": {
+      "sha256": "cf5e25e93dbc76996c9413b634d527786d92c9b2505d076490afd750e6ee06dd"
+    },
+    "S3 - Project Portfolio.ipynb": {
+      "sha256": "91f4a181d3b8170727cac330c0f94748dde0ad68dcec1a72026f46e684e7d5c1"
+    },
+    "S4 - AI Tutor.ipynb": {
+      "sha256": "0b1aebe9594d033598306b608aa136817541fbba0b9689269028ede6bf74e97b"
+    },
+    "S5 - Using the Learning System.ipynb": {
+      "sha256": "95966ed9fad15501a311ffcdeed1af6c8b408d9fa4eca5ecc02fc1ddf1d696a2"
+    },
+    "T00 - Objects and Data Structures Test.ipynb": {
+      "sha256": "8482b3ccf486ce2659edf7c206ae69c30b8b957b68f77ac32e44690c48b03d39",
+      "fingerprint": "200546af00cfe4fbc2674b8e048a1533f0d618b174cf134b11f5436ba8aaf711"
+    },
+    "T01 - Comparison Operators Test.ipynb": {
+      "sha256": "6f31980269b173334e7dd884b1b64339f6ded958825b6573f58b6eac9f3098aa",
+      "fingerprint": "dfbec80071e0a6e2b37e4f06ca426068640a779048e10bf38697c53daa28d331"
+    },
+    "T02 - Python Statements Test.ipynb": {
+      "sha256": "a861cff08e3ca131a71412eab1baeadb5d60a83f6e430ebc5e3d3dba3a8419d3",
+      "fingerprint": "35160cabd9f9e6e72c9ec335757966ba02d928c0e30127fe358d4db2f8b50817"
+    },
+    "T03 - Methods and Functions Test.ipynb": {
+      "sha256": "a184662970e1b958c2819d754315358102724a5116f871d101d44dee4bec71b2",
+      "fingerprint": "11a52d4e266b2e2177773856672ab81f23acfb6750274267c466ebb6715e9ae4"
+    },
+    "T04 - Milestone Project 1 Test.ipynb": {
+      "sha256": "e6078b3812df41a31817ff623fb4768ad3e3f60a17fbe0f067a0b7e223c30390",
+      "fingerprint": "c54f7c129254678b12a3b8d80d471e39ae3c2ed45b4c56e6d38bc1f67277902a"
+    },
+    "T05 - Object Oriented Programming Test.ipynb": {
+      "sha256": "43adf4f24ac2b2a98885df9634cfed08e8c0e405f8acdfc4469bf73170e8c545",
+      "fingerprint": "46795517cb82f9fbb7432060e5dc462016c18bd3ec1dc5a835612182e22e14b9"
+    },
+    "T06 - Modules and Packages Test.ipynb": {
+      "sha256": "4c8ba7b0a3673db3029c86b2aaa2416c9112b66f137affd4ffbcda6ff711f590",
+      "fingerprint": "87162f889ba81e83ddede144b1d47c1ad983de08d72c303c7ad80aeb17a05cbc"
+    },
+    "T07 - Errors and Exception Handling Test.ipynb": {
+      "sha256": "9e30dced64643e4dda44dd8baed60bf373753a562afe423cfd4c188bb80fc90d",
+      "fingerprint": "9de4e50b3b480d7a5dec18115a0ade674c6a7d271eea03116ef3345f68d250d8"
+    },
+    "T08 - Milestone Project 2 Test.ipynb": {
+      "sha256": "72d57f703df15fd0ed02189bce4d4181aeed855cb9ca13597be0c7d7f75c867b",
+      "fingerprint": "ac6f9c252d6c8f4bd05a3ecf2e0a4295c0a4629d5922a4ea260cb9027a4cde5c"
+    },
+    "T09 - Built-in Functions Test.ipynb": {
+      "sha256": "21597d2ddf632de3439c762328fae3a7a7e3371d7edcb9225506c3eb7f0ec99d",
+      "fingerprint": "cbc1501c64c91756bdf57179178dcbf886f9570cb68a2977ae8452c2dd3ad498"
+    },
+    "T10 - Decorators Test.ipynb": {
+      "sha256": "36767f035379d4bf5b88ef900b502bde7e7789b9481ec814549bff99ea0b3f1d",
+      "fingerprint": "235fd628173bdead7c6d8a01bd9bd3efcb7ca072125350c8f0423798e96691e2"
+    },
+    "T11 - Generators Test.ipynb": {
+      "sha256": "939e23fa16a0eaf222dede8be3bf0fc62613bb273f0371d2285d05d011d9a9f1",
+      "fingerprint": "ee5920ba664daca4c171f256bd262f9f984311d472840fbc819a62ea3f154412"
+    },
+    "T12 - Advanced Python Modules Test.ipynb": {
+      "sha256": "26e7bfc32019d066d21bced7d15e4c51894ee6614a174fca4fe20cc0740ac885",
+      "fingerprint": "b719b44d012dcb76e716cd69b8b24882aa853e3e8a9f030db9680736b5a1d01a"
+    },
+    "T13 - Web Scraping Test.ipynb": {
+      "sha256": "624c9a0b48f43435929fded881931cd56c01f342612afa03497e7dcdde7aee8d",
+      "fingerprint": "5687a95dff7e2e4def828a2c8b4a5a7ff2592b5c98e458ac108603fe2040ef11"
+    },
+    "T14 - Working with Images Test.ipynb": {
+      "sha256": "e5afe2a2f9ee596847115e92940e9407ff300e9ea78418e8befb092339730489",
+      "fingerprint": "7c1945113df92dad8b75e8686a80ed1cefff6ccc7cb03c944869cc5208da7f0d"
+    },
+    "T15 - PDFs and Spreadsheets Test.ipynb": {
+      "sha256": "5262a75b4a7906b9433becb14b2a9c98fcdc723a0bc5a596bf468ca0c3d6c355",
+      "fingerprint": "e1ba81c132707a3d687186d035277e3c75ffb8209a923ada0558bdbbc111d5e4"
+    },
+    "T16 - Emailing with Python Test.ipynb": {
+      "sha256": "cdebf71ce6938184dde4a56e87fdf49e259723a1a35903537b0e3e9c3ceb81ae",
+      "fingerprint": "b2840fac7572dde9010d79a18290780c717e0e51e948492a1baf0a565ba737de"
+    },
+    "T17 - Advanced Python Objects Test.ipynb": {
+      "sha256": "522dbb06ffda4c149e95c5782ce53489c0f399cd50ef59e12172ab84fe55ce7e",
+      "fingerprint": "b43c0f1e62fe8adad37faa19a588ea79c96bd26a7043ca97116f8769a880ac49"
+    },
+    "T18 - Milestone Project 3 Test.ipynb": {
+      "sha256": "b8bfea4ec9c0a4d0b826d3eb269a073b7c491e050c34e89b13594f589ce89b0e",
+      "fingerprint": "121e77d5af5134723c8e29d0b1ddd56aee5147ccb68dddda9a31cc62dff3473d"
+    },
+    "T19 - GUI Bonus Material Test.ipynb": {
+      "sha256": "8e4303ee8b9ff9680a36cfdc49a40c2faea8ce4d575766373369926820c9289c",
+      "fingerprint": "a6bc09a2e268167ebfceb604c6942f0923d0c82fb2696c5d29237a2c04cdc969"
+    },
+    "agent.pub": {
+      "sha256": "72b1ab44ff794c80c8855a0b7f9e9e97b497316beab1ce785ab354877f8559dd"
+    },
+    "grade.py": {
+      "sha256": "0d442a596dd7df21f0b69eb7580034d0b543f8650359d5e3e30f733787086384"
+    },
+    "grade_records.py": {
+      "sha256": "dfd5b63c15d9dd1e5b5b2d14bad03b9b7de63331f374448876fce653484f9bcc"
+    },
+    "integrity.py": {
+      "sha256": "266823d368481b14a207b61b3186422b159e058bf798182d3b861727eaeee5a3"
+    },
+    "nbkit.py": {
+      "sha256": "971dabdf93674a1da26e79cb5dfb1ca6e5e1911c3b8b7e0079d634af41af3662"
+    },
+    "professor.py": {
+      "sha256": "22cb4e741504ae4f934c98d8141359f9643d9be16ab98fe3961e8f31e611f393"
+    },
+    "requirements.txt": {
+      "sha256": "2336a6c480cdef1399f1e13bb5a102a3d8a2f5d43fd51a9ec06d66f214eecf13"
+    },
+    "rubrics.json": {
+      "sha256": "60a0c44cc4bacb21805cb40ffb4bcb87a23e44f6f2810e28ddea0b106f7aba90"
+    }
+  }
+}

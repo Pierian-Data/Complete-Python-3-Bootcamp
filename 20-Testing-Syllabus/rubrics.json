@@ -1,0 +1,572 @@
+{
+  "version": 1,
+  "how_to_score": "Score each criterion 0-4 using the scale below, then record the scores with `grade_records.py record-project <project-id> --scores 3,4,2,3,4,3`. The weighted percentage is the project mark; the rubric is the same for every project so the marks are comparable across the course.",
+  "scale": {
+    "0": "not attempted",
+    "1": "partial - some of it exists, little of it works",
+    "2": "basic - the core works, the edges do not",
+    "3": "solid - works well, edges handled, tested",
+    "4": "excellent - the standard you would show an employer"
+  },
+  "common_criteria": [
+    {
+      "id": "functionality",
+      "name": "Functionality",
+      "weight": 3,
+      "prompt": "Does the project do what the brief asks for? Are the required features all present and working?"
+    },
+    {
+      "id": "robustness",
+      "name": "Robustness",
+      "weight": 2,
+      "prompt": "Does it handle bad input, empty data, missing files and edge cases without crashing?"
+    },
+    {
+      "id": "tests",
+      "name": "Tests",
+      "weight": 2,
+      "prompt": "Is there an automated test suite, does it pass from a clean checkout, and does it cover the core behaviour?"
+    },
+    {
+      "id": "structure",
+      "name": "Code quality and structure",
+      "weight": 2,
+      "prompt": "Are names, functions and modules clear? Is the code split sensibly? Any dead code or duplicated logic?"
+    },
+    {
+      "id": "documentation",
+      "name": "Documentation",
+      "weight": 2,
+      "prompt": "Does the README say what it is, how to run it, and show the output? Are the public functions documented?"
+    }
+  ],
+  "projects": {
+    "P00": {
+      "title": "Data Structures Toolkit",
+      "section": "T00",
+      "course_section": "00 Python Object and Data Structure Basics",
+      "pitch": "A small, dependency-free module of utilities that work on the core types: flattening nested lists, merging counters, safe indexing and top-n selection.",
+      "skills": [
+        "core data types",
+        "slicing",
+        "dictionaries and sets",
+        "file I/O",
+        "docstrings"
+      ],
+      "deliverables": [
+        "10+ documented functions",
+        "one module, no dependencies",
+        "a short README with usage examples",
+        "unit tests for the edge cases"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (core data types, slicing, dictionaries and sets, file I/O)?"
+      }
+    },
+    "P01": {
+      "title": "Decision Rules Engine",
+      "section": "T01",
+      "course_section": "01 Python Comparison Operators",
+      "pitch": "A configuration-driven rule engine that evaluates business rules (discount tiers, eligibility windows) written as plain comparison expressions.",
+      "skills": [
+        "comparison operators",
+        "chained comparisons",
+        "boolean algebra",
+        "reading rules from data"
+      ],
+      "deliverables": [
+        "a rule table in JSON or CSV",
+        "an evaluator that returns the first matching rule",
+        "tests for boundary values",
+        "a short write-up of the rule semantics"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (comparison operators, chained comparisons, boolean algebra, reading rules from data)?"
+      }
+    },
+    "P02": {
+      "title": "Text Statistics CLI",
+      "section": "T02",
+      "course_section": "02 Python Statements",
+      "pitch": "A command line tool that reports word, character and line statistics for a text file, plus a number guessing game with input validation.",
+      "skills": [
+        "if/elif/else",
+        "for and while loops",
+        "list comprehensions",
+        "range, enumerate, zip",
+        "input validation"
+      ],
+      "deliverables": [
+        "statistics for a given file",
+        "a guessing game mode",
+        "clean argparse-free CLI handling of bad input",
+        "tests for the counting functions"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (if/elif/else, for and while loops, list comprehensions, range, enumerate, zip)?"
+      }
+    },
+    "P03": {
+      "title": "Function Toolkit",
+      "section": "T03",
+      "course_section": "03 Methods and Functions",
+      "pitch": "A curated set of pure functions with sensible defaults, keyword arguments, flexible signatures and closures that build configurable formatters.",
+      "skills": [
+        "def and return",
+        "default and keyword arguments",
+        "*args and **kwargs",
+        "closures",
+        "scope"
+      ],
+      "deliverables": [
+        "a documented public API",
+        "at least one function using *args/**kwargs",
+        "one closure-based formatter factory",
+        "tests for each function"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (def and return, default and keyword arguments, *args and **kwargs, closures)?"
+      }
+    },
+    "P04": {
+      "title": "Milestone 1 Showcase",
+      "section": "T04",
+      "course_section": "04 Milestone Project 1",
+      "pitch": "One of the three milestone options - string formatter, game, or email generator - finished to portfolio standard: installable, documented, tested.",
+      "skills": [
+        "project structure",
+        "input validation",
+        "user-facing CLI",
+        "packaging basics"
+      ],
+      "deliverables": [
+        "a working CLI with help text",
+        "a README a stranger can follow",
+        "tests",
+        "a short demo transcript"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (project structure, input validation, user-facing CLI, packaging basics)?"
+      }
+    },
+    "P05": {
+      "title": "Domain Model Library",
+      "section": "T05",
+      "course_section": "05 Object Oriented Programming",
+      "pitch": "A domain model of a real system (employees, products, orders) expressed with classes, dunder methods, an inheritance hierarchy and polymorphism.",
+      "skills": [
+        "classes and self",
+        "__init__ and attributes",
+        "dunder methods",
+        "inheritance and super()",
+        "polymorphism"
+      ],
+      "deliverables": [
+        "a class per domain entity",
+        "dunder methods for str, len, eq and add",
+        "an inheritance hierarchy with an overridden method",
+        "tests for each class"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (classes and self, __init__ and attributes, dunder methods, inheritance and super())?"
+      }
+    },
+    "P06": {
+      "title": "Packaged Utility",
+      "section": "T06",
+      "course_section": "06 Modules and Packages",
+      "pitch": "The T05 model repackaged as a proper package: importable modules, a console entry point, a main guard, and a clean public API.",
+      "skills": [
+        "package layout",
+        "__init__.py exports",
+        "if __name__ == '__main__'",
+        "pip and requirements",
+        "import hygiene"
+      ],
+      "deliverables": [
+        "a package directory with __init__.py",
+        "an installable entry point",
+        "no wildcard imports",
+        "an import smoke test"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (package layout, __init__.py exports, if __name__ == '__main__', pip and requirements)?"
+      }
+    },
+    "P07": {
+      "title": "Resilient Library",
+      "section": "T07",
+      "course_section": "07 Errors and Exception Handling",
+      "pitch": "The packaged library hardened with a custom exception hierarchy, input validation, structured logging and a unit test suite.",
+      "skills": [
+        "try/except/else/finally",
+        "custom exceptions",
+        "raise",
+        "assert",
+        "unittest"
+      ],
+      "deliverables": [
+        "a documented exception hierarchy",
+        "validation that fails loudly and clearly",
+        "a unittest suite that runs with one command",
+        "logged errors instead of silent ones"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (try/except/else/finally, custom exceptions, raise, assert)?"
+      }
+    },
+    "P08": {
+      "title": "Terminal Game Suite",
+      "section": "T08",
+      "course_section": "08 Milestone Project 2",
+      "pitch": "The War card game plus a reusable timer utility, both as command line tools with documented rules and unit-testable logic.",
+      "skills": [
+        "game logic",
+        "shuffling and state",
+        "CLI UX",
+        "timing",
+        "testing"
+      ],
+      "deliverables": [
+        "a playable game",
+        "a timer utility with pause/resume",
+        "unit tests for the deck and rules",
+        "rules written down in the README"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (game logic, shuffling and state, CLI UX, timing)?"
+      }
+    },
+    "P09": {
+      "title": "Data Pipeline",
+      "section": "T09",
+      "course_section": "09 Built-in Functions",
+      "pitch": "A record pipeline that turns raw rows into summaries using map, filter, reduce, zip, enumerate, all and any - with the lazy and eager versions compared.",
+      "skills": [
+        "map/filter/reduce",
+        "zip and enumerate",
+        "all and any",
+        "comprehensions",
+        "lazy vs eager"
+      ],
+      "deliverables": [
+        "a pipeline over a list of records",
+        "a summary report per group",
+        "a written comparison of list and generator pipelines",
+        "tests for the pipeline steps"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (map/filter/reduce, zip and enumerate, all and any, comprehensions)?"
+      }
+    },
+    "P10": {
+      "title": "Instrumentation Toolkit",
+      "section": "T10",
+      "course_section": "10 Python Decorators",
+      "pitch": "Reusable decorators for timing, retrying, logging and memoising, written so they work with any signature and keep the wrapped function's metadata.",
+      "skills": [
+        "closures",
+        "decorator syntax",
+        "decorator factories",
+        "functools.wraps",
+        "*args/**kwargs"
+      ],
+      "deliverables": [
+        "at least four decorators",
+        "a decorator that takes arguments",
+        "wraps used everywhere",
+        "tests showing the decorator changes nothing about the result"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (closures, decorator syntax, decorator factories, functools.wraps)?"
+      }
+    },
+    "P11": {
+      "title": "Streaming Log Analyzer",
+      "section": "T11",
+      "course_section": "11 Python Generators",
+      "pitch": "A log analyser that streams a very large file with bounded memory, yields findings as they appear, and drives a simple prompt loop with send.",
+      "skills": [
+        "generators and yield",
+        "generator expressions",
+        "yield from",
+        "send",
+        "lazy evaluation"
+      ],
+      "deliverables": [
+        "a generator that never loads the whole file",
+        "a prompt loop using send",
+        "a memory comparison against the eager version",
+        "tests using list() to collect output"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (generators and yield, generator expressions, yield from, send)?"
+      }
+    },
+    "P12": {
+      "title": "Developer Toolbox",
+      "section": "T12",
+      "course_section": "12 Advanced Python Modules",
+      "pitch": "A toolbox that walks a directory, summarises file types with Counter, greps with regular expressions, stamps results with datetime and times each operation.",
+      "skills": [
+        "collections",
+        "os and pathlib-style path handling",
+        "datetime",
+        "re",
+        "timeit",
+        "pdb"
+      ],
+      "deliverables": [
+        "a directory report command",
+        "a regex search command with groups",
+        "timings printed with timeit",
+        "a README explaining each subcommand"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (collections, os and pathlib-style path handling, datetime, re)?"
+      }
+    },
+    "P13": {
+      "title": "Content Scraper",
+      "section": "T13",
+      "course_section": "13 Web Scraping",
+      "pitch": "A polite scraper that pulls structured records from a public site into JSON or CSV, with caching, retries and a configurable delay.",
+      "skills": [
+        "requests",
+        "BeautifulSoup selectors",
+        "data structuring",
+        "error handling",
+        "scraping etiquette"
+      ],
+      "deliverables": [
+        "a scraper producing clean JSON",
+        "a cache so repeat runs hit the site less",
+        "one parser per page type",
+        "a note on robots.txt and rate limiting"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (requests, BeautifulSoup selectors, data structuring, error handling)?"
+      }
+    },
+    "P14": {
+      "title": "Image Processing CLI",
+      "section": "T14",
+      "course_section": "14 Working with Images",
+      "pitch": "A batch tool that converts, resizes, crops, filters and masks images, and builds a contact sheet from a folder of pictures.",
+      "skills": [
+        "Pillow",
+        "image modes",
+        "cropping and resizing",
+        "filters",
+        "masks",
+        "file output"
+      ],
+      "deliverables": [
+        "a command per operation",
+        "a contact sheet generator",
+        "handling of RGBA and RGB differences",
+        "before/after images in the README"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (Pillow, image modes, cropping and resizing, filters)?"
+      }
+    },
+    "P15": {
+      "title": "Report Generator",
+      "section": "T15",
+      "course_section": "15 PDFs and Spreadsheets",
+      "pitch": "A tool that turns a CSV export into a formatted spreadsheet and a PDF report, and extracts text back out of PDFs.",
+      "skills": [
+        "csv module",
+        "openpyxl",
+        "pypdf",
+        "file formats",
+        "report layout"
+      ],
+      "deliverables": [
+        "CSV to XLSX conversion",
+        "a PDF report built from the data",
+        "a PDF text extractor",
+        "an end-to-end test on a sample file"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (csv module, openpyxl, pypdf, file formats)?"
+      }
+    },
+    "P16": {
+      "title": "Automated Mail Reporter",
+      "section": "T16",
+      "course_section": "16 Emailing with Python",
+      "pitch": "A scheduled reporter that sends the T15 report by email with the spreadsheet attached, in a dry-run mode, with credentials read from environment variables.",
+      "skills": [
+        "smtplib",
+        "EmailMessage",
+        "MIME attachments",
+        "credentials hygiene",
+        "scheduling"
+      ],
+      "deliverables": [
+        "a dry-run mode that prints instead of sending",
+        "the report attached as a file",
+        "credentials read from the environment, never hard-coded",
+        "error handling for a failed send"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (smtplib, EmailMessage, MIME attachments, credentials hygiene)?"
+      }
+    },
+    "P17": {
+      "title": "Advanced Toolkit",
+      "section": "T17",
+      "course_section": "17 Advanced Python Objects and Data Structures",
+      "pitch": "A toolkit built on the advanced built-ins: defaultdict and Counter for the data layer, namedtuple for records, context managers for resources, and custom number formatting.",
+      "skills": [
+        "defaultdict and Counter",
+        "namedtuple",
+        "context managers",
+        "__enter__/__exit__",
+        "sorted with key",
+        "number formatting"
+      ],
+      "deliverables": [
+        "a module with a context-managed resource",
+        "records as namedtuples",
+        "a custom formatter for numbers",
+        "tests for the context manager"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (defaultdict and Counter, namedtuple, context managers, __enter__/__exit__)?"
+      }
+    },
+    "P18": {
+      "title": "Capstone: Movie Database App",
+      "section": "T18",
+      "course_section": "18 Milestone Project 3 (Capstone)",
+      "pitch": "The flagship project: query a movie database by title, year or rating, and save the results to a local JSON file that can be reloaded and edited.",
+      "skills": [
+        "everything before it",
+        "JSON persistence",
+        "search and filtering",
+        "project structure",
+        "documentation"
+      ],
+      "deliverables": [
+        "the full application",
+        "a README with screenshots and a demo",
+        "tests for loading, saving and searching",
+        "a short retrospective on the design"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (everything before it, JSON persistence, search and filtering, project structure)?"
+      }
+    },
+    "P19": {
+      "title": "Interactive Dashboard",
+      "section": "T19",
+      "course_section": "19 Bonus Material - Introduction to GUIs",
+      "pitch": "A Jupyter dashboard over your own library: dropdown filters, sliders and live output, built with ipywidgets and callback functions.",
+      "skills": [
+        "ipywidgets",
+        "interact",
+        "observe callbacks",
+        "layout and styling",
+        "notebook deployment"
+      ],
+      "deliverables": [
+        "a working notebook dashboard",
+        "at least three interactive controls",
+        "a callback that reacts to a control",
+        "a screenshot in the README"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the section's target skills",
+        "weight": 1,
+        "prompt": "Does the project actually use the techniques this section taught (ipywidgets, interact, observe callbacks, layout and styling)?"
+      }
+    },
+    "P-PRACTICE": {
+      "title": "Book Tracker (practice project)",
+      "section": "practice",
+      "course_section": "Practice simulation - no course section required",
+      "pitch": "A small command line tool to keep a personal reading list: add books, mark them read, search, and keep the data in a JSON file.",
+      "skills": [
+        "classes",
+        "JSON persistence",
+        "input validation",
+        "command line interface",
+        "tests"
+      ],
+      "deliverables": [
+        "a Book class with title, author and read flag",
+        "add, list, mark-as-read and search commands",
+        "books saved to and loaded from a JSON file",
+        "a pytest suite covering the model, the storage and the commands",
+        "a README with a usage example"
+      ],
+      "skill_criterion": {
+        "id": "skills",
+        "name": "Use of the practice skills",
+        "weight": 1,
+        "prompt": "Does the project use the techniques the practice brief targeted (classes, JSON persistence, input validation, command line interface, tests)?"
+      }
+    }
+  }
+}

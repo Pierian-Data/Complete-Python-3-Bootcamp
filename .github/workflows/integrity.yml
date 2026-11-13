@@ -1,0 +1,55 @@
+name: integrity
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the suite requirements
+        run: pip install -r 20-Testing-Syllabus/requirements.txt
+
+      - name: The tests still grade their own reference solutions
+        run: python 20-Testing-Syllabus/grade.py --solutions
+
+      - name: Ledger chain, manifest, seal and attestations
+        run: python 20-Testing-Syllabus/integrity.py verify
+
+      - name: Mark sheet
+        run: python 20-Testing-Syllabus/grade_records.py summary
+
+      - name: Export the report
+        run: python 20-Testing-Syllabus/grade_records.py report
+
+      - name: The committed report matches the ledger
+        run: |
+          git diff -I"^Generated" --exit-code 20-Testing-Syllabus/GRADE_REPORT.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: grade-report
+          path: |
+            20-Testing-Syllabus/GRADE_REPORT.md
+            20-Testing-Syllabus/SEAL.json
+            20-Testing-Syllabus/suite.manifest.json
+
+      - name: Attest the commit to the GitHub transparency log
+        if: github.event_name == 'push'
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 20-Testing-Syllabus/SEAL.json
