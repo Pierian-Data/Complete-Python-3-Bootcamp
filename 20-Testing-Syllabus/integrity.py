@@ -172,7 +172,7 @@ def build_manifest():
     files = {}
     for name in suite_files():
         path = os.path.join(HERE, name)
-        files[name.replace("\\", "/")] = sha256_file(path)
+        files[name.replace("\\", "/")] = manifest_entry(path, name)
     manifest = {"created": now(), "files": files}
     with open(MANIFEST, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(manifest, handle, indent=2, ensure_ascii=False)
@@ -184,27 +184,92 @@ def manifest_hash():
     return sha256_file(MANIFEST) if os.path.exists(MANIFEST) else None
 
 
+def is_work_file(key):
+    """True for the notebooks the learner writes their answers in.
+
+    These are expected to change as the learner works, so they are protected
+    differently: the manifest records a fingerprint of the parts that must not
+    change (the check cells, the solution blocks and the header), and the
+    ledger pins the whole file - a SHA-256 and a git blob id - at the moment
+    it was graded.
+    """
+    name = key.replace("\\", "/")
+    return name.startswith("T") or name.startswith("PRACTICE") or name.startswith("FINAL")
+
+
+def protected_fingerprint(path):
+    """Hash of the parts of a learner notebook that must not change.
+
+    The learner may write anything in the answer cells, so those are left
+    out. Everything that decides what the test checks - the check cells, the
+    reference solutions and the header - is included, so weakening a check or
+    editing a question is caught.
+    """
+    try:
+        with open(path, encoding="utf-8") as handle:
+            document = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    parts = []
+    for index, cell in enumerate(document.get("cells", [])):
+        source = "".join(cell.get("source", []))
+        if cell.get("cell_type") == "code":
+            if "check" in cell.get("metadata", {}).get("tags", []):
+                parts.append("check:%d:%s" % (index, source))
+        else:
+            if index == 0 or "<details>" in source:
+                parts.append("markdown:%d:%s" % (index, source))
+    return sha256_bytes(canonical(parts))
+
+
+def manifest_entry(path, name):
+    """The manifest record for one file."""
+    key = name.replace("\\", "/")
+    record = {"sha256": sha256_file(path)}
+    if is_work_file(key):
+        record["fingerprint"] = protected_fingerprint(path)
+    return record
+
+
 def verify_manifest():
-    """Compare the files on disk with the manifest."""
+    """Compare the files on disk with the manifest.
+
+    Returns (ok, problems, expected_changes). Problems are changes to the
+    system files or to the protected parts of a learner notebook, and always
+    matter. Expected changes are edits to the learner's own answer cells,
+    which are normal.
+    """
     if not os.path.exists(MANIFEST):
-        return False, ["suite.manifest.json is missing - run: python integrity.py manifest"]
+        return False, ["suite.manifest.json is missing - run: python integrity.py manifest"], []
     with open(MANIFEST, encoding="utf-8") as handle:
         manifest = json.load(handle)
     expected = manifest.get("files", {})
     problems = []
-    current = {}
+    expected_changes = []
     for name in suite_files():
         path = os.path.join(HERE, name)
         key = name.replace("\\", "/")
-        current[key] = sha256_file(path)
-        if key not in expected:
-            problems.append("new file not in the manifest: %s" % key)
-        elif expected[key] != current[key]:
-            problems.append("modified since the manifest was written: %s" % key)
+        record = expected.get(key)
+        if record is None:
+            message = "new file not in the manifest: %s" % key
+            (expected_changes if is_work_file(key) else problems).append(message)
+            continue
+        if isinstance(record, str):          # older manifest format
+            record = {"sha256": record}
+        if record.get("sha256") != sha256_file(path):
+            message = "modified since the manifest was written: %s" % key
+            (expected_changes if is_work_file(key) else problems).append(message)
+        if record.get("fingerprint"):
+            current = protected_fingerprint(path)
+            if current != record["fingerprint"]:
+                problems.append(
+                    "protected content changed in %s (a check cell, a solution or the header) - "
+                    "the grading logic must not be edited" % key)
     for key in expected:
-        if key not in current:
-            problems.append("file recorded in the manifest is missing: %s" % key)
-    return (not problems), problems
+        if key not in set(n.replace("\\", "/") for n in suite_files()):
+            message = "file recorded in the manifest is missing: %s" % key
+            (expected_changes if is_work_file(key) else problems).append(message)
+    return (not problems), problems, expected_changes
 
 
 # --------------------------------------------------------------------------
@@ -472,15 +537,19 @@ def git_blob(path):
 
 
 def work_drift():
-    """Compare each recorded attempt's notebook with the file on disk."""
+    """Compare the latest graded version of each notebook with the file on disk.
+
+    Only the newest attempt per test is checked: an earlier attempt is
+    expected to differ, because that is what a redo looks like. What matters
+    is whether the work changed *after* the last time it was graded.
+    """
     entries = chain_entries(load_ledger())
-    drift = []
+    latest = {}
     for entry in entries:
-        if entry.get("event") != "attempt":
-            continue
-        name = entry.get("notebook")
-        if not name:
-            continue
+        if entry.get("event") == "attempt" and entry.get("notebook"):
+            latest[entry["notebook"]] = entry
+    drift = []
+    for name, entry in sorted(latest.items()):
         path = os.path.join(HERE, name)
         if not os.path.exists(path):
             path = os.path.join(ROOT, name)
@@ -489,7 +558,7 @@ def work_drift():
             continue
         current = sha256_file(path)
         if entry.get("notebook_sha256") and current != entry["notebook_sha256"]:
-            drift.append((name, "content changed since it was graded (git history shows the edit)"))
+            drift.append((name, "content changed after it was last graded (git history shows the edit)"))
     return drift
 
 
@@ -499,7 +568,7 @@ def work_drift():
 
 def cmd_verify(args):
     ok_chain, chain_problems, head, length = verify_chain()
-    ok_manifest, manifest_problems = verify_manifest()
+    ok_manifest, manifest_problems, work_changes = verify_manifest()
     ok_seal, seal_problems = verify_seal()
     ok_attest, attest_problems, attest_count = verify_attestations()
     drift = work_drift()
@@ -515,6 +584,9 @@ def cmd_verify(args):
         "OK" if ok_manifest else "CHANGED", len(load_manifest_files())))
     for problem in manifest_problems:
         print("    ! %s" % problem)
+    if work_changes:
+        print("    - %d learner notebook(s) changed since the manifest was written" % len(work_changes))
+        print("      (expected while you are working; they are pinned per attempt in the ledger)")
     print("seal           : %s" % ("OK" if ok_seal else "PROBLEM"))
     for problem in seal_problems:
         print("    ! %s" % problem)

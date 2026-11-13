@@ -51,10 +51,40 @@ The chain carries four kinds of entry, all equally protected:
 
 ### 2.2 Manifest (`suite.manifest.json`)
 
-The SHA-256 of every file in this folder - all 25 notebooks, the grader, the
-records CLI, this document. If someone edits a check cell to make a test pass,
-the manifest check fails. Regenerate it deliberately (`integrity.py manifest`)
-and the change shows up as a reviewable diff in the commit.
+The suite has two kinds of file, and the manifest treats them differently.
+
+**System files** - the grader, the ledger, the professor CLI, the builder, the
+rubrics, the documentation. The manifest stores their full SHA-256. Change one
+and `integrity.py verify` fails with exit code 1. This is what stops someone
+quietly weakening the grading logic.
+
+**Learner notebooks** - the `T**`, `PRACTICE` and `FINAL` notebooks, where you
+write your answers. Those are expected to change, so the manifest stores two
+things for them:
+
+- the full SHA-256, reported as an *expected change* when it moves - you are
+  meant to edit these;
+- a **fingerprint** of the parts that decide what the test checks: every cell
+  tagged `check`, every reference solution block, and the header cell. If any
+  of those change, the fingerprint stops matching and the verify fails.
+
+So:
+
+| You do | Result |
+| --- | --- |
+| Write your answer in a code cell and save | Expected change. Still verified. |
+| Change a check cell (for example to `assert True`) | **Caught.** "protected content changed" |
+| Edit a reference solution | **Caught.** "protected content changed" |
+| Edit the grader or the rubric | **Caught.** "modified since the manifest was written" |
+
+The whole file is pinned separately, at the moment it is graded: every attempt
+in the ledger stores the SHA-256 and the git blob id of the notebook as it was
+graded, so any edit *after* grading shows up as work drift. Between the
+fingerprint (before) and the pinned hash (after), there is no window in which
+a change goes unnoticed.
+
+Regenerate the manifest deliberately (`integrity.py manifest`) and the change
+shows up as a reviewable diff in the commit.
 
 ### 2.3 Signed seal (`SEAL.json`)
 

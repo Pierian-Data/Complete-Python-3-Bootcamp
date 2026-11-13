@@ -131,6 +131,16 @@ its predecessor and of its own content, plus the SHA-256 and git blob id of
 the notebook that was graded. The suite itself is covered by a manifest of
 file hashes, and a signed `SEAL.json` binds the chain head to that manifest.
 
+The manifest has two classes, because you are meant to edit some of these
+files:
+
+- **System files** (the grader, the ledger, the professor CLI, the rubrics, the
+  docs) - any change fails the verify.
+- **Your notebooks** (`T**`, `PRACTICE`, `FINAL`) - writing your answers is
+  expected and reported as an expected change. But their *grading logic* is
+  fingerprinted: change a check cell or a reference solution and the verify
+  fails.
+
 ```bash
 python 20-Testing-Syllabus/integrity.py verify     # chain + manifest + seal + attestations
 python 20-Testing-Syllabus/integrity.py manifest   # re-hash the suite after an intentional change
