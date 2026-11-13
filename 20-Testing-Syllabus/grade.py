@@ -110,7 +110,10 @@ def main(argv=None):
     if args.notebook:
         targets = args.notebook
     else:
+        # Every notebook that carries check cells: the section tests, the
+        # practice drills and the final exam.
         targets = sorted(glob.glob(os.path.join(HERE, "T*.ipynb")))
+        targets += sorted(glob.glob(os.path.join(HERE, "PRACTICE*.ipynb")))
         targets += sorted(glob.glob(os.path.join(HERE, "99 - *.ipynb")))
 
     if not targets:

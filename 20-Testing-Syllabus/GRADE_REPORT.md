@@ -60,6 +60,22 @@ No attempts recorded yet.
 - [ ] T18 Milestone Project 3 (Capstone) (3% weight)
 - [ ] T19 GUI Bonus Material (2% weight)
 
+## Project work
+
+No projects graded yet. Score one with:
+
+```
+python 20-Testing-Syllabus/grade_records.py record-project P05 --scores 3,4,2,3,4,3
+```
+
+## Progress journal
+
+No journal entries yet. Add one with:
+
+```
+python 20-Testing-Syllabus/grade_records.py log "rebuilt the OOP model, still stuck on super()"
+```
+
 ## Tamper evidence
 
 No ledger entries yet.

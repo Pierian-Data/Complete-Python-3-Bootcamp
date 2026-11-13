@@ -13,6 +13,10 @@ test and let the grader mark the coding half for you.
 | `02 - Grading Records.ipynb` | Live mark sheet: best score per module, weighted course mark, band, sign-off checklist, attempt history. |
 | `03 - Project Portfolio.ipynb` | One portfolio project per course section: deliverables to tick, and the README entry to copy. |
 | `04 - AI Tutor.ipynb` | How to reach the professor: the agent in this repo, the local `professor.py` CLI, or any chat assistant. |
+| `05 - Using the Learning System.ipynb` | The lesson: how the pieces fit together, how to take a test, do a project, log progress, and the weekly loop. |
+| `PRACTICE - Practice Test.ipynb` | A dry run of the test mechanics. Not graded for the mark. |
+| `PRACTICE - Practice Project - Book Tracker.ipynb` | A practice project: full brief, four stages, and the rubric to self-score against. |
+| `rubrics.json` | The project grading contract: six criteria, weights, and the 0-4 scale. |
 | `professor.py` | Local AI tutor CLI. Talks to any OpenAI-compatible endpoint (OpenAI, OpenRouter, Ollama, LM Studio), grounded in the course material and your record. |
 | `T00` ... `T19` | One marked test per course section, 20 points each. |
 | `99 - Final Comprehensive Exam.ipynb` | Cumulative exam: 36 questions, 60 points. |
@@ -181,6 +185,51 @@ it*. GitHub stores both, and its transparency log stores the attestation.
 chain and the seal are the record of your *grades*. Each attempt stores the
 git blob id of the notebook as graded, so if you later edit your answer cells,
 `integrity.py verify` reports the drift and `git log` shows the change.
+
+## How projects are graded
+
+Projects are not auto-graded - a rubric is. `rubrics.json` holds one rubric
+used for **every** project in the course, so the marks are comparable:
+
+| Criterion | Weight | What it asks |
+| --- | --- | --- |
+| Functionality | 3 | Does it do what the brief asks? |
+| Robustness | 2 | Does it handle bad input and edge cases? |
+| Tests | 2 | Is there a suite, does it pass, does it cover the core? |
+| Code quality and structure | 2 | Clear names, sensible split, no dead code? |
+| Documentation | 2 | README that says what it is and how to run it? |
+| Use of the section's skills | 1 | Does it use what the section taught? |
+
+Each criterion is scored 0-4 (0 not attempted, 1 partial, 2 basic, 3 solid,
+4 excellent). The weighted score is `sum(score x weight) / (4 x total weight)`.
+
+```bash
+python 20-Testing-Syllabus/grade_records.py rubric P05          # read the rubric
+python 20-Testing-Syllabus/grade_records.py rubric all          # list every project
+python 20-Testing-Syllabus/grade_records.py record-project P05 --scores 3,4,2,3,4,3
+python 20-Testing-Syllabus/grade_records.py record-project P-PRACTICE --scores 3,3,2,3,4,2 --repo ../my-project
+```
+
+The score is appended to the hash chain with the rubric breakdown and the
+project repository's commit, so a project mark cannot be quietly changed
+either. Project marks are reported separately from the course mark.
+
+## The progress log and the AI reviews
+
+```bash
+# a dated note in the chained journal
+python 20-Testing-Syllabus/grade_records.py log "rebuilt the OOP model, still stuck on super()"
+
+# the professor reviews a project against its rubric and writes a report
+python 20-Testing-Syllabus/professor.py review --project P05 --path ../my-project
+
+# the professor analyses your whole record: where you are, what to work on next
+python 20-Testing-Syllabus/professor.py progress
+```
+
+Both write to `reviews/` and both add a journal entry, so the written advice
+is part of the recorded history. `02 - Grading Records.ipynb` renders the
+project table, the weakest-criterion analysis and the journal.
 
 ## Requirements
 

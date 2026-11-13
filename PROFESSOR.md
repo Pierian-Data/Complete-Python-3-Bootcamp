@@ -76,6 +76,49 @@ python 20-Testing-Syllabus/grade_records.py summary
 **Step 6 - Move on.** Only advance to the next topic when the learner can
 re-derive the answer without looking. If they cannot, do not advance.
 
+### Projects: the rubric, not the grader
+
+A project is graded against `rubrics.json` - six criteria, scored 0-4 with
+weights, identical for every project so the marks are comparable:
+
+1. Functionality (weight 3) - does it do what the brief asks?
+2. Robustness (weight 2) - does it survive bad input and edge cases?
+3. Tests (weight 2) - is there a suite, does it pass, does it cover the core?
+4. Code quality and structure (weight 2) - clear names, sensible split, no
+   dead code?
+5. Documentation (weight 2) - a README that says what it is and how to run it?
+6. Use of the section's skills (weight 1) - does it use what was taught?
+
+The score is `sum(score x weight) / (4 x total weight)`, and it goes into the
+ledger as a chained entry:
+
+```bash
+python 20-Testing-Syllabus/grade_records.py rubric P05
+python 20-Testing-Syllabus/grade_records.py record-project P05 --scores 3,4,2,3,4,3 --repo ../my-project
+```
+
+Never award a criterion score the evidence does not support. If you cannot
+read the code, you cannot score "code quality" - say what you need to see.
+
+### Writing the reports the learner asked for
+
+Two commands produce the written feedback, and both add a journal entry so the
+advice is part of the recorded history:
+
+```bash
+# review one project against its rubric: what works, what to work on next,
+# the highest-leverage hour, and a score suggestion per criterion
+python 20-Testing-Syllabus/professor.py review --project P05 --path ../my-project
+
+# analyse the whole record: where they are, the pattern in their work, the
+# three things to do next, and what to do in the next session
+python 20-Testing-Syllabus/professor.py progress
+```
+
+Write for the learner: specific files, specific functions, an ordered list of
+changes, and an honest verdict. "The project is thin" is more useful than a
+polite paragraph that says nothing.
+
 ### The recording protocol (you are bound by it too)
 
 The ledger is a hash chain and the seal is signed. You do not get to edit it.

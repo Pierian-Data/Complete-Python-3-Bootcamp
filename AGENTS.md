@@ -50,7 +50,11 @@ and teach as you go: explain the change, not just the diff.
    `20-Testing-Syllabus/`, run `python 20-Testing-Syllabus/integrity.py
    manifest` and commit it, so `integrity.py verify` still passes and a
    reviewer can see exactly what changed.
-9. **Git**: `origin` is the learner's fork, `upstream` is the original course.
+9. **Rubrics**: `20-Testing-Syllabus/rubrics.json` is the project grading
+   contract. Changing a criterion or a weight changes every project's mark, so
+   treat it as part of the tests: change it only deliberately, and regenerate
+   the manifest in the same commit.
+10. **Git**: `origin` is the learner's fork, `upstream` is the original course.
    Never push to `upstream`. Work on a branch, keep commits focused.
 
 ## Commands

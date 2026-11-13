@@ -40,6 +40,15 @@ entry 3: prev = hash(entry 2)           hash = sha256(entry 3 + prev)
 
 Change one character in entry 1 and every later `prev` no longer matches.
 
+The chain carries four kinds of entry, all equally protected:
+
+| Event | What it records |
+| --- | --- |
+| `attempt` | A test attempt: checks passed, prose points, total, the attempt number, the attempt it supersedes, and the SHA-256 and git blob id of the notebook that was graded |
+| `project` | A rubric score: the per-criterion scores, the weighted mark, the level, and the project repository's commit |
+| `journal` | A dated progress note, and the hash of any review file it refers to |
+| `reset` | A void event - the attempts it voids stay visible in the history |
+
 ### 2.2 Manifest (`suite.manifest.json`)
 
 The SHA-256 of every file in this folder - all 25 notebooks, the grader, the
@@ -123,6 +132,13 @@ Exit code 0 means healthy, 1 means a problem - so CI can use it as a gate.
 ```bash
 python 20-Testing-Syllabus/grade_records.py run "T03 - Methods and Functions Test.ipynb" --prose 7
 python 20-Testing-Syllabus/grade_records.py run "T03 - ..." --prose 8 --seal
+```
+
+**Recording project work and progress notes** (same chain, same protection):
+
+```bash
+python 20-Testing-Syllabus/grade_records.py record-project P05 --scores 3,4,2,3,4,3 --repo ../my-project
+python 20-Testing-Syllabus/grade_records.py log "rebuilt the OOP model, still stuck on super()"
 ```
 
 **An agent attestation** - a signed statement that a specific module was

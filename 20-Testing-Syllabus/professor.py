@@ -28,6 +28,7 @@ Configuration (environment variables)
 """
 
 import argparse
+import datetime
 import json
 import os
 import re
@@ -401,6 +402,181 @@ def cmd_attest(args):
     return 0
 
 
+REVIEWS = os.path.join(HERE, "reviews")
+
+
+def project_files(path, limit=12000):
+    """Source and documentation of a project, for the reviewer."""
+    if not path or not os.path.isdir(path):
+        return ""
+    pieces = []
+    budget = limit
+    for root, dirs, files in os.walk(path):
+        dirs[:] = [d for d in dirs if d not in (".git", "__pycache__", ".pytest_cache", "node_modules", ".venv")]
+        for name in sorted(files):
+            if not name.endswith((".py", ".md", ".txt", ".toml", ".cfg", ".json", ".yaml", ".yml")):
+                continue
+            full = os.path.join(root, name)
+            relative = os.path.relpath(full, path)
+            if relative.startswith("records") or relative.endswith("rubrics.json"):
+                continue
+            try:
+                with open(full, encoding="utf-8", errors="replace") as handle:
+                    text = handle.read()
+            except OSError:
+                continue
+            block = "### %s\n\n%s" % (relative, text[:4000])
+            if len(block) > budget:
+                pieces.append(block[:budget])
+                budget = 0
+                break
+            pieces.append(block)
+            budget -= len(block)
+        if budget <= 0:
+            break
+    if not pieces:
+        return "No source files found in %s" % path
+    return "\n\n".join(pieces)
+
+
+def rubric_text(project_id):
+    """The rubric for a project as context for the reviewer."""
+    import grade_records as gr
+    project, criteria = gr.rubric_criteria(project_id)
+    if project is None:
+        return "Unknown project %s." % project_id
+    lines = ["Rubric for %s - %s" % (project_id, project["title"]),
+             project["pitch"], ""]
+    for index, criterion in enumerate(criteria, start=1):
+        lines.append("%d. %s (weight %d): %s" % (index, criterion["name"], criterion["weight"], criterion["prompt"]))
+    lines.append("")
+    lines.append("Deliverables:")
+    for item in project["deliverables"]:
+        lines.append("  - %s" % item)
+    return "\n".join(lines)
+
+
+def save_review(name, text):
+    """Write a review to reviews/ and record it in the chain."""
+    import grade_records as gr
+    import integrity
+    os.makedirs(REVIEWS, exist_ok=True)
+    stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    path = os.path.join(REVIEWS, "%s-%s.md" % (name, stamp))
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(text.rstrip() + "\n")
+    gr.append_journal(
+        "AI review written: %s" % os.path.basename(path),
+        tag="review",
+        extra={"review_file": os.path.basename(path),
+               "review_sha256": integrity.sha256_file(path)},
+    )
+    return path
+
+
+def cmd_review(args):
+    """Ask the professor to review a project against its rubric."""
+    import grade_records as gr
+
+    context_parts = [rubric_text(args.project)]
+    files = project_files(args.path)
+    if files:
+        context_parts.append("Project files:\n" + files)
+    summary = gr.summarize()
+    if summary["projects"]:
+        graded = summary["projects"].get(args.project)
+        if graded:
+            context_parts.append("Existing rubric score for this project: %s%% (%s)" % (
+                graded["percent"], graded["level"]))
+    if summary["weakest_criteria"]:
+        context_parts.append("Weakest rubric criteria across the learner\'s projects: " + ", ".join(
+            "%s (%.1f/4)" % (item["criterion"].replace("_", " "), item["average"])
+            for item in summary["weakest_criteria"]))
+    question = (
+        "Review this project against its rubric. Write for the student, not for a manager:\n"
+        "1. What works - be specific, name files and functions.\n"
+        "2. What to work on next - an ordered list of at most five concrete changes, "
+        "each with the file it touches and the reason it matters.\n"
+        "3. The single highest-leverage next hour of work.\n"
+        "4. A rubric score suggestion per criterion (0-4) with one line of justification each.\n"
+        "Be concrete and honest; if the project is thin, say so plainly."
+    )
+    context = "\n\n".join(context_parts)
+    messages = build_messages(question, context)
+    if args.offline:
+        offline(messages)
+        return 0
+    if not api_key() and "localhost" not in endpoint() and "127.0.0.1" not in endpoint():
+        print("No API key found. Set PROFESSOR_API_KEY (or OPENAI_API_KEY).", file=sys.stderr)
+        offline(messages)
+        return 1
+    answer = call_model(messages, stream=not args.no_stream)
+    if args.no_stream:
+        print(answer)
+    path = save_review(args.project, answer)
+    print("review written: %s" % path)
+    return 0
+
+
+def cmd_progress(args):
+    """Ask the professor for a progress analysis and what to work on next."""
+    import grade_records as gr
+
+    summary = gr.summarize()
+    parts = ["Learner record:\n" + summary_text_for_model(summary)]
+    if args.section:
+        parts.append(section_context(args.section))
+    question = (
+        "Write a progress review for this learner. Cover:\n"
+        "1. Where they are - modules signed off, course mark, projects graded.\n"
+        "2. The pattern in their work - what is consistently strong, what is consistently weak.\n"
+        "3. The three things to work on next, in order, each tied to a specific module or project.\n"
+        "4. What to do in the next study session (about an hour of concrete work).\n"
+        "Base every claim on the record shown. If the record is empty, say what to do first."
+    )
+    messages = build_messages(question, "\n\n".join(parts))
+    if args.offline:
+        offline(messages)
+        return 0
+    if not api_key() and "localhost" not in endpoint() and "127.0.0.1" not in endpoint():
+        print("No API key found. Set PROFESSOR_API_KEY (or OPENAI_API_KEY).", file=sys.stderr)
+        offline(messages)
+        return 1
+    answer = call_model(messages, stream=not args.no_stream)
+    if args.no_stream:
+        print(answer)
+    path = save_review("progress", answer)
+    print("progress review written: %s" % path)
+    return 0
+
+
+def summary_text_for_model(summary):
+    lines = [
+        "course mark: %.1f / 100 (%s)" % (summary["course_mark"] * 100, summary["band"]),
+        "modules signed off: %d / %d" % (len(summary["signed_off"]), len(summary["rows"])),
+    ]
+    for row in summary["rows"]:
+        test = row["test"]
+        best = row["best"]
+        if best is not None:
+            lines.append("  %s %s: %d / %d" % (test["id"], test["title"], best, test["points_possible"]))
+    if summary["projects"]:
+        lines.append("projects graded:")
+        for project_id, entry in sorted(summary["projects"].items()):
+            lines.append("  %s %s: %s%% (%s)" % (project_id, entry["title"], entry["percent"], entry["level"]))
+    if summary["portfolio_mark"] is not None:
+        lines.append("portfolio average: %s%%" % summary["portfolio_mark"])
+    if summary["weakest_criteria"]:
+        lines.append("weakest rubric criteria: " + ", ".join(
+            "%s (%.1f/4)" % (item["criterion"].replace("_", " "), item["average"])
+            for item in summary["weakest_criteria"]))
+    if summary["journal"]:
+        lines.append("journal (most recent last):")
+        for entry in summary["journal"][-10:]:
+            lines.append("  %s %s" % (entry.get("date", "-"), entry.get("text", "")))
+    return "\n".join(lines)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--offline", action="store_true", help="print the payload instead of calling the model")
@@ -426,6 +602,13 @@ def main(argv=None):
     p_attest.add_argument("--prose", type=int, default=None, help="points for the hand-marked questions")
     p_attest.add_argument("--notes", default="")
 
+    p_review = sub.add_parser("review", help="review a project against its rubric and write a report")
+    p_review.add_argument("--project", required=True, help="project id (P05, P-PRACTICE)")
+    p_review.add_argument("--path", default=None, help="path to the project repository")
+
+    p_progress = sub.add_parser("progress", help="write a progress review: what to work on next")
+    p_progress.add_argument("--section", default=None, help="course section to focus on")
+
     args = parser.parse_args(argv)
 
     if args.command == "ask":
@@ -438,6 +621,10 @@ def main(argv=None):
         return cmd_explain(args)
     if args.command == "attest":
         return cmd_attest(args)
+    if args.command == "review":
+        return cmd_review(args)
+    if args.command == "progress":
+        return cmd_progress(args)
     return 1
 
 

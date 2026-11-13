@@ -1,15 +1,18 @@
 {
-  "created": "2026-11-13T14:51:35+00:00",
+  "created": "2026-11-13T15:13:25+00:00",
   "files": {
     ".gitignore": "8b05df261858040f76ca1fd3ea21cd11ceb221a9fea55d573f9949eae6f663e4",
-    "00 - Testing Syllabus.ipynb": "ae93cb397b70966ed712ad2884438ce1d016c81570b0b629ce8222d2fe1a8d56",
-    "01 - How to Use the Test Suite.ipynb": "9aca043fad719f342884d7891d0b4a9f76a8ce847391916c9692189e069967d3",
-    "02 - Grading Records.ipynb": "63d5858a9494ed8bd926201f78859c049dbd90ea9d4486af0328366a06d4e756",
-    "03 - Project Portfolio.ipynb": "9a9a9ea894d3dbb4302f4a6f72969bb8e86432269dce5c128381fb18ccca9d28",
-    "04 - AI Tutor.ipynb": "926b7915d48dc1743bfea7712c3abbac0b809cd17b9133b91f420b3bb7bb4740",
+    "00 - Testing Syllabus.ipynb": "11cc33f51fce8403aaa4cf1747b24417be46da2b0d43965537f66e753fc1bc61",
+    "01 - How to Use the Test Suite.ipynb": "02250b009eabab61f0ef5d5af9ec204e37248954736c864975353d27c670b917",
+    "02 - Grading Records.ipynb": "4c0fb5e2c8fb32d7c4a2c4bb179fcd465eaa4992933834a86546b736b151ce31",
+    "03 - Project Portfolio.ipynb": "91f4a181d3b8170727cac330c0f94748dde0ad68dcec1a72026f46e684e7d5c1",
+    "04 - AI Tutor.ipynb": "0b1aebe9594d033598306b608aa136817541fbba0b9689269028ede6bf74e97b",
+    "05 - Using the Learning System.ipynb": "b128522ee2e5a85761354c24e1cd9cdba8b20a6fe025ad6656c7df7d6bb3cbfe",
     "99 - Final Comprehensive Exam.ipynb": "518ffcc99b79e667b0ddd3715e3a26d0b782948cc1729ceb5a9b3d43a1effb98",
-    "INTEGRITY.md": "96dd4025c8ee246bb15b35dbf30bf793b31b0f9f2a1ae2faeefac28d94821de3",
-    "README.md": "cf062bbf8656ee6dcc997c2926cd85b5582cde792eef0c3949c2415e2f80accb",
+    "INTEGRITY.md": "4f15a77bac6fdcab915ea6aa55597cd4e449f1d05bf46ed242be1f666c487b6d",
+    "PRACTICE - Practice Project - Book Tracker.ipynb": "d96ec1ea95ca0bc95d94a0de8ca1c278a59b9d481c474f931778a00cfcb52b29",
+    "PRACTICE - Practice Test.ipynb": "6b244592af236f23402eb490ad72237b4aa7d266b69c8b7c540dfd4d146a9931",
+    "README.md": "a1e87a672a3e816845689c20ddb3089d3fb3135a5e1159175d4b721d252e8220",
     "T00 - Objects and Data Structures Test.ipynb": "d5de4d14094ac1293bfe0f1a37c674b308237b257c641b3092b72021e4c580ab",
     "T01 - Comparison Operators Test.ipynb": "52945710da795823338dfd3fa1a14398ae6856b530a86dda35d5c0e70a304ddd",
     "T02 - Python Statements Test.ipynb": "0d5fa5c2d3dca2d667398cda27b15aed534558de5c72a2af23fa634ecedab6de",
@@ -31,11 +34,12 @@
     "T18 - Milestone Project 3 Test.ipynb": "a15caf09e81d0c25a15f488daf58435474113d1c8bca965ab367f5808827629e",
     "T19 - GUI Bonus Material Test.ipynb": "68ec1a47be46e3974b47601e065592ecad3c2db5ccd022694e546ce3c639874a",
     "agent.pub": "72b1ab44ff794c80c8855a0b7f9e9e97b497316beab1ce785ab354877f8559dd",
-    "grade.py": "22ba3e492fe44eb5a6ef8d25c8814e21913f0a261dbc0681a8db49745497b8b6",
-    "grade_records.py": "665c9235145e174469a91ac1b380670036ce9484744bed6c5bc3abe6af336935",
+    "grade.py": "cc148362a870f04a9986ad8a077840e15629e17972b2e9954d11cabb8e188ca1",
+    "grade_records.py": "5309dff808dbdbd628e51adb9d6b4f021268b382739e8f31ef7d76e313bf048e",
     "integrity.py": "ae757a657cb66ef2228f24ec9ce26251b0831ea4bc87ef062f9bc29eec951556",
     "nbkit.py": "971dabdf93674a1da26e79cb5dfb1ca6e5e1911c3b8b7e0079d634af41af3662",
-    "professor.py": "0eaf17778b24b3c5ac7db36b13814af9ef78da8c8d6e6f7c6c7e321ea5d02375",
-    "requirements.txt": "2336a6c480cdef1399f1e13bb5a102a3d8a2f5d43fd51a9ec06d66f214eecf13"
+    "professor.py": "22cb4e741504ae4f934c98d8141359f9643d9be16ab98fe3961e8f31e611f393",
+    "requirements.txt": "2336a6c480cdef1399f1e13bb5a102a3d8a2f5d43fd51a9ec06d66f214eecf13",
+    "rubrics.json": "60a0c44cc4bacb21805cb40ffb4bcb87a23e44f6f2810e28ddea0b106f7aba90"
   }
 }
